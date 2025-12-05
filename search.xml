@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>LSPosed 版本选择指南</title>
+      <link href="/2025/12/05/%E8%BF%99%E6%98%AF%E4%B8%80%E7%AF%87%E6%96%B0%E7%9A%84%E5%8D%9A%E6%96%87/"/>
+      <url>/2025/12/05/%E8%BF%99%E6%98%AF%E4%B8%80%E7%AF%87%E6%96%B0%E7%9A%84%E5%8D%9A%E6%96%87/</url>
+      
+        <content type="html"><![CDATA[<h1 id="LSPosed-版本选择指南"><a href="#LSPosed-版本选择指南" class="headerlink" title="LSPosed 版本选择指南"></a>LSPosed 版本选择指南</h1><p>LSPosed 框架有多个分支版本，包括 LSPosed-Irena、LSPosed-JingMatrix 和 LSPosed-IT。本文将分析这些版本的优缺点，并提供选择建议，以帮助用户做出明智决策。</p><h2 id="推荐版本：LSPosed-Irena"><a href="#推荐版本：LSPosed-Irena" class="headerlink" title="推荐版本：LSPosed-Irena"></a>推荐版本：LSPosed-Irena</h2><p>我个人强烈推荐使用 LSPosed-Irena 版本。该版本以稳定性著称，几乎不存在重大问题，是社区中广受欢迎的选择。</p><p><strong>下载链接</strong>：<br><a href="https://github.com/re-zero001/LSPosed-Irena">LSPosed-Irena GitHub 仓库</a><br>（请登录您的 GitHub 账号后，在仓库的“Actions”栏中下载。）</p><h3 id="为什么不优先选择-LSPosed-IT？"><a href="#为什么不优先选择-LSPosed-IT？" class="headerlink" title="为什么不优先选择 LSPosed-IT？"></a>为什么不优先选择 LSPosed-IT？</h3><p>有人可能会质疑，为什么不选择官方内测版本 LSPosed-IT？毕竟，它代表了最新功能。<br>然而，作为内测版本，其稳定性往往不如正式发布版本。历史经验显示，某些 IT 版本存在功能不稳定的情况。如果您追求前沿功能，且拥有官方内测账号，则可以考虑使用它。但需注意，LSPosed-IT 是官方内测版本，仅限拥有内测账号的人员下载。未经授权泄露该版本将导致账号永久封禁。因此，本文不提供其下载链接。网络上流传的 IT 版本通常源于违规泄露，且泄露者可能面临账号封禁风险。</p><h3 id="LSPosed-JingMatrix-的分析"><a href="#LSPosed-JingMatrix-的分析" class="headerlink" title="LSPosed-JingMatrix 的分析"></a>LSPosed-JingMatrix 的分析</h3><p>LSPosed-JingMatrix 版本曾在近期引发社区广泛批评，存在诸多问题，导致用户和开发者不满。例如，西米露模块的作者曾因该版本导致的故障而深受困扰。用户反馈模块问题时，开发者需耗费大量时间排查日志，最终发现问题源于 LSPosed-JingMatrix 而非模块本身。该作者随后发布通知：  </p><blockquote><p>如果要反馈，请不要使用 JingMatrix 版本的 LSPosed 来反馈。<br>会造成很多非模块问题影响开发者判断，谢谢配合。<br>推荐使用内测版-IT 和 @lsposed_irena。</p></blockquote><p>尽管存在这些槽点，JingMatrix 开发者听取了社区反馈，积极进行修复，并参考 LSPosed-Irena 版本优化代码。目前的最新版本暂未发现明显问题。<br><strong>提示</strong>：如果开发者继续忽略反馈，该分支的必要性将值得质疑。但请避免对开发者进行人身攻击；可以批评代码质量，但不应涉及个人品格。该开发者较为谦虚，只是技术方面仍有提升空间。<br>鉴于历史问题，我个人不推荐使用该版本，以免潜在风险。如果您仍想尝试，请自行评估。</p><p><strong>下载链接</strong>：<br><a href="https://github.com/JingMatrix/LSPosed">LSPosed-JingMatrix GitHub 仓库</a><br>（可直接从 Releases 处下载。）</p><h3 id="LSPosed-Irena-的优势"><a href="#LSPosed-Irena-的优势" class="headerlink" title="LSPosed-Irena 的优势"></a>LSPosed-Irena 的优势</h3><p>LSPosed-Irena 被视为最佳版本（除 IT 版外，但后者存在稳定性隐患）。社区多数用户推荐它，主要优点包括：  </p><ul><li><strong>极高稳定性</strong>：几乎无任何问题发生。  </li><li><strong>可靠的更新策略</strong>：虽更新频率较低（通常间隔数月），但每版均经过充分测试，确保质量。</li></ul><p>缺点在于更新速度较慢，无法第一时间获得新功能。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul><li>如果您追求最新功能、愿意承担潜在不稳定风险，并拥有官方内测账号，则可选择 LSPosed-IT。  </li><li>如果优先考虑稳定性，则推荐 LSPosed-Irena。该版本平衡了可靠性和实用性，是大多数用户的理想选择。</li></ul>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+  
+  
+</search>
