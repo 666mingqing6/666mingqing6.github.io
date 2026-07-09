@@ -1,0 +1,15 @@
+<div class="sidebar-poem-container">
+  <div class="poem-title">—— 诗词拾遗 ——</div>
+  <div id="jinrishici-sentence">正在加载诗词...</div>
+  <div id="jinrishici-info"></div>
+</div>
+
+<script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+<script type="text/javascript">
+  jinrishici.load(function(result) {
+    var sentence = document.querySelector("#jinrishici-sentence")
+    var info = document.querySelector("#jinrishici-info")
+    sentence.innerHTML = result.data.content;
+    info.innerHTML = "「" + result.data.origin.author + " · " + result.data.origin.title + "」";
+  });
+</script>

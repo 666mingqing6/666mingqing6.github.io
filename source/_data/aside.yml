@@ -1,0 +1,11 @@
+# 自定义侧边栏小部件列表
+# 格式: - name: <唯一标识> / title: <显示标题> / icon: <fontawesome> / class: <外层类名> / content_html: <HTML 内容>
+# 示例:
+# - name: mycard
+#   title: 欢迎
+#   icon: fas fa-heart
+#   class: welcome-card
+#   content_html: '<p>这是一段欢迎文字</p>'
+
+# 当前为空（暂不添加自定义部件）
+[]

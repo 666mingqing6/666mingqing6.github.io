@@ -1,0 +1,80 @@
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const checkHeight = (item, content, btn) => {
+    // 如果内容高度超过 300px，显示展开按钮
+    if (content.scrollHeight > 305) { // 稍微留一点余量
+      item.classList.add('is-long');
+      btn.style.display = 'block';
+      
+      btn.onclick = (e) => {
+        e.preventDefault();
+        if (item.classList.contains('expanded')) {
+          item.classList.remove('expanded');
+          btn.innerHTML = '展开阅读全文 <i class="fa fa-angle-down"></i>';
+          // 只有在点击收起时才滚动，避免误触
+          const rect = item.getBoundingClientRect();
+          if (rect.top < 0) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else {
+          item.classList.add('expanded');
+          btn.innerHTML = '收起全文 <i class="fa fa-angle-up"></i>';
+        }
+      };
+    } else {
+      item.classList.remove('is-long');
+      btn.style.display = 'none';
+    }
+  };
+
+  const initShuoshuo = () => {
+    // 如果是 life 页面，隐藏侧边栏的 TOC 标签
+    if (document.querySelector('.shuoshuo-item')) {
+      const tocTab = document.querySelector('.sidebar-nav-toc');
+      const tocContent = document.querySelector('.post-toc-wrap');
+      const overviewTab = document.querySelector('.sidebar-nav-overview');
+      const overviewContent = document.querySelector('.site-overview-wrap');
+      
+      if (tocTab) tocTab.style.display = 'none';
+      if (tocContent) tocContent.style.display = 'none';
+      if (overviewTab) {
+        overviewTab.click(); // 强制切换到概览
+        overviewTab.style.width = '100%';
+        overviewTab.style.borderRight = 'none';
+      }
+    }
+
+    const items = document.querySelectorAll('.shuoshuo-item');
+    items.forEach(item => {
+      const content = item.querySelector('.shuoshuo-content');
+      const btn = item.querySelector('.shuoshuo-expand-btn');
+      if (!content || !btn) return;
+
+      // 1. 立即检查一次（针对纯文本）
+      checkHeight(item, content, btn);
+
+      // 2. 监听图片加载完成（针对大图）
+      const imgs = content.querySelectorAll('img');
+      imgs.forEach(img => {
+        if (img.complete) {
+          checkHeight(item, content, btn);
+        } else {
+          img.addEventListener('load', () => checkHeight(item, content, btn));
+        }
+      });
+      
+      // 3. 使用 ResizeObserver 监听高度变化（最稳妥的方式）
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => checkHeight(item, content, btn));
+        ro.observe(content);
+      }
+    });
+  };
+
+  // 初始加载
+  initShuoshuo();
+
+  // 适配 Pjax (如果开启了 Pjax)
+  document.addEventListener('pjax:success', initShuoshuo);
+});
+</script>

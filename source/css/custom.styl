@@ -1,0 +1,710 @@
+/* Iconfont 标准化 + 间距优化 + 视觉对齐 */
+.iconfont {
+  /* 1. 强制标准化容器，解决图标大小不一 */
+  width: 1.2em;
+  height: 1.2em;
+  
+  /* 2. 开启 Flex 布局让图标在容器内绝对居中 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* 3. 恢复你喜欢的间距与对齐设置 */
+  margin-right: 2px;       /* 图标与文字之间的固定间距 */
+  vertical-align: -0.15em; /* 经过微调的对齐高度，比 middle 更精准 */
+  
+  /* 4. 样式微调 */
+  font-size: 1.1em;
+  line-height: 1;
+  transition: all 0.3s ease;
+  
+  /* 5. 字体抗锯齿 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 悬停效果 */
+.iconfont:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+::selection {
+  background: #333; /* 选中文字背景变深灰 */
+  color: #fff;      /* 选中文字变白 */
+}
+
+/* ---------------------------------
+   菜单 & 社交链接悬停色彩美化
+   --------------------------------- */
+
+/* 通用过渡效果 */
+.menu-item a,
+.menu-item a i,
+.links-of-author-item a,
+.links-of-author-item a i,
+.links-of-author-item a span {
+  transition: all 0.3s ease-in-out;
+}
+
+/* 悬停微动效 */
+.menu-item a:hover,
+.links-of-author-item a:hover {
+  transform: translateY(-2px);
+}
+
+/* --- 品牌类图标 (Brands) --- */
+
+/* YouTube */
+.fa-youtube:hover { color: #ff0000 !important; }
+
+/* Telegram */
+.fa-telegram:hover { color: #0088cc !important; }
+
+/* QQ */
+.fa-qq:hover { color: #12b7f5 !important; }
+
+/* Bilibili */
+.fa-bilibili:hover { color: #fb7299 !important; }
+
+/* WeChat (适配多种类名) */
+.icon-weixin:hover,
+.icon-weixin1:hover,
+.fa-weixin:hover { color: #07c160 !important; }
+
+/* Twitter / X */
+.fa-twitter:hover,
+.fa-x-twitter:hover { color: #1da1f2 !important; }
+
+/* Weibo */
+.fa-weibo:hover { color: #e6162d !important; }
+
+/* Facebook */
+.fa-facebook:hover,
+.fa-facebook-f:hover { color: #1877f2 !important; }
+
+/* Instagram */
+.fa-instagram:hover { color: #e4405f !important; }
+
+/* TikTok */
+.fa-tiktok:hover { color: #ff0050 !important; }
+
+/* Zhihu */
+.fa-zhihu:hover { color: #0084ff !important; }
+
+/* Steam */
+.fa-steam:hover { color: #171a21 !important; }
+
+/* Discord */
+.fa-discord:hover { color: #5865F2 !important; }
+
+/* Instagram */
+.fa-instagram:hover { color: #e4405f !important; }
+
+/* Skype */
+.fa-skype:hover { color: #00aff0 !important; }
+
+/* --- 功能类图标 (Functional) --- */
+
+/* Home / Schedule / Calendar */
+.fa-home:hover,
+.fa-calendar:hover,
+.fa-calendar-check:hover { color: #448aff !important; }
+
+/* About / User */
+.fa-user:hover,
+.fa-address-card:hover { color: #7e57c2 !important; }
+
+/* Tags */
+.fa-tags:hover,
+.fa-tag:hover { color: #f06292 !important; }
+
+/* Categories / Th */
+.fa-th:hover,
+.fa-folder-open:hover { color: #66bb6a !important; }
+
+/* Archives */
+.fa-archive:hover,
+.fa-history:hover { color: #ffa726 !important; }
+
+/* Life / Blog / Pen */
+.fa-pen-fancy:hover,
+.fa-pencil-alt:hover,
+.fa-edit:hover { color: #ff7043 !important; }
+
+/* RSS */
+.fa-rss:hover { color: #f26522 !important; }
+
+/* Music / Spotify */
+.fa-music:hover,
+.fa-spotify:hover { color: #1db954 !important; }
+
+/* Donate / Dollar */
+.fa-circle-dollar-to-slot:hover,
+.fa-donate:hover,
+.fa-heart:hover { color: #fbc02d !important; }
+
+/* Air Conditioner / Fan / Wind */
+.fa-fan:hover,
+.fa-wind:hover { color: #26c6da !important; }
+
+/* Guestbook / Envelope / Mail */
+.fa-envelope:hover,
+.fa-paper-plane:hover { color: #ef5350 !important; }
+
+/* Sitemap */
+.fa-sitemap:hover { color: #8d6e63 !important; }
+
+/* Commonweal / Heartbeat */
+.fa-heartbeat:hover { color: #ff5252 !important; }
+
+/* Search */
+.fa-search:hover { color: #42a5f5 !important; }
+
+/* =========================================
+   移动端与排版体验优化
+   ========================================= */
+
+/* 1. 响应式图片阴影与圆角 */
+.post-body img {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.post-body img:hover {
+  transform: scale(1.01);
+}
+
+/* 2. 移动端表格滚动优化 */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* 3. 平滑滚动效果 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 4. 生活页 (朋友圈) 移动端适配 */
+@media (max-width: 767px) {
+  .shuoshuo-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+  }
+  
+  .shuoshuo-title {
+    font-size: 1.1em;
+  }
+  
+  .shuoshuo-meta {
+    gap: 10px;
+    font-size: 0.8em;
+  }
+}
+
+/* 5. 侧边栏社交链接对齐微调 */
+.links-of-author-item {
+  margin: 5px 0;
+}
+.custom-link-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 15px 0;
+  border: 1px solid rgba(128, 128, 128, 0.2); /* 极简边框 */
+  background: rgba(128, 128, 128, 0.03);      /* 超淡背景色，适配深浅模式 */
+  border-radius: 8px;
+  text-decoration: none !important;
+  border-bottom: none !important;             /* 杀掉 NexT 默认的超链接下划线 */
+  transition: all 0.3s ease;
+}
+
+.custom-link-card:hover {
+  background: rgba(128, 128, 128, 0.08);
+  border-color: rgba(128, 128, 128, 0.5);
+  transform: translateY(-2px);                /* 悬停微浮雕感 */
+}
+
+.custom-link-card img {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;              /* 图标裁切成正圆 */
+  margin: 0 15px 0 0 !important;              /* 覆盖主题默认的图片边距 */
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.custom-link-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.custom-link-title {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: var(--text-color);                   /* 动态调用 NexT 字体颜色 */
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.custom-link-desc {
+  font-size: 0.85em;
+  color: #888;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;                      /* 描述过长自动单行省略号 */
+  -webkit-box-orient: vertical;
+}
+
+/* =========================================================
+   绝对稳健的 THE END 分割线
+   ========================================================= */
+.end-separator {
+  display: block;
+  position: relative;
+  text-align: center;
+  margin: 13px 0 40px;      /* 控制整体与正文、赞助模块的间距 */
+  height: 1px;               /* 容器本身高度为1，形成一条线 */
+  border-top: 1px dashed var(--grey-4, #ccc); /* 这里的 dashed 就是虚线 */
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+}
+
+.end-separator span {
+  position: absolute;
+  top: 50%;                  /* 垂直居中 */
+  left: 50%;                 /* 水平居中 */
+  transform: translate(-50%, -50%); /* 抵消文字自身宽度，实现完美居中 */
+  background: var(--body-bg-color); /* 用背景色遮住重合的虚线部分 */
+  padding: 0 15px;           /* 左右留白，别让线紧挨着文字 */
+  color: var(--grey-5);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9em;
+  white-space: nowrap;       /* 强制文字不换行 */
+}
+
+/* =========================================================
+   侧边栏组件吸紧 (版权协议与诗词)
+   ========================================================= */
+/* 1. 针对版权协议图标：消除下边距 */
+.cc-license {
+  margin-top: 10px;
+  margin-bottom: 0 !important; /* 强制消除底部间距 */
+  line-height: 1;
+}
+
+/* 2. 针对诗词容器：消除上边距并微调位置 */
+.sidebar-poem-container {
+  margin-top: 5px !important; /* 紧贴上方图标 */
+  padding: 5px 15px;
+  text-align: center;
+  border-top: 1px dashed var(--grey-3); /* 如果觉得线多余可以删掉这行 */
+}
+
+#jinrishici-sentence {
+  font-size: 0.9em;
+  color: var(--text-color);
+  margin-top: 5px;
+}
+
+/* =========================================================
+   赞助按钮 - 高对比度 & 适配暗色模式
+   ========================================================= */
+.donate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 25px;
+  border-radius: 5px;
+  font-size: 0.9em;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  
+  /* 明亮模式：深色边框 */
+  border: 1.5px solid #222;
+  color: #222 !important;
+  background: none;
+}
+
+/* 🌙 暗色模式：强制高亮对比度 */
+@media (prefers-color-scheme: dark) {
+  .donate-btn {
+    border-color: #ffffff !important; /* 纯白边框 */
+    color: #ffffff !important;        /* 纯白文字 */
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2); /* 淡淡的微光，防止融入背景 */
+  }
+  
+  /* 调整描述文字对比度 */
+  .sponsor-desc {
+    color: #efefef !important;
+  }
+}
+
+.donate-btn:hover {
+  background: var(--text-color) !important;
+  color: var(--body-bg-color) !important;
+}
+
+/* =========================================================
+   APlayer 黑暗模式适配
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+  /* 主容器 */
+  .aplayer {
+    background: #282828 !important;      /* 深色背景 */
+    color: #ddd !important;              /* 浅色文字 */
+    border-color: #444 !important;
+  }
+
+  /* 播放器信息区域 */
+  .aplayer-info {
+    background: transparent !important;
+  }
+
+  .aplayer-music {
+    color: #ddd !important;
+  }
+
+  .aplayer-music .aplayer-title,
+  .aplayer-music .aplayer-author {
+    color: #ddd !important;
+  }
+
+  .aplayer-author {
+    color: #999 !important;              /* 作者名变浅灰 */
+  }
+
+  /* 进度条相关 */
+  .aplayer-bar {
+    background-color: #444 !important;   /* 进度条背景深灰 */
+  }
+
+  .aplayer-bar-fill {
+    background-color: #e6d0b2 !important; /* 保持原主题色 */
+  }
+
+  .aplayer-bar-played .aplayer-volume-bar-inner {
+    background-color: #999 !important;   /* 已加载部分变浅灰 */
+  }
+
+  /* 音量条 */
+  .aplayer-volume-bar {
+    background-color: #444 !important;
+  }
+
+  .aplayer-volume-bar-inner {
+    background-color: #999 !important;
+  }
+
+  /* 控制按钮 */
+  .aplayer-button {
+    color: #ddd !important;
+  }
+
+  .aplayer-button:hover {
+    color: #fff !important;
+  }
+
+  /* 歌词区域 */
+  .aplayer-lrc {
+    background: transparent !important;
+  }
+
+  .aplayer-lrc::before,
+  .aplayer-lrc::after {
+    display: none !important;              /* 隐藏上下过渡条 */
+  }
+
+  .aplayer-lrc-content {
+    color: #888 !important;              /* 未激活歌词淡灰 */
+  }
+
+  .aplayer-lrc-current {
+    color: #ddd !important;              /* 当前播放歌词高亮 */
+  }
+
+  /* 播放列表 */
+  .aplayer-list {
+    background-color: #1a1a1a !important; /* 列表背景更深 */
+    color: #ddd !important;
+  }
+
+  .aplayer-list ol li {
+    color: #ddd !important;
+    border-color: #333 !important;
+  }
+
+  .aplayer-list ol li:hover {
+    background-color: #333 !important;   /* 悬停变深灰 */
+  }
+
+  .aplayer-list ol li.aplayer-list-light {
+    background-color: #222 !important;   /* 选中项背景 */
+  }
+
+  /* 楂橀樁椤电爜 */
+  .aplayer-list-page {
+    color: #999 !important;
+  }
+}
+
+/* =========================================================
+   404 页面样式
+   ========================================================= */
+
+.page-404 {
+  text-align: center;
+  padding: 60px 20px 30px;
+}
+
+.num-404 {
+  font-size: 8em;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--link-color);
+  opacity: 0.25;
+  letter-spacing: -8px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.dark-mode .num-404 {
+  opacity: 0.35;
+}
+
+.msg-404 {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  color: var(--text-color);
+}
+
+.msg-404 i {
+  margin-right: 8px;
+}
+
+.hint-404 {
+  font-size: 0.9em;
+  color: var(--grey-5, #999);
+  margin: 0;
+}
+
+.nav-404 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.nav-btn-404 {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  background: var(--grey-2, #f5f5f5);
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  border: 1px solid var(--grey-3, #ddd);
+}
+
+.nav-btn-404:hover {
+  transform: translateY(-2px);
+  background: var(--link-color);
+  color: #fff !important;
+  border-color: var(--link-color);
+}
+
+.dark-mode .nav-btn-404 {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.dark-mode .nav-btn-404:hover {
+  background: var(--link-color);
+  border-color: var(--link-color);
+}
+
+.nav-404-footer {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.85em;
+  opacity: 0.5;
+}
+
+/* =========================================================
+   增强代码块样式 (Code Block Enhancements)
+   ========================================================= */
+
+/* 代码块圆角 + 阴影 */
+.highlight, codeblock {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 代码块头部（如果有语言标签） */
+.highlight .code-header {
+  border-radius: 8px 8px 0 0 !important;
+}
+
+/* 代码块行号美化 */
+.highlight .gutter {
+  border-radius: 8px 0 0 8px !important;
+  background: rgba(128, 128, 128, 0.05);
+  border-right: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+.highlight .gutter pre .line {
+  color: rgba(128, 128, 128, 0.5);
+  padding-right: 10px;
+  text-align: right;
+}
+
+/* 行内代码 */
+code:not(.highlight code) {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(128, 128, 128, 0.08);
+  color: #e53935;
+  font-size: 0.9em;
+}
+
+.dark-mode code:not(.highlight code) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ff8a80;
+}
+
+/* 引用块样式增强 */
+blockquote {
+  border-left: 4px solid var(--link-color, #448aff);
+  border-radius: 0 6px 6px 0;
+  background: rgba(68, 138, 255, 0.03);
+  padding: 10px 20px;
+}
+
+.dark-mode blockquote {
+  background: rgba(68, 138, 255, 0.06);
+}
+
+/* =========================================
+   Shuoshuo (朋友圈/碎碎念) 样式
+   ========================================= */
+.shuoshuo-item {
+  background: var(--content-bg-color);
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(128, 128, 128, 0.1);
+  position: relative;
+}
+
+.dark-mode .shuoshuo-item {
+  background: #2a2a2a;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.shuoshuo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.shuoshuo-meta {
+  margin-bottom: 12px;
+  font-size: 0.85em;
+  color: #999;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.shuoshuo-date i, .shuoshuo-weather i {
+  margin-right: 5px;
+}
+
+.shuoshuo-mood {
+  background: rgba(128, 128, 128, 0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 1.1em;
+}
+
+.shuoshuo-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: var(--text-color);
+  border-left: 4px solid var(--link-color);
+  padding-left: 10px;
+}
+
+.shuoshuo-body {
+  position: relative;
+}
+
+.shuoshuo-content {
+  font-size: 1.05em;
+  line-height: 1.6;
+  overflow: hidden;
+  max-height: 300px; /* 默认最大高度 */
+  transition: max-height 0.3s ease-out;
+  position: relative;
+}
+
+/* 展开后的状态 */
+.shuoshuo-item.expanded .shuoshuo-content {
+  max-height: none;
+}
+
+/* 长文遮罩 */
+.shuoshuo-item.is-long:not(.expanded) .shuoshuo-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(transparent, var(--content-bg-color));
+  pointer-events: none;
+}
+
+.shuoshuo-expand-btn {
+  display: none; /* 默认隐藏，由 JS 根据高度判断是否显示 */
+  text-align: center;
+  padding: 10px 0;
+  color: var(--link-color);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9em;
+  border-top: 1px dashed rgba(128, 128, 128, 0.1);
+  margin-top: 10px;
+}
+
+.shuoshuo-expand-btn:hover {
+  color: var(--link-hover-color);
+}
+
+/* 适配图片 */
+.shuoshuo-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 10px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,30 @@
+//- ===========================================
+//- 侧边栏组件切换器
+//- ===========================================
+
+include ../../mixins/common.pug
+
+//- 主切换逻辑
+case item
+  when 'about'
+    include ./asideInfoCard.pug
+  when 'newestPost'
+    include ./asideNewestPost.pug
+  when 'allInfo'
+    include ./asideAllInfo.pug
+  when 'ads'
+    include ./asideAdsense.pug
+  when 'newest_comment'
+    include ./asideNewstComments.pug
+  default
+    //- 处理自定义组件
+    - const asideList = (site.data && site.data.aside) || []
+    - const custom = (asideList.find ? asideList.find((i) => i.name === item) : null)
+    if custom
+      .card-widget(class=custom.class, id=custom.id)
+        if !custom.no_head
+          .item-headline
+            i(class=custom.icon)
+            span=custom.title
+        div(class=custom.content_class ||'item-content', id=custom.content_id, style=custom.content_css)
+          != custom.content_html

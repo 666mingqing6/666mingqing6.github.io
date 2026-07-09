@@ -1,0 +1,423 @@
+# =======================================================================
+# Solitude 主题配置 - 完整迁移自原 NexT 主题的自定义
+# 文件位置: 站点根目录/_config.solitude.yml
+# 合并方式: Hexo 自动将本文件合并到 themes/solitude/_config.yml 之上
+# =======================================================================
+
+### Site information
+site:
+  name:
+    class: text
+    custom: Lumoes Blog # 站点名称（原 Next: title: "Lumoes Blog"）
+  icon: /favicon.ico # 使用原 Next 的 favicon.ico
+
+### 导航栏
+nav:
+  # 左侧盒子（项目）
+  group:
+    project: # 原 Next 的「作品集」项目
+      作品集: /projects/ || fas fa-flask
+      留言板: /guestbook/ || fas fa-envelope
+      赞助支持: /donate/ || fas fa-circle-dollar-to-slot
+      我的空调: /air-conditioner/ || fas fa-fan
+      日程表: /schedule/ || fas fa-calendar
+
+  # 菜单（原 Next 的 menu 配置）
+  menu:
+    首页: / || fas fa-home
+    关于: /about/ || fas fa-user
+    归档: /archives/ || fas fa-archive
+    分类: /categories/ || fas fa-th
+    标签: /tags/ || fas fa-tags
+    生活: /life/ || fas fa-pen-fancy
+    RSS: /atom.xml || fas fa-rss
+    音乐馆: https://music.646474.xyz/ || fas fa-music
+    站点地图: /sitemap.xml || fas fa-sitemap
+    公益404: /404.html || fas fa-exclamation-triangle
+
+  # 右侧按钮
+  right:
+    random: true # 随机文章按钮
+
+### 首页顶部
+hometop:
+  enable: true
+  banner:
+    title: Lumoes Blog<br >不忘初心 方得始终
+    desc:
+      - 记录技术感悟与生活点滴
+      - 一个爱折腾的 INTP · 玩机极客
+      - 欢迎来到我的赛博空间
+  recommendList:
+    enable: true
+    sup: 推荐
+    title: Lumoes Blog · 主站
+    url: https://blog.646474.xyz
+    img: /images/avatar.png
+    color: "linear-gradient(to right,#425AEF,#37c6c0)"
+
+### 侧边栏
+aside:
+  # 侧边栏位置(0: 左 1: 右) - 原 Next: sidebar.position: left
+  position: 0
+
+  home:
+    noSticky: "about"
+    Sticky: "allInfo,newestPost"
+  post:
+    noSticky: "about"
+    Sticky: "newestPost,toc"
+  page:
+    noSticky: "about"
+    Sticky: "newestPost,allInfo"
+
+  # 信息卡（原 Next: avatar + sidebar 设置）
+  my_card:
+    author:
+      img: /images/avatar.png # 原 Next: avatar.url
+      sticker:
+    description: 记录技术感悟与生活点滴
+    content: 这是我的博客
+    state:
+      morning: ✨ 早上好，新的一天开始了
+      noon: 🍲 午餐时间
+      afternoon: 🌞 下午好
+      night: 早点休息
+      goodnight: 晚安 😴
+    witty_words:
+      - 你可以的
+      - 你一定可以的
+      - 祝你好运，陌生人
+      - 不断前行，永不言弃
+    # 社交信息（原 Next: social 配置）
+    information:
+      GitHub: https://github.com/666mingqing6/ || fab fa-github
+      E-Mail: mailto:3477563329@qq.com || fas fa-envelope
+      YouTube: https://www.youtube.com/@%E6%98%8E%E8%BD%BB || fab fa-youtube
+      Telegram: https://t.me/mqandyx || fab fa-telegram
+      QQ: https://qm.qq.com/q/PDkhK8I7ey || fab fa-qq
+      Bilibili: https://space.bilibili.com/3546696487275210 || fab fa-bilibili
+      WeChat: https://tu.646474.xyz/mmqrcode1771779798705.png || iconfont icon-weixin1
+
+  # 文章目录（原 Next: toc）
+  toc:
+    post: true
+    page: false
+    vague: true # 原 Next: expand_all: false → vague 模式只展开当前阅读层级
+
+  # 标签
+  tags:
+    enable: true
+    limit: 30
+    highlight_list:
+      - Android
+      - 玩机
+      - Hexo
+
+  # 站点信息（原 Next: site_state: true）
+  siteinfo:
+    postcount: true   # 文章数量
+    wordcount: true   # 总字数
+    pv: true          # PV
+    uv: true          # UV
+    updatetime: true  # 最后更新日期
+    runtimeenable: true
+    runtime: "2025-01-01 00:00:00" # 原 Next: footer.since: 2025
+
+### 页面默认设置
+page:
+  error: true    # 404 页面
+  tags: true     # 标签页
+  categories: true
+  archives: 0
+  default: {}
+
+### 文章默认设置
+post:
+  default:
+    locate: China
+    # 原 Next: creative_commons.license: by-nc-sa
+    copyright:
+      enable: true
+      author: /images/avatar.png
+      license: CC BY-NC-SA 4.0
+      licenurl: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans
+  # 文章元信息（原 Next: post_meta）
+  meta:
+    date: true
+    updated:
+      enable: true
+      another_day: true # 原 Next: updated_at.another_day: true
+    locate: false
+    wordcount: true   # 字数（原 Next: symbols_count_time.symbols）
+    readtime: true    # 阅读时长（原 Next: symbols_count_time.time）
+    pv: true          # 文章浏览量
+    comment: true
+  # 打赏 - 原 Next 用独立的 /donate 页面，这里不开启
+  award:
+    enable: false
+  # 分享
+  share:
+    enable: false
+  # 封面取色（原 Next 无对应，但开启以增强体验）
+  covercolor:
+    enable: true
+    mode: local
+    api: https://api.qjqq.cn/api/Imgcolor?img=
+    time: 43200000
+  footer:
+    enable: false
+
+### 主题色（原 Next 无显式设置，使用 Solitude 默认）
+theme_color:
+  dark: "#ffc848"
+  light: "#425AEF"
+
+### 显示模式（原 Next: darkmode: true + lightdark.enable: true）
+display_mode:
+  type: auto # auto / dark / light
+  universe: true # 开启深色模式星空背景
+
+### 字体（原 Next: font 全套配置）
+font:
+  font-size: 16px
+  code-font-size: 15px
+  # 原 Next: font.global.family: Inter
+  font-family: "Inter, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+  # 原 Next: font.codes.family: Fira Code
+  code-font-family: "'Fira Code', 'JetBrains Mono', 'Courier New', Courier, monospace"
+
+### 标题离开切换（原 Next 无对应）
+lure:
+  enable: true
+  jump: 404 Not Found
+  back: ヾ(≧∇≦*)ゝHey, hey, you fell for it.
+
+### 相关文章（原 Next: related_posts.enable: true）
+related_post:
+  enable: true
+  limit: 3
+  date_type: updated
+
+### 右键菜单
+right_menu:
+  enable: true
+  commentBarrage: false
+  ctrlOriginalMenu: false
+  translate: true # 简繁体转换（原 Next 无对应，免费增强）
+  custom_list:
+    - name: 随机文章
+      click: toRandomPost()
+      id: menu-randomPost
+      icon: fas fa-tower-broadcast
+    - name: 全部分类
+      click: pjax.loadUrl('/categories/')
+      icon: fas fa-clone
+    - name: 全部标签
+      click: pjax.loadUrl('/tags/')
+      icon: fas fa-tags
+
+### 复制版权（原 Next 无对应）
+copy:
+  enable: true
+  copyright:
+    enable: true
+    limit: 50
+
+### Mermaid（原 Next: mermaid.enable: true）
+mermaid: true
+
+### Chart.js
+chart: false
+
+### Typeit
+typeit: false
+
+### 快捷菜单（原 Next 无对应）
+keyboard:
+  enable: true
+  list:
+    - name: 关闭快捷菜单
+      key: K
+      func: keyboard
+    - name: 打开控制台
+      key: A
+      sco: showConsole
+    - name: 播放/暂停音乐
+      key: M
+      sco: musicToggle
+    - name: 随机文章
+      key: R
+      sco: toRandomPost
+
+### 懒加载（原 Next: lazyload: true）
+lazyload:
+  enable: true
+  field: site
+  placeholder:
+  errorimg:
+
+### 加载（原 Next: pace.enable: true）
+loading:
+  fullpage: false
+  pace: true
+
+### 代码高亮（原 Next: codeblock 配置）
+highlight:
+  enable: true
+  limit: 200
+  copy: true # 原 Next: codeblock.copy_button.enable: true
+  expand: false # 原 Next: codeblock.fold.enable: true → 默认折叠
+  theme: mac # 原 Next: codeblock.copy_button.style: mac
+  color: default
+
+### 灯箱（原 Next: fancybox: true）
+fancybox: true
+lightbox: false
+mediumZoom: false
+
+### OpenGraph（原 Next: open_graph 配置）
+OpenGraph:
+  enable: true
+  options:
+    twitter_card: summary_large_image
+    twitter_id: 666mingqing6
+    twitter_site: 666mingqing6
+    twitter_image: /images/avatar.png
+
+### 字数统计（原 Next: symbols_count_time）
+wordcount: true
+
+### Katex（原 Next: math.mathjax.enable: true）
+# Solitude 优先用 KaTeX，比 MathJax 更快
+katex:
+  enable: true
+  per_page: false
+  copytex: true
+
+### 站点验证（百度/Google）
+verify_site:
+  # Google Search Console verification
+  # - name: google-site-verification
+  #   content: xxxxxx
+  # 百度站长验证（原 Next: baidu_site_verification）
+  # - name: baidu-site-verification
+  #   content: xxxxxx
+
+### 扩展插入
+# 原 Next 的 custom_file_path: head / sidebar / postBodyEnd / bodyEnd
+# 在 Solitude 中通过 extends.head / extends.body 注入
+extends:
+  head:
+    # 原 Next: styles.styl (自定义CSS) → 移到 source/css/custom.styl
+    - '<link rel="stylesheet" href="/css/custom.css">'
+    # 原 Next: head.njk 引入的 font.css
+    - '<link rel="stylesheet" href="/font.css">'
+    # JSON-LD 结构化数据 - 全站类型（页面动态部分用 JS 注入）
+    - |
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Lumoes Blog",
+        "url": "https://blog.646474.xyz",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://blog.646474.xyz/search.json?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+      </script>
+  body:
+    # 原 Next: body-end.njk (朋友圈 shuoshuo JS) + custom.js (滚动条/字数/复制/Aplayer destroy/darkimg)
+    - '<script src="/custom.js"></script>'
+    # 原 Next: post-body-end.njk → 已迁移至 source/_data/post-end.html
+    # 通过 hexo 脚本在文章页注入（见 scripts/post-end-injector.js）
+    # APlayer 销毁（原 Next: custom.js）已合并到上面的 /custom.js
+    # 加载便携小空调 vue 应用（原 Next: air-conditioner 页面）
+    - '<script defer data-pjax src="/index.3f125bc6.js"></script>'
+    # Google Analytics 4 (原 Next: google_analytics.tracking_id: G-ME3SK8EL8K)
+    - |
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ME3SK8EL8K"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-ME3SK8EL8K');
+      </script>
+    # Baidu Tongji (原 Next: baidu_push 或 sn 推送)
+    - |
+      <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?YOUR_BAIDU_HM_ID";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      </script>
+    # Google AdSense (原 Next: google_adsense.enable: true)
+    # - |
+    #   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ID"
+    #        crossorigin="anonymous"></script>
+
+### 评论系统 - Twikoo（原 Next: twikoo 完整迁移）
+comment:
+  use: twikoo
+  commentBarrage: false
+  lazyload: true # 原 Next: comments.lazyload: true
+  count: true
+  sidebar: true
+  pv: true
+  avatar: https://gravatar.com/avatar
+  hot_tip:
+    enable: false
+    count: 3
+  newest_comment:
+    enable: true
+    storage: .5
+    limit: 5
+
+# Twikoo 配置（原 Next: twikoo 完整迁移）
+twikoo:
+  envId: https://comment.646474.xyz/.netlify/functions/twikoo
+  region:
+  style: true
+  accessToken:
+  option:
+    lang: zh-CN
+    placeholder: "💬 来都来了，就留下一句话吧...  填入QQ邮箱会自动获取你的头像和名称哦..."
+
+### 搜索（原 Next: local_search 迁移）
+search:
+  enable: true
+  type: local
+  tags:
+    - Android
+    - 玩机
+    - 教程
+  local:
+    preload: true # 原 Next: local_search.preload: true
+    CDN:
+
+### 不蒜子（原 Next: busuanzi_count.enable: true 完整迁移）
+busuanzi: true
+busuanzi_use: 1 # 1: 自定义版（更美观）
+
+### Google Analytics（原 Next: google_analytics.tracking_id）
+# Solitude 没有直接 GA 字段，通过 extends.head 注入
+# 将在下方 extends.head 注入 GA 脚本
+
+### 音乐馆（原 Next: menu: music 跳转到外站，这里用 capsule 模式）
+capsule:
+  enable: false # 关闭音乐胶囊
+
+### CDN
+CDN:
+  internal: jsdelivr
+  third_party: jsdelivr
+  version: true
+  custom_format: https://cdn.jsdelivr.net/npm/${name}@${version}/${min_file}
+  options:
+    # 沿用原 Next: vendors.plugins: cdnjs
+    twikoo: https://cdn.jsdelivr.net/npm/twikoo@1.6.41/dist/twikoo.min.js

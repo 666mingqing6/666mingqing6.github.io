@@ -1,0 +1,39 @@
+<link rel="stylesheet" href="/font.css">
+<script src="/custom.js"></script>
+{# JSON-LD 结构化数据 #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ config.title }}",
+  "url": "{{ config.url }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ config.url }}/search.json?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+{% if page.layout == 'post' %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ page.title }}",
+  "image": "{{ page.photos[0] or theme.avatar.url }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ config.author }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ config.title }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ config.url }}{{ theme.avatar.url }}"
+    }
+  },
+  "datePublished": "{{ date(page.date, 'YYYY-MM-DD') }}"
+}
+</script>
+{% endif %}

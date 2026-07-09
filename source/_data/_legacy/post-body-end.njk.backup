@@ -1,0 +1,22 @@
+<div class="post-end-wrapper" style="margin-top: 1px;">
+  
+  <div class="end-separator">
+    <span>THE END</span>
+  </div>
+
+  <div align="center" class="sponsor-container">
+    <p class="sponsor-desc">
+      <i class="fa fa-quote-left" style="opacity: 0.3;"></i>
+      感谢你能看到这里，如果你觉得我的博文写的还不错，请评论、转发或者赞助支持一下。
+      <i class="fa fa-quote-right" style="opacity: 0.3;"></i>
+    </p>
+
+    <a href="/donate/" class="donate-btn">
+      <i class="fa fa-coffee"></i> 前往赞助页面
+    </a>
+
+    <p class="sponsor-thanks">
+      这些是我继续创作的最大动力，请多多支持，谢谢大家！
+    </p>
+  </div>
+</div>
