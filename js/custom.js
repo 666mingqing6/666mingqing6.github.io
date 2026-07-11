@@ -292,15 +292,78 @@ function injectCalendarCards() {
 }
 
 /* --------------------------------------------------------------------------
+ * 4. Mermaid 流程图渲染
+ *    AnZhiYu 主题的 mermaid 只支持 {% mermaid %} 标签（.mermaid-wrap 结构）
+ *    标准 markdown ```mermaid 代码块渲染为 <pre class="mermaid">，主题不处理
+ *    这里通过 custom.js 动态加载 mermaid.js 并渲染标准代码块
+ * -------------------------------------------------------------------------- */
+const MERMAID_CDN = 'https://cdn.bootcdn.net/ajax/libs/mermaid/10.9.1/mermaid.min.js';
+
+function initMermaid() {
+  const mermaidBlocks = document.querySelectorAll('#article-container pre.mermaid, #article-container .mermaid');
+  // 排除主题已处理的 .mermaid-wrap 内的元素
+  const standalone = Array.from(mermaidBlocks).filter(el => !el.closest('.mermaid-wrap'));
+  if (standalone.length === 0) return;
+
+  // 防止重复加载
+  if (typeof mermaid === 'undefined') {
+    const script = document.createElement('script');
+    script.src = MERMAID_CDN;
+    script.onload = () => renderMermaid(standalone);
+    document.head.appendChild(script);
+  } else {
+    renderMermaid(standalone);
+  }
+}
+
+function renderMermaid(blocks) {
+  if (typeof mermaid === 'undefined') return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: isDark ? 'dark' : 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+
+  blocks.forEach((el, index) => {
+    // 跳过已渲染的
+    if (el.dataset.mermaidRendered === '1') return;
+    el.dataset.mermaidRendered = '1';
+
+    const code = el.textContent.trim();
+    const id = `mermaid-svg-${index}`;
+
+    try {
+      mermaid.render(id, code).then(({ svg }) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mermaid-rendered';
+        wrapper.innerHTML = svg;
+        wrapper.style.textAlign = 'center';
+        wrapper.style.margin = '16px 0';
+        el.replaceWith(wrapper);
+      }).catch(err => {
+        el.innerHTML = `<code style="color:#e74c3c;">Mermaid 渲染失败: ${err.message}</code>`;
+      });
+    } catch (e) {
+      el.innerHTML = `<code style="color:#e74c3c;">Mermaid 渲染失败: ${e.message}</code>`;
+    }
+  });
+}
+
+/* --------------------------------------------------------------------------
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   injectPostEnd();
   initAISummary();
   injectCalendarCards();
+  initMermaid();
 });
 document.addEventListener('pjax:success', () => {
   injectPostEnd();
   initAISummary();
   setTimeout(injectCalendarCards, 50);
+  setTimeout(initMermaid, 100);
 });
