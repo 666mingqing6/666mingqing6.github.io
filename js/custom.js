@@ -17,43 +17,45 @@ const AI_CONFIG = {
 };
 
 /* --------------------------------------------------------------------------
- * 1. 文章结尾 "THE END" + CTA 按钮注入
+ * 1. 文章结尾 "THE END" 分割线注入（仅 post 页，不含 page）
  * -------------------------------------------------------------------------- */
 function injectPostEnd() {
+  // 仅在文章页注入（body data-type 为 post，或 URL 匹配 /post/ 或文章路径）
+  const isPost = document.body.dataset.type === 'post'
+    || document.querySelector('article.post-post, #post');
+  if (!isPost) return;
+
   const article = document.querySelector('#article-container');
   if (!article) return;
   if (document.querySelector('.post-end-wrapper')) return;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'post-end-wrapper';
-  wrapper.style.marginTop = '1px';
-  wrapper.innerHTML = `
-      <div class="end-separator">
-          <span>THE END</span>
-      </div>
-      <div align="center" class="sponsor-container">
-          <p class="sponsor-desc">
-              <i class="anzhiyufont anzhiyu-icon-quote-left" style="opacity: 0.3;"></i>
-              感谢你能看到这里！如果这篇文章对你有帮助，欢迎评论留言、点赞转发，或赞助支持一下。
-              <i class="anzhiyufont anzhiyu-icon-quote-right" style="opacity: 0.3;"></i>
-          </p>
-          <div class="cta-btn-group">
-              <a href="/donate/" class="cta-btn cta-btn-donate">
-                  <i class="anzhiyufont anzhiyu-icon-coffee"></i> 赞助支持
-              </a>
-              <a href="#post-comment" class="cta-btn cta-btn-comment" onclick="setTimeout(()=>{const c=document.getElementById('post-comment')||document.querySelector('.comment-container');if(c)c.scrollIntoView({behavior:'smooth'})},100)">
-                  <i class="anzhiyufont anzhiyu-icon-message"></i> 评论留言
-              </a>
-              <a href="javascript:void(0)" class="cta-btn cta-btn-share" onclick="if(navigator.share){navigator.share({title:document.title,url:location.href})}else{navigator.clipboard.writeText(location.href);anzhiyu.snackbarShow('链接已复制，快去分享吧！')}">
-                  <i class="anzhiyufont anzhiyu-icon-share"></i> 分享文章
-              </a>
-          </div>
-          <p class="sponsor-thanks">
-              这些是我继续创作的最大动力，请多多支持，谢谢大家！
-          </p>
-      </div>
-  `;
+  wrapper.innerHTML = `<div class="end-separator"><span>THE END</span></div>`;
   article.appendChild(wrapper);
+}
+
+/* --------------------------------------------------------------------------
+ * 1.5 打赏按钮拦截：点击直接跳转 /donate/，不弹二维码
+ * -------------------------------------------------------------------------- */
+function hijackRewardButton() {
+  const reward = document.querySelector('.post-reward');
+  if (!reward || reward.dataset.hijacked === '1') return;
+  reward.dataset.hijacked = '1';
+
+  // 移除原始 onclick（弹出二维码遮罩）
+  reward.removeAttribute('onclick');
+
+  // 隐藏二维码弹窗容器（保留按钮本身）
+  const rewardMain = reward.querySelector('.reward-main');
+  if (rewardMain) rewardMain.style.display = 'none';
+
+  // 点击整个 .post-reward 跳转到 /donate/
+  reward.style.cursor = 'pointer';
+  reward.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.location.href = '/donate/';
+  });
 }
 
 /* --------------------------------------------------------------------------
@@ -341,12 +343,14 @@ function renderMermaid(blocks) {
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   injectPostEnd();
+  hijackRewardButton();
   initAISummary();
   injectCalendarCards();
   initMermaid();
 });
 document.addEventListener('pjax:success', () => {
   injectPostEnd();
+  hijackRewardButton();
   initAISummary();
   setTimeout(injectCalendarCards, 50);
   setTimeout(initMermaid, 100);

@@ -10,7 +10,7 @@
 }
 
 /* ==========================================================================
-   文章结尾 THE END 分割线 + CTA 引导（适配 AnZhiYu 变量）
+   文章结尾 THE END 分割线（仅 post 页）
    ========================================================================== */
 .end-separator {
   display: block;
@@ -35,90 +35,6 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9em;
   white-space: nowrap;
-}
-
-/* CTA 引导区 */
-.sponsor-container {
-  margin: 20px 0;
-}
-
-.sponsor-desc {
-  font-size: 15px;
-  color: var(--anzhiyu-fontcolor);
-  line-height: 1.8;
-  margin-bottom: 16px;
-}
-
-.sponsor-thanks {
-  font-size: 13px;
-  color: var(--anzhiyu-secondtext);
-  margin-top: 16px;
-}
-
-/* CTA 按钮组 */
-.cta-btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin: 16px 0;
-}
-
-.cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 0.9em;
-  font-weight: 600;
-  text-decoration: none !important;
-  border: 1.5px solid var(--anzhiyu-card-border);
-  color: var(--anzhiyu-fontcolor) !important;
-  background: var(--anzhiyu-secondbg);
-  transition: all 0.3s ease;
-}
-
-.cta-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--anzhiyu-main-op);
-}
-
-/* 赞助按钮 - 默认灰底，hover 金色强调 */
-.cta-btn-donate {
-  background: var(--anzhiyu-secondbg);
-  color: var(--anzhiyu-fontcolor) !important;
-  border-color: var(--anzhiyu-card-border);
-}
-
-.cta-btn-donate:hover {
-  background: #ffc848;
-  color: #fff !important;
-  border-color: #ffc848;
-}
-
-/* 评论按钮 */
-.cta-btn-comment {
-  background: var(--anzhiyu-secondbg);
-  color: var(--anzhiyu-fontcolor) !important;
-}
-
-.cta-btn-comment:hover {
-  background: var(--anzhiyu-main);
-  color: #fff !important;
-  border-color: var(--anzhiyu-main);
-}
-
-/* 分享按钮 */
-.cta-btn-share {
-  background: var(--anzhiyu-secondbg);
-  color: var(--anzhiyu-fontcolor) !important;
-}
-
-.cta-btn-share:hover {
-  background: var(--anzhiyu-green);
-  color: #fff !important;
-  border-color: var(--anzhiyu-green);
 }
 
 /* ==========================================================================
