@@ -120,3 +120,65 @@
   color: #fff !important;
   border-color: var(--anzhiyu-green);
 }
+
+/* ==========================================================================
+   自定义链接卡片（文章内的站内/外链接卡片）
+   迁移自 Solitude 主题，CSS 变量适配为 --anzhiyu-*
+   ========================================================================== */
+.custom-link-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 15px 0;
+  border: 1px solid var(--anzhiyu-card-border);
+  background: var(--anzhiyu-secondbg);
+  border-radius: 12px;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  transition: all 0.3s ease;
+}
+
+.custom-link-card:hover {
+  background: var(--anzhiyu-main-op);
+  border-color: var(--anzhiyu-main);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--anzhiyu-shadow-main);
+}
+
+.custom-link-card img {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  margin: 0 15px 0 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.custom-link-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-link-title {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: var(--anzhiyu-fontcolor);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.custom-link-desc {
+  font-size: 0.85em;
+  color: var(--anzhiyu-secondtext);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}

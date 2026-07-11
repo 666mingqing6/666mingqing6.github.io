@@ -105,7 +105,7 @@ function cardTimes() {
 
     if (!c || !l) return;
 
-    l.style.fontSize = ["56px", "44px", "32px"][Math.min(o - 3, 2)];
+    l.style.fontSize = ["42px", "36px", "30px"][Math.min(o - 3, 2)];
 
     c.innerHTML = "";
     for (let i = 0; i < o; i++) {

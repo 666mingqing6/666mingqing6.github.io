@@ -48,13 +48,14 @@
 
 #calendar-area-left,
 #calendar-area-right {
-  height: 100%;
+  min-height: 120px;
   padding: 6px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
+  gap: 4px;
 }
 
 #calendar-main {
@@ -76,9 +77,9 @@
 
 /* 大号日期数字 */
 #calendar-date {
-  font-size: 56px;
-  line-height: 1.1;
-  letter-spacing: 3px;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: 2px;
   color: var(--anzhiyu-main);
   font-weight: 700;
   align-items: center;
@@ -86,8 +87,8 @@
   justify-content: center;
   position: relative;
   z-index: 1;
-  margin: 0.1rem 0;
-  height: auto;
+  margin: 2px 0;
+  height: 48px;
 }
 
 /* 公历 */
