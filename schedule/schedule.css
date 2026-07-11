@@ -1,140 +1,91 @@
 /* =====================================================================
- * 日历 + 进度条侧边栏卡片样式（AnZhiYu 主题适配版）
- * 教程来源：https://everfu.github.io/solitude-demo/posts/874ddadb.html
- * 适配说明：CSS 变量从 Solitude 的 --efu-* 改为 AnZhiYu 的 --anzhiyu-*
+ * 日历卡片样式（AnZhiYu 主题适配版 - 单卡片垂直布局）
  * ===================================================================== */
 
-/* 日历卡片容器 */
-.card-widget-calendar-custom,
-.card-widget-schedule-custom {
-  padding: 16px 20px !important;
+/* 卡片容器 */
+.card-widget-calendar-custom {
+  padding: 18px 20px !important;
   position: relative;
+  border-radius: 12px;
 }
 
-.card-widget-calendar-custom a,
-.card-widget-calendar-custom div,
-.card-widget-schedule-custom a,
-.card-widget-schedule-custom div {
-  color: var(--anzhiyu-fontcolor);
-}
-
-/* 日历卡片标题 */
-.card-widget-calendar-custom .item-headline,
-.card-widget-schedule-custom .item-headline {
+/* 卡片标题 */
+.card-widget-calendar-custom .item-headline {
   display: flex;
   align-items: center;
-  font-size: 0.9em;
-  margin-bottom: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--anzhiyu-secondtext);
 }
 
-.card-widget-calendar-custom .item-headline .anzhiyufont,
-.card-widget-schedule-custom .item-headline .anzhiyufont {
-  margin-right: 8px;
-  color: var(--anzhiyu-fontcolor);
+.card-widget-calendar-custom .item-headline .anzhiyufont {
+  margin-right: 6px;
+  font-size: 1.1em;
+  color: var(--anzhiyu-main);
 }
 
-/* 日历卡片左右两栏布局 */
-#card-widget-calendar .item-content {
+/* ===== 顶部日期区 ===== */
+#calendar-header {
+  text-align: center;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--anzhiyu-card-border);
+}
+
+#calendar-header .cal-row {
   display: flex;
-}
-
-#calendar-area-left {
-  width: 45%;
-}
-
-#calendar-area-right {
-  width: 55%;
-}
-
-#calendar-area-left,
-#calendar-area-right {
-  min-height: 120px;
-  padding: 6px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
-  position: relative;
-  gap: 4px;
+  gap: 8px;
+  line-height: 1.2;
 }
 
+#calendar-date {
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--anzhiyu-main);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+#calendar-week {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--anzhiyu-fontcolor);
+}
+
+#calendar-solar {
+  font-size: 12px;
+  color: var(--anzhiyu-secondtext);
+  margin-top: 4px;
+}
+
+#calendar-lunar {
+  font-size: 12px;
+  color: var(--anzhiyu-secondtext);
+  margin-top: 2px;
+}
+
+/* ===== 月历网格 ===== */
 #calendar-main {
   width: 100%;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--anzhiyu-card-border);
 }
 
-/* 周次标题：顶部 */
-#calendar-week {
-  height: 1rem;
-  font-size: 13px;
-  letter-spacing: 1px;
-  font-weight: 700;
-  align-items: center;
+#calendar-main .calendar-weekdays {
   display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
+  margin-bottom: 4px;
 }
 
-/* 大号日期数字 */
-#calendar-date {
-  font-size: 42px;
-  line-height: 1;
-  letter-spacing: 2px;
-  color: var(--anzhiyu-main);
-  font-weight: 700;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-  margin: 2px 0;
-  height: 48px;
-}
-
-/* 公历 */
-#calendar-solar {
-  height: 1rem;
-  font-size: 12px;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-  margin-top: 0.1rem;
-}
-
-/* 农历 */
-#calendar-lunar {
-  height: 1rem;
-  font-size: 12px;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-  color: var(--anzhiyu-secondtext);
-  margin-top: 0.1rem;
-}
-
-/* 日期格子 */
-#calendar-main a {
-  height: 1rem;
-  width: 1rem;
-  border-radius: 50%;
-  font-size: 12px;
-  line-height: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#calendar-main a.now {
-  background: var(--anzhiyu-main);
-  color: var(--anzhiyu-card-bg);
-}
-
-#calendar-main .calendar-rh a {
-  color: var(--anzhiyu-secondtext);
+#calendar-main .calendar-weekday {
+  width: calc(100% / 7);
+  text-align: center;
+  font-size: 11px;
+  color: var(--anzhiyu-thirdtext);
+  font-weight: 500;
 }
 
 .calendar-r0,
@@ -142,9 +93,7 @@
 .calendar-r2,
 .calendar-r3,
 .calendar-r4,
-.calendar-r5,
-.calendar-rh {
-  height: 1.2rem;
+.calendar-r5 {
   display: flex;
 }
 
@@ -159,124 +108,125 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 2px 0;
 }
 
-/* ===== 进度条（年/月/周）卡片 ===== */
-#card-widget-schedule .item-content {
-  display: flex;
+#calendar-main a {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 22px;
+  text-align: center;
+  color: var(--anzhiyu-fontcolor);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-#schedule-area-left,
-#schedule-area-right {
-  height: 100px;
+#calendar-main a.now {
+  background: var(--anzhiyu-main);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ===== 除夕倒计时 ===== */
+#schedule-countdown {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 10px;
+  background: var(--anzhiyu-secondbg);
+  border-radius: 8px;
+}
+
+#schedule-countdown .countdown-label {
+  font-size: 12px;
+  color: var(--anzhiyu-secondtext);
+  margin-bottom: 2px;
+}
+
+#schedule-countdown .countdown-days {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--anzhiyu-main);
+  line-height: 1;
+}
+
+#schedule-countdown .countdown-unit {
+  font-size: 12px;
+  color: var(--anzhiyu-secondtext);
+  margin-left: 2px;
+}
+
+/* ===== 进度条区 ===== */
+#schedule-progress {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  gap: 10px;
 }
 
-#schedule-area-left {
-  width: 30%;
-}
-
-#schedule-area-right {
-  width: 70%;
-  padding: 0 5px;
-}
-
-.schedule-r0,
-.schedule-r1,
-.schedule-r2 {
-  height: 2rem;
-  width: 100%;
-  align-items: center;
+.schedule-row {
   display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.schedule-d0 {
-  width: 30px;
-  margin-right: 5px;
-  text-align: center;
+.schedule-row .schedule-label {
   font-size: 12px;
+  color: var(--anzhiyu-secondtext);
+  width: 36px;
+  flex-shrink: 0;
+  font-weight: 500;
 }
 
-.schedule-d1 {
-  width: calc(100% - 35px);
-  height: 1.5rem;
-  align-items: center;
-  display: flex;
+.schedule-row .schedule-bar-wrap {
+  flex: 1;
+  position: relative;
+  height: 16px;
 }
 
-/* 进度条样式（Webkit 浏览器） */
+.schedule-row progress {
+  width: 100%;
+  height: 6px;
+  border: none;
+  border-radius: 3px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+}
+
+/* Webkit 进度条 */
 progress::-webkit-progress-bar {
   background: var(--anzhiyu-secondbg);
-  border-radius: 5px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 progress::-webkit-progress-value {
   background: var(--anzhiyu-main);
-  border-radius: 5px;
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 
-/* 进度条上的浮动文本 */
-.aside-span1,
-.aside-span2 {
-  height: 1rem;
-  font-size: 12px;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  position: absolute;
+/* Firefox 进度条 */
+progress::-moz-progress-bar {
+  background: var(--anzhiyu-main);
+  border-radius: 3px;
 }
 
-.aside-span1 {
-  margin-left: 5px;
+.schedule-row .schedule-percent {
+  font-size: 11px;
+  color: var(--anzhiyu-fontcolor);
+  font-weight: 600;
+  width: 38px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.aside-span2 {
-  right: 20px;
-  color: var(--anzhiyu-secondtext);
-}
-
-.aside-span2 a {
-  margin: 0 3px;
-}
-
-#pBar_month,
-#pBar_week,
-#pBar_year {
-  width: 100%;
-  border-radius: 5px;
-  height: 100%;
-}
-
-/* 左侧大数字区 */
-#schedule-date,
-#schedule-days,
-#schedule-title {
-  display: flex;
-  align-items: center;
-}
-
-#schedule-title {
-  height: 25px;
-  line-height: 1;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-#schedule-days {
-  height: 40px;
-  line-height: 1;
-  font-size: 30px;
-  font-weight: 900;
-  color: var(--anzhiyu-main);
-}
-
-#schedule-date {
-  height: 20px;
-  line-height: 1;
-  font-size: 12px;
-  color: var(--anzhiyu-secondtext);
+.schedule-row .schedule-remain {
+  font-size: 10px;
+  color: var(--anzhiyu-thirdtext);
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
 }
