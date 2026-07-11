@@ -1,6 +1,6 @@
-var posts=["talk-crush/","Talk-is-learning-useful/","Alienation-of-Learning/","talk-study/","Love-alienation/","9008/","howtousefb/","howtouseadb/","D-K-Effect/","experiencein2025/","ksutomagisk/","X/","lsp/"];function toRandomPost(){
+var posts=["talk-crush/","Farewell/","Talk-is-learning-useful/","Alienation-of-Learning/","talk-study/","Love-alienation/","9008/","howtousefb/","howtouseadb/","D-K-Effect/","experiencein2025/","ksutomagisk/","X/","lsp/"];function toRandomPost(){
     pjax.loadUrl('/'+posts[Math.floor(Math.random() * posts.length)]);
-  };var friend_link_list=[{"name":"Lumoes Blog","link":"https://blog.646474.xyz/","avatar":"https://tu.646474.xyz/avatar.jpg","descr":"记录技术感悟与生活点滴","tag":"本站","color":"vip"},{"name":"Hexo","link":"https://hexo.io/","avatar":"https://hexo.io/icon/favicon-96x96.png","descr":"快速、简洁且高效的博客框架","recommend":true},{"name":"AnZhiYu 主题","link":"https://hexo.anheyu.com/","avatar":"https://bu.dusays.com/2023/08/27/64eba08534df1.png","descr":"本站使用的 Hexo 主题","recommend":true},{"name":"GitHub","link":"https://github.com/","avatar":"https://github.githubassets.com/favicons/favicon.svg","descr":"全球最大代码托管平台"}];
+  };var friend_link_list=[];
     var refreshNum = 1;
     function friendChainRandomTransmission() {
       const randomIndex = Math.floor(Math.random() * friend_link_list.length);
