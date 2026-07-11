@@ -1,50 +1,202 @@
 /* ==========================================================================
  * Lumoes Blog - custom.js (AnZhiYu 主题适配版)
- * 仅保留 THE END + CTA 按钮注入（波浪/JSON-LD/shuoshuo AnZhiYu 已内置）
+ * 1. THE END + CTA 按钮注入
+ * 2. AI 摘要自动生成（接管主题 local 模式，调用 OpenAI 兼容 API）
  * ========================================================================== */
 
 /* --------------------------------------------------------------------------
- * 文章结尾 "THE END" + CTA 按钮注入
- * AnZhiYu 文章容器: #article-container
+ * AI 摘要配置
+ * 注意：API Key 会暴露在前端，请勿用于生产环境或使用有额度限制的 Key
+ * -------------------------------------------------------------------------- */
+const AI_CONFIG = {
+  baseURL: 'https://api.iamhc.cn/v1',
+  apiKey: 'sk-iQCthadul2uO6t2IBoYHiKqt4uv6W5oJs19J6gqN7ZHSlZad',
+  model: 'auto',
+  maxWords: 1500,                                // 截取文章前 1500 字发给 API
+  systemPrompt: '你是一个博客文章摘要生成助手。请根据用户提供的文章内容，生成一段简洁、准确、有吸引力的中文摘要，字数在100-200字之间。只输出摘要正文，不要加"摘要："等前缀，不要使用 markdown 格式，不要换行。'
+};
+
+/* --------------------------------------------------------------------------
+ * 1. 文章结尾 "THE END" + CTA 按钮注入
  * -------------------------------------------------------------------------- */
 function injectPostEnd() {
-    const article = document.querySelector('#article-container');
-    if (!article) return;
+  const article = document.querySelector('#article-container');
+  if (!article) return;
+  if (document.querySelector('.post-end-wrapper')) return;
 
-    // 防止重复注入
-    if (document.querySelector('.post-end-wrapper')) return;
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'post-end-wrapper';
-    wrapper.style.marginTop = '1px';
-    wrapper.innerHTML = `
-        <div class="end-separator">
-            <span>THE END</span>
-        </div>
-        <div align="center" class="sponsor-container">
-            <p class="sponsor-desc">
-                <i class="anzhiyufont anzhiyu-icon-quote-left" style="opacity: 0.3;"></i>
-                感谢你能看到这里！如果这篇文章对你有帮助，欢迎评论留言、点赞转发，或赞助支持一下。
-                <i class="anzhiyufont anzhiyu-icon-quote-right" style="opacity: 0.3;"></i>
-            </p>
-            <div class="cta-btn-group">
-                <a href="/donate/" class="cta-btn cta-btn-donate">
-                    <i class="anzhiyufont anzhiyu-icon-coffee"></i> 赞助支持
-                </a>
-                <a href="#post-comment" class="cta-btn cta-btn-comment" onclick="setTimeout(()=>{const c=document.getElementById('post-comment')||document.querySelector('.comment-container');if(c)c.scrollIntoView({behavior:'smooth'})},100)">
-                    <i class="anzhiyufont anzhiyu-icon-message"></i> 评论留言
-                </a>
-                <a href="javascript:void(0)" class="cta-btn cta-btn-share" onclick="if(navigator.share){navigator.share({title:document.title,url:location.href})}else{navigator.clipboard.writeText(location.href);anzhiyu.snackbarShow('链接已复制，快去分享吧！')}">
-                    <i class="anzhiyufont anzhiyu-icon-share"></i> 分享文章
-                </a>
-            </div>
-            <p class="sponsor-thanks">
-                这些是我继续创作的最大动力，请多多支持，谢谢大家！
-            </p>
-        </div>
-    `;
-    article.appendChild(wrapper);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'post-end-wrapper';
+  wrapper.style.marginTop = '1px';
+  wrapper.innerHTML = `
+      <div class="end-separator">
+          <span>THE END</span>
+      </div>
+      <div align="center" class="sponsor-container">
+          <p class="sponsor-desc">
+              <i class="anzhiyufont anzhiyu-icon-quote-left" style="opacity: 0.3;"></i>
+              感谢你能看到这里！如果这篇文章对你有帮助，欢迎评论留言、点赞转发，或赞助支持一下。
+              <i class="anzhiyufont anzhiyu-icon-quote-right" style="opacity: 0.3;"></i>
+          </p>
+          <div class="cta-btn-group">
+              <a href="/donate/" class="cta-btn cta-btn-donate">
+                  <i class="anzhiyufont anzhiyu-icon-coffee"></i> 赞助支持
+              </a>
+              <a href="#post-comment" class="cta-btn cta-btn-comment" onclick="setTimeout(()=>{const c=document.getElementById('post-comment')||document.querySelector('.comment-container');if(c)c.scrollIntoView({behavior:'smooth'})},100)">
+                  <i class="anzhiyufont anzhiyu-icon-message"></i> 评论留言
+              </a>
+              <a href="javascript:void(0)" class="cta-btn cta-btn-share" onclick="if(navigator.share){navigator.share({title:document.title,url:location.href})}else{navigator.clipboard.writeText(location.href);anzhiyu.snackbarShow('链接已复制，快去分享吧！')}">
+                  <i class="anzhiyufont anzhiyu-icon-share"></i> 分享文章
+              </a>
+          </div>
+          <p class="sponsor-thanks">
+              这些是我继续创作的最大动力，请多多支持，谢谢大家！
+          </p>
+      </div>
+  `;
+  article.appendChild(wrapper);
 }
 
-document.addEventListener('DOMContentLoaded', injectPostEnd);
-document.addEventListener('pjax:success', injectPostEnd);
+/* --------------------------------------------------------------------------
+ * 2. AI 摘要自动生成
+ *    接管主题 local 模式，调用 OpenAI 兼容 API
+ * -------------------------------------------------------------------------- */
+function initAISummary() {
+  const aiBox = document.querySelector('.post-ai-description');
+  if (!aiBox) return;
+  if (aiBox.dataset.aiInit === '1') return; // 防止重复初始化
+  aiBox.dataset.aiInit = '1';
+
+  const explanation = aiBox.querySelector('.ai-explanation');
+  if (!explanation) return;
+
+  const article = document.querySelector('#article-container');
+  if (!article) return;
+
+  const refreshBtn = aiBox.querySelector('.ai-title .anzhiyu-icon-arrow-rotate-right');
+  let isGenerating = false;
+
+  // 提取文章纯文本
+  function extractArticleText() {
+    const clone = article.cloneNode(true);
+    // 移除不需要的内容
+    clone.querySelectorAll(
+      'script, style, .post-end-wrapper, .post-ai-description, .relatedPosts, ' +
+      '.tag_share, .post-meta, .post-copyright, .post-tools, .advise, ' +
+      '#pagination, .comment-container, #post-comment, figure.highlight, pre'
+    ).forEach(el => el.remove());
+    const title = document.querySelector('.post-title')?.textContent || document.title;
+    let text = title + '\n' + clone.innerText;
+    // 压缩空白
+    text = text.replace(/\s+/g, ' ').trim();
+    return text.substring(0, AI_CONFIG.maxWords);
+  }
+
+  // 打字机效果
+  function typewriterEffect(el, text) {
+    let i = 0;
+    el.innerHTML = '<span class="ai-cursor"></span>';
+    function type() {
+      if (i < text.length) {
+        el.innerHTML = text.substring(0, i + 1) + '<span class="ai-cursor"></span>';
+        i++;
+        // 标点符号处稍作停顿，增强阅读感
+        const char = text.charAt(i - 1);
+        const delay = /[，。！？、；：,.!?;:]/.test(char) ? 120 : 25;
+        setTimeout(type, delay);
+      } else {
+        el.innerHTML = text;
+      }
+    }
+    type();
+  }
+
+  // 生成摘要
+  async function generateSummary() {
+    if (isGenerating) return;
+    isGenerating = true;
+
+    // 显示加载动画
+    let dotCount = 0;
+    explanation.innerHTML = 'AI 正在生成摘要<span class="ai-cursor"></span>';
+    const loadingTimer = setInterval(() => {
+      dotCount = (dotCount % 3) + 1;
+      explanation.innerHTML = 'AI 正在生成摘要' + '.'.repeat(dotCount) + '<span class="ai-cursor"></span>';
+    }, 500);
+
+    const text = extractArticleText();
+    if (text.length < 50) {
+      clearInterval(loadingTimer);
+      explanation.innerHTML = '文章内容过短，无需生成摘要。';
+      isGenerating = false;
+      return;
+    }
+
+    try {
+      const response = await fetch(`${AI_CONFIG.baseURL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+        },
+        body: JSON.stringify({
+          model: AI_CONFIG.model,
+          messages: [
+            { role: 'system', content: AI_CONFIG.systemPrompt },
+            { role: 'user', content: text }
+          ],
+          temperature: 0.7,
+          max_tokens: 300
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API ${response.status}: ${errText.substring(0, 100)}`);
+      }
+
+      const data = await response.json();
+      const summary = (data.choices?.[0]?.message?.content || '').trim();
+
+      clearInterval(loadingTimer);
+
+      if (summary) {
+        typewriterEffect(explanation, summary);
+      } else {
+        explanation.innerHTML = '摘要生成失败：API 返回空内容。可点击刷新按钮重试。';
+      }
+    } catch (error) {
+      clearInterval(loadingTimer);
+      explanation.innerHTML = `摘要生成失败：${error.message}<br>可点击右上角刷新按钮重试。`;
+    } finally {
+      isGenerating = false;
+    }
+  }
+
+  // 延迟 1.2 秒启动，等主题 local 模式占位文字显示完毕后再接管
+  setTimeout(generateSummary, 1200);
+
+  // 拦截刷新按钮：克隆替换，清除主题绑定的事件
+  if (refreshBtn) {
+    const newBtn = refreshBtn.cloneNode(true);
+    refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
+    let rotateDeg = 0;
+    newBtn.addEventListener('click', function () {
+      rotateDeg += 360;
+      this.style.transition = 'transform 0.5s ease';
+      this.style.transform = `rotate(${rotateDeg}deg)`;
+      generateSummary();
+    });
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * 初始化
+ * -------------------------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  injectPostEnd();
+  initAISummary();
+});
+document.addEventListener('pjax:success', () => {
+  injectPostEnd();
+  initAISummary();
+});
