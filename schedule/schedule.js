@@ -131,8 +131,9 @@ function cardTimes() {
   // 填充顶部日期区
   e.querySelector("#calendar-date").innerHTML = date.toString().padStart(2, "0");
   e.querySelector("#calendar-week").innerHTML = `第${weekNum}周 ${weekStr}`;
-  e.querySelector("#calendar-solar").innerHTML = `${year}年${monthStr} 第${asideDay.toFixed(0)}天`;
+  e.querySelector("#calendar-solar").innerHTML = `${year}年${monthStr}`;
   e.querySelector("#calendar-lunar").innerHTML = lunarText;
+  e.querySelector("#calendar-year-day").innerHTML = `今年第 ${asideDay.toFixed(0)} 天`;
   e.querySelector("#schedule-days").innerHTML = daysUntilNewYear;
 }
 

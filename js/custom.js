@@ -46,9 +46,11 @@ function hijackRewardButton() {
   // 移除原始 onclick（弹出二维码遮罩）
   reward.removeAttribute('onclick');
 
-  // 隐藏二维码弹窗容器（保留按钮本身）
+  // 彻底移除二维码弹窗容器 DOM，防止 CSS hover 显示
   const rewardMain = reward.querySelector('.reward-main');
-  if (rewardMain) rewardMain.style.display = 'none';
+  if (rewardMain) rewardMain.remove();
+  const quitBox = document.getElementById('quit-box');
+  if (quitBox) quitBox.remove();
 
   // 点击整个 .post-reward 跳转到 /donate/
   reward.style.cursor = 'pointer';
@@ -211,12 +213,13 @@ function injectCalendarCards() {
     <div id="calendar-header">
       <div class="cal-row">
         <div id="calendar-date"></div>
-        <div>
+        <div class="cal-info">
           <div id="calendar-week"></div>
           <div id="calendar-solar"></div>
         </div>
       </div>
       <div id="calendar-lunar"></div>
+      <div id="calendar-year-day"></div>
     </div>
     <div id="calendar-main"></div>
     <div id="schedule-countdown">
