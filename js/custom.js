@@ -11,7 +11,7 @@
 const AI_CONFIG = {
   baseURL: 'https://api.iamhc.cn/v1',
   apiKey: 'sk-iQCthadul2uO6t2IBoYHiKqt4uv6W5oJs19J6gqN7ZHSlZad',
-  model: 'auto',
+  model: 'Qwen3.6-35B-A3B',
   maxWords: 1500,                                // 截取文章前 1500 字发给 API
   systemPrompt: '你是一个博客文章摘要生成助手。请根据用户提供的文章内容，生成一段简洁、准确、有吸引力的中文摘要，字数在100-200字之间。只输出摘要正文，不要加"摘要："等前缀，不要使用 markdown 格式，不要换行。'
 };
@@ -190,13 +190,117 @@ function initAISummary() {
 }
 
 /* --------------------------------------------------------------------------
+ * 3. 侧边栏日历 + 进度条卡片注入
+ *    AnZhiYu 主题没有自定义侧边栏机制，通过 JS 注入到 #aside-content
+ * -------------------------------------------------------------------------- */
+function injectCalendarCards() {
+  const aside = document.getElementById('aside-content');
+  if (!aside) return;
+  if (document.getElementById('card-widget-calendar')) return;
+
+  const calendarCard = document.createElement('div');
+  calendarCard.className = 'card-widget card-widget-calendar-custom';
+  calendarCard.id = 'card-widget-calendar';
+  calendarCard.innerHTML = `
+    <div class="item-headline">
+      <i class="anzhiyufont anzhiyu-icon-calendar-day"></i>
+      <span>今日日历</span>
+    </div>
+    <div class="item-content">
+      <div id="calendar-area-left">
+        <div id="calendar-week"></div>
+        <div id="calendar-date" style="font-size: 48px;"></div>
+        <div id="calendar-solar"></div>
+        <div id="calendar-lunar"></div>
+      </div>
+      <div id="calendar-area-right">
+        <div id="calendar-main"></div>
+      </div>
+    </div>
+  `;
+
+  const scheduleCard = document.createElement('div');
+  scheduleCard.className = 'card-widget card-widget-schedule-custom';
+  scheduleCard.id = 'card-widget-schedule';
+  scheduleCard.innerHTML = `
+    <div class="item-headline">
+      <i class="anzhiyufont anzhiyu-icon-calendar-check"></i>
+      <span>时光进度</span>
+    </div>
+    <div class="item-content">
+      <div id="schedule-area-left">
+        <div id="schedule-title">距离除夕</div>
+        <div id="schedule-days"></div>
+        <div id="schedule-date"></div>
+      </div>
+      <div id="schedule-area-right">
+        <div class="schedule-r0">
+          <div class="schedule-d0">本年</div>
+          <div class="schedule-d1">
+            <span id="p_span_year" class="aside-span1"></span>
+            <span class="aside-span2">还剩<a></a>天</span>
+            <progress max="365" id="pBar_year"></progress>
+          </div>
+        </div>
+        <div class="schedule-r1">
+          <div class="schedule-d0">本月</div>
+          <div class="schedule-d1">
+            <span id="p_span_month" class="aside-span1"></span>
+            <span class="aside-span2">还剩<a></a>天</span>
+            <progress max="30" id="pBar_month"></progress>
+          </div>
+        </div>
+        <div class="schedule-r2">
+          <div class="schedule-d0">本周</div>
+          <div class="schedule-d1">
+            <span id="p_span_week" class="aside-span1"></span>
+            <span class="aside-span2">还剩<a></a>天</span>
+            <progress max="7" id="pBar_week"></progress>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 插入到作者卡片下方（第一个子元素之后）
+  const firstChild = aside.firstElementChild;
+  if (firstChild) {
+    aside.insertBefore(scheduleCard, firstChild.nextSibling);
+    aside.insertBefore(calendarCard, scheduleCard);
+  } else {
+    aside.appendChild(calendarCard);
+    aside.appendChild(scheduleCard);
+  }
+
+  // 等待 chinese-lunar 库加载完成后再初始化
+  if (typeof chineseLunar !== 'undefined') {
+    initializeCard();
+  } else {
+    // 轮询等待 chineseLunar 加载
+    let attempts = 0;
+    const checkLunar = setInterval(() => {
+      attempts++;
+      if (typeof chineseLunar !== 'undefined') {
+        clearInterval(checkLunar);
+        initializeCard();
+      } else if (attempts > 20) {
+        clearInterval(checkLunar);
+        initializeCard(); // 仍然尝试初始化（会显示"农历加载失败"）
+      }
+    }, 200);
+  }
+}
+
+/* --------------------------------------------------------------------------
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   injectPostEnd();
   initAISummary();
+  injectCalendarCards();
 });
 document.addEventListener('pjax:success', () => {
   injectPostEnd();
   initAISummary();
+  setTimeout(injectCalendarCards, 50);
 });
