@@ -70,8 +70,7 @@ function cardTimes() {
 
   // 日期格子
   for (let i = 0; i < o; i++) {
-    html += `<div class='calendar-r${i}'></div>`;
-    let rowHtml = "";
+    let rowHtml = `<div class='calendar-r${i}'>`;
     for (let j = 0; j < 7; j++) {
       if (i === 0 && j === t) {
         n = 1;
@@ -87,7 +86,8 @@ function cardTimes() {
         n += 1;
       }
     }
-    html += rowHtml + `</div>`;
+    rowHtml += `</div>`;
+    html += rowHtml;
   }
   c.innerHTML = html;
 
