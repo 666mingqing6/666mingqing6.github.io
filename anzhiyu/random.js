@@ -1,3 +1,3 @@
-var posts=["2026-01-01/experiencein2025/","2025-12-19/ksutomagisk/","2025-12-06/X/","2025-12-05/lsp/"];function toRandomPost(){
+var posts=["2026-01-01/experiencein2025/","2026-06-27/Talk-is-learning-useful/","2026-06-27/Alienation-of-Learning/","2026-06-27/talk-study/","2026-06-26/Love-alienation/","2026-06-26/talk-crush/","2026-03-28/9008/","2026-03-07/howtousefb/","2026-03-06/howtouseadb/","2026-02-11/D-K-Effect/","2025-12-19/ksutomagisk/","2025-12-06/X/","2025-12-05/lsp/"];function toRandomPost(){
     pjax.loadUrl('/'+posts[Math.floor(Math.random() * posts.length)]);
   };
