@@ -11,7 +11,7 @@
 const AI_CONFIG = {
   baseURL: 'https://api.iamhc.cn/v1',
   apiKey: 'sk-iQCthadul2uO6t2IBoYHiKqt4uv6W5oJs19J6gqN7ZHSlZad',
-  model: 'Qwen3.6-35B-A3B',
+  model: 'step-3.5-flash',
   maxWords: 1500,                                // 截取文章前 1500 字发给 API
   systemPrompt: '你是一个博客文章摘要生成助手。请根据用户提供的文章内容，生成一段简洁、准确、有吸引力的中文摘要，字数在100-200字之间。只输出摘要正文，不要加"摘要："等前缀，不要使用 markdown 格式，不要换行。'
 };
