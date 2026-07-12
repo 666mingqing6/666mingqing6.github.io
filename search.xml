@@ -146,11 +146,11 @@
             
             <tag> 哲学 </tag>
             
-            <tag> 情感 </tag>
-            
             <tag> 校园 </tag>
             
             <tag> 心理 </tag>
+            
+            <tag> 情感 </tag>
             
         </tags>
       
@@ -177,9 +177,9 @@
             
             <tag> 哲学 </tag>
             
-            <tag> 情感 </tag>
-            
             <tag> 心理 </tag>
+            
+            <tag> 情感 </tag>
             
             <tag> 爱情 </tag>
             
@@ -212,13 +212,13 @@
             
             <tag> 技术类文档 </tag>
             
-            <tag> Fastboot </tag>
-            
             <tag> Android </tag>
             
-            <tag> 刷机 </tag>
-            
             <tag> 教程 </tag>
+            
+            <tag> Fastboot </tag>
+            
+            <tag> 刷机 </tag>
             
         </tags>
       
@@ -245,11 +245,11 @@
       
         <tags>
             
+            <tag> ADB </tag>
+            
             <tag> Android </tag>
             
             <tag> 教程 </tag>
-            
-            <tag> ADB </tag>
             
         </tags>
       
