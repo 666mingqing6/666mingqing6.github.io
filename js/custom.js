@@ -149,12 +149,29 @@ function initAISummary() {
         })
       });
 
+      const respText = await response.text();
+
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`API ${response.status}: ${errText.substring(0, 100)}`);
+        throw new Error(`HTTP ${response.status}: ${respText.substring(0, 150)}`);
       }
 
-      const data = await response.json();
+      // 检查是否为 HTML（Worker 域名未绑定 / 路径错误时 Cloudflare 会返回 HTML 错误页）
+      if (respText.trimStart().startsWith('<')) {
+        throw new Error('Worker 返回了 HTML 而非 JSON，请检查 Worker 是否部署成功、域名是否绑定、Origin 是否在白名单中');
+      }
+
+      let data;
+      try {
+        data = JSON.parse(respText);
+      } catch (e) {
+        throw new Error(`JSON 解析失败: ${respText.substring(0, 150)}`);
+      }
+
+      // 兼容 Worker 透传的上游错误
+      if (data.error) {
+        throw new Error(`上游错误: ${typeof data.error === 'string' ? data.error : JSON.stringify(data.error)}`);
+      }
+
       const summary = (data.choices?.[0]?.message?.content || '').trim();
 
       clearInterval(loadingTimer);
