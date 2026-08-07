@@ -145,3 +145,11 @@
   margin: 0;
   border-radius: 8px !important;
 }
+
+/* 链接卡片图标：铺满整个图标方框，去掉 alt 文字残留 */
+#article-container .tag-Link .tag-link-favicon {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: var(--anzhiyu-border-radius) !important;
+}
