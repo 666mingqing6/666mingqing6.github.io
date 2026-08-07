@@ -9,8 +9,8 @@
  * 通过 Cloudflare Worker 代理，API Key 保存在 Worker 环境变量中，不暴露给前端
  * -------------------------------------------------------------------------- */
 const AI_CONFIG = {
-  baseURL: 'https://ai.646474.xyz',  // Cloudflare Worker 地址（部署后替换为实际地址）
-  model: 'DeepSeek-V4-Flash',
+  baseURL: 'https://ai.646474.xyz',              // Cloudflare Worker 地址
+  model: '@cf/qwen/qwen3-30b-a3b-fp8',           // Workers AI 模型（仅参考，实际由 Worker 绑定决定）
   maxWords: 1300,                                // 截取文章前 1300 字发给 API
   systemPrompt: '你是一个博客文章摘要生成助手。请根据用户提供的文章内容，生成一段简洁、准确、有吸引力的中文摘要，字数在100-200字之间。只输出摘要正文，不要加"摘要："等前缀，不要使用 markdown 格式，不要换行。'
 };
