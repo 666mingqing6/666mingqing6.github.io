@@ -103,3 +103,45 @@
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
+
+/* ==========================================================================
+   多链接组合卡片（{% links %}...{% endlinks %}）
+   大卡片包裹多个小卡片，小卡片不显示顶部提示
+   ========================================================================== */
+#article-container .anzhiyu-tag-links {
+  background: var(--anzhiyu-secondbg);
+  border: var(--style-border);
+  border-radius: 12px;
+  padding: 0.5rem 1rem 1rem;
+  margin: 1rem 0;
+  transition: all 0.3s;
+}
+
+#article-container .anzhiyu-tag-links:hover {
+  border: var(--style-border-hover);
+}
+
+#article-container .anzhiyu-tag-links .tag-links-tips {
+  border-bottom: var(--style-border);
+  padding-bottom: 4px;
+  font-size: 12px;
+  color: var(--anzhiyu-gray);
+  font-weight: normal;
+}
+
+#article-container .anzhiyu-tag-links .tag-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* 组合卡片内的小卡片：去掉外层间距和圆角，贴合大卡片 */
+#article-container .anzhiyu-tag-links .anzhiyu-tag-link {
+  margin: 0;
+}
+
+#article-container .anzhiyu-tag-links .anzhiyu-tag-link .tag-Link {
+  margin: 0;
+  border-radius: 8px !important;
+}
