@@ -146,10 +146,12 @@
   border-radius: 8px !important;
 }
 
-/* 链接卡片图标：铺满整个图标方框，去掉 alt 文字残留 */
+/* 链接卡片图标：contain 适配各种尺寸 + 居中 + 留白 */
 #article-container .tag-Link .tag-link-favicon {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
   border-radius: var(--anzhiyu-border-radius) !important;
+  padding: 8px;
+  box-sizing: border-box;
 }
