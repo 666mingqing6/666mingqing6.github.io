@@ -179,3 +179,100 @@
     object-position: center !important;
   }
 }
+
+/* ==========================================================================
+   分类页：树形层级结构
+   - 顶级分类：加粗主色 + 大字号
+   - 子分类：缩进 + 左侧连接线 + 灰色文字
+   - hover：父级主色高亮，子级传递
+   ========================================================================== */
+.cat-tree {
+  padding: 8px 0;
+}
+
+.cat-tree-root,
+.cat-tree-child {
+  position: relative;
+}
+
+/* 子分类左侧连接线 */
+.cat-tree-child {
+  padding-left: 24px;
+}
+
+.cat-tree-child::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--anzhiyu-card-border);
+}
+
+/* 横向连接线（每个子节点到竖线） */
+.cat-tree-child::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 18px;
+  width: 12px;
+  border-top: 1px dashed var(--anzhiyu-card-border);
+}
+
+/* 最后一个子节点：横向线之下不再延伸竖线 */
+.cat-tree-branch-last::before {
+  bottom: auto;
+  height: 18px;
+}
+
+/* 节点链接 */
+.cat-tree-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  margin: 2px 0;
+}
+
+.cat-tree-link:hover {
+  background: var(--anzhiyu-main-op);
+  text-decoration: none;
+}
+
+/* 顶级分类：加粗 + 主色 + 大字号 */
+.cat-tree-root > .cat-tree-link {
+  font-weight: 700;
+  font-size: 1.15em;
+  color: var(--anzhiyu-main);
+  margin-top: 12px;
+}
+
+.cat-tree-root > .cat-tree-link:hover {
+  color: var(--anzhiyu-theme);
+}
+
+/* 子分类：常规字重 + 灰色 */
+.cat-tree-child > .cat-tree-link {
+  font-weight: 400;
+  font-size: 0.95em;
+  color: var(--anzhiyu-fontcolor);
+}
+
+.cat-tree-child > .cat-tree-link:hover {
+  color: var(--anzhiyu-main);
+}
+
+/* 计数 */
+.cat-tree-count {
+  margin-left: 6px;
+  font-size: 0.8em;
+  color: var(--anzhiyu-thirdtext);
+  font-weight: normal;
+}
+
+/* 子分类容器 */
+.cat-tree-children {
+  position: relative;
+}
