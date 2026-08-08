@@ -155,3 +155,29 @@
   padding: 8px;
   box-sizing: border-box;
 }
+
+/* ==========================================================================
+   首页文章列表封面图：contain 完整显示 + 背景填充空白
+   - 大图：等比缩放完整显示，不裁剪
+   - 小图：居中显示，不拉伸变形
+   - 背景：用 secondbg 填充可能出现的留白，视觉不突兀
+   ========================================================================== */
+#recent-posts .post_cover {
+  background: var(--anzhiyu-secondbg);
+}
+
+#recent-posts .post_cover img.post_bg {
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+/* 双列布局下的封面也同步处理 */
+@media screen and (min-width: 1201px) {
+  #recent-posts > .recent-post-item .post_cover {
+    background: var(--anzhiyu-secondbg);
+  }
+  #recent-posts > .recent-post-item .post_cover img.post_bg {
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+}
