@@ -276,3 +276,384 @@
 .cat-tree-children {
   position: relative;
 }
+
+/* ==========================================================================
+   单个分类页：面包屑路径 + 子分类卡片
+   ========================================================================== */
+.cat-breadcrumb {
+  margin: 1rem 0;
+  padding: 1rem 1.2rem;
+  background: var(--anzhiyu-secondbg);
+  border: var(--style-border);
+  border-radius: 12px;
+}
+
+.cat-breadcrumb-path {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 1rem;
+}
+
+.cat-crumb-link {
+  color: var(--anzhiyu-secondtext);
+  transition: color 0.25s;
+  text-decoration: none;
+}
+
+.cat-crumb-link:hover {
+  color: var(--anzhiyu-main);
+  text-decoration: none;
+}
+
+.cat-crumb-sep {
+  margin: 0 6px;
+  font-size: 0.8em;
+  color: var(--anzhiyu-thirdtext);
+}
+
+.cat-crumb-current {
+  font-weight: 700;
+  color: var(--anzhiyu-main);
+}
+
+.cat-crumb-count {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--anzhiyu-thirdtext);
+}
+
+/* 子分类卡片区域 */
+.cat-children-wrap {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--anzhiyu-card-border);
+}
+
+.cat-children-label {
+  font-size: 0.8rem;
+  color: var(--anzhiyu-thirdtext);
+  margin-bottom: 8px;
+}
+
+.cat-children-label i {
+  margin-right: 4px;
+}
+
+.cat-children-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cat-child-card {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--anzhiyu-card-bg);
+  border: var(--style-border);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.cat-child-card:hover {
+  background: var(--anzhiyu-main-op);
+  border-color: var(--anzhiyu-main);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.cat-child-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--anzhiyu-fontcolor);
+}
+
+.cat-child-card:hover .cat-child-name {
+  color: var(--anzhiyu-main);
+}
+
+.cat-child-count {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: var(--anzhiyu-thirdtext);
+}
+
+/* ==========================================================================
+   首页 category-bar：逐级向右展开子分类
+   - 用 .is-active（JS 控制）替代 :hover，避免鼠标在横条内移动时鬼畜收缩
+   - 鼠标离开整个 #catalog-list 才收回
+   - 溢出时非激活的顶级项加 .is-collapsed 让位
+   ========================================================================== */
+
+/* 所有分类项基础过渡 */
+#catalog-list .catalog-list-item {
+  transition: opacity 0.3s ease, max-width 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* 让位项：非激活且需腾出空间时由 JS 添加 */
+#catalog-list .catalog-list-item.is-collapsed {
+  opacity: 0;
+  max-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none;
+}
+
+/* 有子分类的项 */
+.catalog-list-item-has-child {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 激活项提升层级，确保 flyout 不被右侧兄弟项遮挡 */
+#catalog-list .catalog-list-item.is-active {
+  z-index: 10;
+  overflow: visible !important;
+  max-width: none !important;
+}
+
+/* 激活状态时隐藏"更多"按钮和翻页按钮，避免遮挡 flyout */
+#catalog-bar.catalog-bar-active .catalog-more,
+#catalog-bar.catalog-bar-active .category-bar-next {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 箭头：激活时旋转 */
+.catalog-list-item .cat-arrow {
+  font-size: 0.8em;
+  margin-left: 2px;
+  opacity: 0.6;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.catalog-list-item.is-active > a .cat-arrow {
+  transform: rotate(90deg);
+  opacity: 1;
+}
+
+/* 子分类容器：默认收起（每层都默认收起，靠父级 .is-active 展开） */
+.catalog-list-item-has-child .cat-flyout {
+  display: inline-flex;
+  align-items: center;
+  /* 无 gap：子项通过负 margin 堆叠重叠在一起 */
+  margin-left: 0;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.4s ease, opacity 0.3s ease 0.1s, margin-left 0.4s ease;
+}
+
+/* 激活时展开直接子级（用 > 限定，避免孙级连带展开） */
+.catalog-list-item.is-active > .cat-flyout {
+  max-width: 800px;
+  opacity: 1;
+  margin-left: 6px;
+  overflow: visible;
+}
+
+/* 子级项基础：position:relative 让 z-index 生效，overflow:visible 覆盖基础 hidden */
+.cat-flyout > .catalog-list-item {
+  position: relative;
+  z-index: 1;
+  overflow: visible !important;
+}
+
+/* 堆叠核心：第二项起向左负 margin，与前一项重叠挤在一起 */
+.cat-flyout > .catalog-list-item + .catalog-list-item {
+  margin-left: -22px;
+}
+
+/* 子级项链接样式：胶囊背景，区分层级 */
+.cat-flyout > .catalog-list-item > a {
+  font-size: 0.9em;
+  background: var(--anzhiyu-card-bg);
+  border: 1px solid var(--anzhiyu-card-border);
+  height: 26px;
+  line-height: 26px;
+  padding: 0 14px;
+  border-radius: 13px;
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* 悬停高亮 */
+.cat-flyout > .catalog-list-item > a:hover {
+  background: var(--anzhiyu-main);
+  color: var(--anzhiyu-white);
+  border-color: var(--anzhiyu-main);
+}
+
+/* 当前激活的子项：从堆叠中前置（z-index 置顶 + 上浮 + 主色背景 + 阴影） */
+.cat-flyout > .catalog-list-item.is-active {
+  z-index: 20;
+}
+.cat-flyout > .catalog-list-item.is-active > a {
+  background: var(--anzhiyu-main);
+  color: var(--anzhiyu-white);
+  border-color: var(--anzhiyu-main);
+  border-width: 2px;
+  height: 28px;
+  line-height: 24px;
+  box-shadow: 0 4px 12px rgba(242, 185, 75, 0.45);
+  transform: translateY(-2px);
+}
+
+/* 非激活的兄弟项适度淡化，反衬激活项 */
+.cat-flyout > .catalog-list-item:not(.is-active) > a {
+  opacity: 0.6;
+}
+
+/* 更深层级逐级缩小，增强视觉层次 */
+.cat-flyout .cat-flyout > .catalog-list-item > a {
+  font-size: 0.82em;
+  height: 24px;
+  line-height: 22px;
+}
+
+/* ==========================================================================
+   分类页：树形文章列表（父分类文章 + 缩进的子分类文章）
+   ========================================================================== */
+.cat-tree-posts {
+  margin-top: 1rem;
+}
+
+/* 子分类标题 */
+.cat-tree-post-header {
+  margin: 16px 0 8px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--anzhiyu-main);
+  background: var(--anzhiyu-secondbg);
+  border-radius: 0 8px 8px 0;
+}
+
+.cat-tree-cat-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--anzhiyu-main);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.cat-tree-cat-link:hover {
+  color: var(--anzhiyu-theme);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   首页文章卡片显示文章描述（description）
+   主题全局规则将 .content 设为 opacity:0 / height:0，此处强制显示
+   配合 _config.anzhiyu.yml 中 index_post_content.method=1
+   ========================================================================== */
+#content-inner #recent-posts > .recent-post-item > .recent-post-info > .content {
+  opacity: 1 !important;
+  height: auto !important;
+  display: -webkit-box !important;
+}
+
+.cat-tree-cat-link i {
+  margin-right: 4px;
+  font-size: 0.8em;
+}
+
+.cat-tree-cat-count {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: var(--anzhiyu-thirdtext);
+  background: var(--anzhiyu-card-bg);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* 文章项 */
+.cat-tree-post-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  margin: 4px 0;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  border: var(--style-border);
+}
+
+.cat-tree-post-item:hover {
+  background: var(--anzhiyu-secondbg);
+}
+
+.cat-tree-post-item .article-sort-item-img {
+  width: 80px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.cat-tree-post-item .article-sort-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cat-tree-post-item .article-sort-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-tree-post-item .article-sort-item-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--anzhiyu-fontcolor);
+  text-decoration: none;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-tree-post-item .article-sort-item-title:hover {
+  color: var(--anzhiyu-main);
+  text-decoration: none;
+}
+
+/* 子分类文章的分类标签 */
+.cat-tree-post-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--anzhiyu-thirdtext);
+  margin-top: 2px;
+}
+
+.cat-tree-post-label i {
+  margin-right: 3px;
+  font-size: 0.85em;
+}
+
+.cat-tree-post-item .article-meta-wrap {
+  margin-top: 4px;
+}
+
+.cat-tree-post-item .article-sort-item-time {
+  font-size: 0.75rem;
+  color: var(--anzhiyu-thirdtext);
+}
+
+.cat-tree-post-item .article-sort-item-time i {
+  margin-right: 3px;
+}
+
+.cat-tree-post-item.no-article-cover {
+  padding-left: 16px;
+}

@@ -355,6 +355,77 @@ function renderMermaid(blocks) {
 }
 
 /* --------------------------------------------------------------------------
+ * 5. category-bar 逐级展开交互
+ *    - 鼠标进入某分类项 → 标记激活链路（该项+所有祖先），向右逐级展开子菜单
+ *    - 鼠标在 #catalog-list 内移动 → 保持展开，不收缩（修复鬼畜）
+ *    - 鼠标离开 #catalog-list → 全部收回
+ *    - 展开后若横条溢出 → 从非激活的顶级项开始隐藏让位
+ * -------------------------------------------------------------------------- */
+function initCatalogBar() {
+  const list = document.getElementById('catalog-list');
+  if (!list) return;
+  if (list.dataset.catalogInit === '1') return;
+  list.dataset.catalogInit = '1';
+
+  const bar = document.getElementById('catalog-bar');
+
+  // 清除全部状态
+  function clearAll() {
+    list.querySelectorAll('.is-active, .is-collapsed').forEach(el => {
+      el.classList.remove('is-active', 'is-collapsed');
+    });
+    if (bar) bar.classList.remove('catalog-bar-active');
+  }
+
+  // 设置激活链路：当前项 + 所有祖先 catalog-list-item
+  function setActive(item) {
+    if (!item || !item.classList || !item.classList.contains('catalog-list-item')) return;
+    clearAll();
+    let node = item;
+    while (node && node !== list) {
+      if (node.classList && node.classList.contains('catalog-list-item')) {
+        node.classList.add('is-active');
+      }
+      node = node.parentElement;
+    }
+    // 标记整个 bar 为激活状态（隐藏"更多"按钮，避免遮挡 flyout）
+    if (bar) bar.classList.add('catalog-bar-active');
+    // 找到激活链路的顶级项，隐藏其右侧所有顶级项，避免遮挡 flyout
+    const topItems = Array.from(list.querySelectorAll(':scope > .catalog-list-item'));
+    const activeTopIndex = topItems.findIndex(it => it.classList.contains('is-active'));
+    if (activeTopIndex !== -1) {
+      for (let i = activeTopIndex + 1; i < topItems.length; i++) {
+        topItems[i].classList.add('is-collapsed');
+      }
+    }
+    // 补充溢出检测：若仍溢出，继续折叠非激活的左侧顶级项
+    requestAnimationFrame(checkOverflow);
+  }
+
+  // 溢出处理：若 #catalog-list 内容仍超出可视宽度，折叠剩余非激活顶级项
+  function checkOverflow() {
+    const topItems = list.querySelectorAll(':scope > .catalog-list-item');
+    if (list.scrollWidth <= list.clientWidth) return;
+
+    for (const it of topItems) {
+      if (it.classList.contains('is-active') || it.classList.contains('is-collapsed')) continue;
+      it.classList.add('is-collapsed');
+      if (list.scrollWidth <= list.clientWidth) return;
+    }
+  }
+
+  // mouseover 冒泡：进入任意分类项（含子级）即切换激活链路
+  list.addEventListener('mouseover', (e) => {
+    const item = e.target.closest('.catalog-list-item');
+    if (!item || !list.contains(item)) return;
+    setActive(item);
+  });
+
+  // 鼠标离开整个横条 → 收回
+  list.addEventListener('mouseleave', clearAll);
+}
+
+/* --------------------------------------------------------------------------
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -363,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAISummary();
   injectCalendarCards();
   initMermaid();
+  initCatalogBar();
 });
 document.addEventListener('pjax:success', () => {
   injectPostEnd();
@@ -370,4 +442,5 @@ document.addEventListener('pjax:success', () => {
   initAISummary();
   setTimeout(injectCalendarCards, 50);
   setTimeout(initMermaid, 100);
+  initCatalogBar();
 });
