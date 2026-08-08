@@ -561,6 +561,27 @@
   display: -webkit-box !important;
 }
 
+/* ==========================================================================
+   首页文章卡片显示文章描述（description）
+   主题在双栏模式下默认隐藏 .content（opacity:0 / height:0 / display:none）
+   此处强制显示，并加 padding 与标题对齐（标题 .recent-post-info-top 有 padding:0 32px）
+   ========================================================================== */
+#content-inner #recent-posts > .recent-post-item > .recent-post-info > .content {
+  opacity: 1 !important;
+  height: auto !important;
+  display: -webkit-box !important;
+  padding: 0 32px;
+  box-sizing: border-box;
+  margin-top: 0.1rem;
+  line-height: 1.3;
+}
+
+@media screen and (min-width: 1201px) {
+  #recent-posts > .recent-post-item > .recent-post-info > .content {
+    display: -webkit-box !important;
+  }
+}
+
 .cat-tree-cat-link i {
   margin-right: 4px;
   font-size: 0.8em;
