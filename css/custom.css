@@ -146,14 +146,31 @@
   border-radius: 8px !important;
 }
 
-/* 链接卡片图标：contain 适配各种尺寸 + 居中 + 留白 */
+/* 链接卡片图标：统一图片/字体图标尺寸与居中，避免外链图标大小不一、不居中 */
+/* 容器：60x60 flex 居中，统一背景 */
+#article-container .tag-Link .tag-link-bottom .tag-link-left {
+  background-color: var(--anzhiyu-card-bg);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* 图片图标：固定方框 + contain 保留比例 + 居中 */
 #article-container .tag-Link .tag-link-favicon {
-  width: 100% !important;
-  height: 100% !important;
+  width: 40px !important;
+  height: 40px !important;
   object-fit: contain !important;
-  border-radius: var(--anzhiyu-border-radius) !important;
-  padding: 8px;
+  border-radius: 6px !important;
+  padding: 0 !important;
   box-sizing: border-box;
+}
+/* 字体图标（FontAwesome）：放大到与图片视觉一致（覆盖 inline 1.4em） */
+#article-container .tag-Link .tag-link-bottom .tag-link-left i {
+  font-size: 36px !important;
+}
+/* 阿里 iconfont svg：统一尺寸（覆盖 inline 1.4em） */
+#article-container .tag-Link .tag-link-bottom .tag-link-left svg.icon {
+  width: 36px !important;
+  height: 36px !important;
 }
 
 /* ==========================================================================
