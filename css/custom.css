@@ -150,18 +150,16 @@
 /* 容器：60x60 flex 居中，统一背景 */
 #article-container .tag-Link .tag-link-bottom .tag-link-left {
   background-color: var(--anzhiyu-card-bg);
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
 }
-/* 图片图标：固定方框 + contain 保留比例 + 居中 */
+/* 图片图标：固定方框 + cover 填满统一，视觉与字体图标一致 */
 #article-container .tag-Link .tag-link-favicon {
   width: 40px !important;
   height: 40px !important;
-  object-fit: contain !important;
+  object-fit: cover !important;
   border-radius: 6px !important;
   padding: 0 !important;
   box-sizing: border-box;
+  display: block;
 }
 /* 字体图标（FontAwesome）：放大到与图片视觉一致（覆盖 inline 1.4em） */
 #article-container .tag-Link .tag-link-bottom .tag-link-left i {
