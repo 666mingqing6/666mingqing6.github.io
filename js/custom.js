@@ -489,6 +489,11 @@ function attachImageLoader(img) {
   if (img.classList.contains('loaded')) return; // 已加载完成的图片无需动画
   img.dataset.imgLoader = '1';
 
+  // 跳过绝对/固定定位的图片：包裹层 position:relative 会成为新包含块，
+  // 破坏其定位（如顶部 banner todayCard-cover、侧栏头像等）
+  const imgPos = getComputedStyle(img).position;
+  if (imgPos === 'absolute' || imgPos === 'fixed') return;
+
   // 若图片已被主题包进 fancybox 链接，则包住链接本身，避免破坏其结构
   let target = img;
   const parent = img.parentNode;

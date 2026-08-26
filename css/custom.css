@@ -628,13 +628,20 @@
   align-items: center;
   justify-content: center;
   background: var(--anzhiyu-background, #fff);
+  /* 占位边框：提示此处有图片正在加载 */
+  border: 1.5px dashed var(--anzhiyu-secondtext, #999);
+  border-radius: 6px;
+  box-sizing: border-box;
+  /* 作为尺寸容器，让 loader 字号随图片区域缩放 */
+  container-type: size;
 }
-/* 用户提供的 "Loading..." 文字加载动画（亮/暗色自适应） */
+/* 用户提供的 "Loading..." 文字加载动画（字号随容器宽度缩放，亮/暗色自适应） */
 .anzhiyu-img-loading .loader {
   width: fit-content;
+  max-width: 90%;
   font-weight: bold;
   font-family: monospace;
-  font-size: 30px;
+  font-size: clamp(16px, 14cqi, 80px);
   line-height: 1.2;        /* 覆盖包裹层的 line-height:0，避免文字高度坍缩 */
   background: linear-gradient(135deg, #0000 calc(50% - 0.5em), var(--anzhiyu-fontcolor, #000) 0 calc(50% + 0.5em), #0000 0) right/300% 100%;
   animation: anzhiyu-l22 2s infinite;
