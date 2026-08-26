@@ -10,7 +10,7 @@
  * -------------------------------------------------------------------------- */
 const AI_CONFIG = {
   baseURL: 'https://ai.646474.xyz',              // Cloudflare Worker 地址
-  model: '@cf/qwen/qwen3-30b-a3b-fp8',           // Workers AI 模型（仅参考，实际由 Worker 绑定决定）
+  model: '@cf/zai-org/glm-4.7-flash',            // Workers AI 模型：GLM-4.7-Flash（免费额度内、快速、中文好、轻量）
   maxWords: 1300,                                // 截取文章前 1300 字发给 API
   systemPrompt: '你是一个博客文章摘要生成助手。请根据用户提供的文章内容，生成一段简洁、准确、有吸引力的中文摘要，字数在100-200字之间。只输出摘要正文，不要加"摘要："等前缀，不要使用 markdown 格式，不要换行。'
 };
@@ -57,6 +57,54 @@ function hijackRewardButton() {
     e.preventDefault();
     window.location.href = '/donate/';
   });
+}
+
+/* --------------------------------------------------------------------------
+ * 2.5 ThinkingOrb 思考动画（AI 生成摘要时的加载动效）
+ *     使用 thinking-orbs 引擎（/js/thinking-orbs.js 提供 window.mountThinkingOrb）
+ *     等价于 <ThinkingOrb state="working" size={64} speed={1.5} />
+ * -------------------------------------------------------------------------- */
+let currentOrbCleanup = null; // 当前 orb 动画的清理函数
+
+function stopThinkingOrb() {
+  if (typeof currentOrbCleanup === 'function') {
+    try { currentOrbCleanup(); } catch (e) {}
+    currentOrbCleanup = null;
+  }
+}
+
+function injectThinkingOrbStyle() {
+  if (document.getElementById('ai-thinking-orb-style')) return;
+  const style = document.createElement('style');
+  style.id = 'ai-thinking-orb-style';
+  style.textContent = `
+    .ai-thinking-wrap {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 22px 0; text-align: center;
+    }
+    .ai-thinking-text {
+      font-size: 14px; color: var(--anzhiyu-secondtext, #999); letter-spacing: 0.5px;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function showThinkingOrb(el) {
+  injectThinkingOrbStyle();
+  stopThinkingOrb();
+  el.innerHTML = `
+    <div class="ai-thinking-wrap">
+      <canvas></canvas>
+      <span class="ai-thinking-text">AI 正在思考生成摘要…</span>
+    </div>`;
+  const canvas = el.querySelector('canvas');
+  if (canvas && window.mountThinkingOrb) {
+    currentOrbCleanup = window.mountThinkingOrb(canvas, {
+      state: 'working',
+      size: 64,
+      speed: 1.5
+    });
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -118,17 +166,12 @@ function initAISummary() {
     if (isGenerating) return;
     isGenerating = true;
 
-    // 显示加载动画
-    let dotCount = 0;
-    explanation.innerHTML = 'AI 正在生成摘要<span class="ai-cursor"></span>';
-    const loadingTimer = setInterval(() => {
-      dotCount = (dotCount % 3) + 1;
-      explanation.innerHTML = 'AI 正在生成摘要' + '.'.repeat(dotCount) + '<span class="ai-cursor"></span>';
-    }, 500);
+    // 显示 ThinkingOrb 思考动画
+    showThinkingOrb(explanation);
 
     const text = extractArticleText();
     if (text.length < 50) {
-      clearInterval(loadingTimer);
+      stopThinkingOrb();
       explanation.innerHTML = '文章内容过短，无需生成摘要。';
       isGenerating = false;
       return;
@@ -145,7 +188,8 @@ function initAISummary() {
             { role: 'user', content: text }
           ],
           temperature: 0.7,
-          max_tokens: 1200
+          max_tokens: 1200,
+          thinking: { type: 'disabled' } // GLM 默认推理模式输出在 reasoning 字段，禁用后直接返回 content
         })
       });
 
@@ -174,7 +218,7 @@ function initAISummary() {
 
       const summary = (data.choices?.[0]?.message?.content || '').trim();
 
-      clearInterval(loadingTimer);
+      stopThinkingOrb();
 
       if (summary) {
         typewriterEffect(explanation, summary);
@@ -182,7 +226,7 @@ function initAISummary() {
         explanation.innerHTML = '摘要生成失败：API 返回空内容。可点击刷新按钮重试。';
       }
     } catch (error) {
-      clearInterval(loadingTimer);
+      stopThinkingOrb();
       explanation.innerHTML = `摘要生成失败：${error.message}<br>可点击右上角刷新按钮重试。`;
     } finally {
       isGenerating = false;
