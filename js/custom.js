@@ -473,12 +473,73 @@ function initCatalogBar() {
  * 2.6 加载遮罩提前隐藏
  *     主题的 #loading-box 默认等 window.load（含所有图片）才消失，
  *     这里在 DOM 就绪时立即隐藏，让用户先看到正文。
- *     图片懒加载使用主题原生 blur 模糊过渡（lazyload.blur: true），
- *     不再额外添加自定义 loading 动画。
  * -------------------------------------------------------------------------- */
 function hidePreloaderOverlay() {
   const box = document.getElementById('loading-box');
   if (box && !box.classList.contains('loaded')) box.classList.add('loaded');
+}
+
+/* --------------------------------------------------------------------------
+ * 2.7 图片懒加载 Shimmer 流光占位动画
+ *     图床不稳定时图片加载慢，shimmer 流光占位提示用户"图片正在加载"。
+ *     覆盖文章封面、正文图片、缩略图等所有懒加载图片。
+ *     纯 CSS 动画（渐变位移），GPU 加速，零 JS 动画开销。
+ * -------------------------------------------------------------------------- */
+function initImageShimmer() {
+  document.querySelectorAll('img[data-lazy-src]').forEach(attachShimmer);
+}
+
+function attachShimmer(img) {
+  if (img.dataset.shimmer === '1') return;
+  if (img.classList.contains('loaded')) return; // 已加载完成跳过
+  img.dataset.shimmer = '1';
+
+  // 跳过绝对/固定定位的图片：包裹层 position:relative 会成为新包含块，
+  // 破坏其定位（如顶部 banner todayCard-cover、侧栏头像等）
+  const imgPos = getComputedStyle(img).position;
+  if (imgPos === 'absolute' || imgPos === 'fixed') return;
+
+  // 若图片已被主题包进 fancybox 链接，则包住链接本身，不破坏结构
+  let target = img;
+  const parent = img.parentNode;
+  if (parent && parent.tagName === 'A' && parent.hasAttribute('data-fancybox')) {
+    target = parent;
+  }
+  if (target.parentNode && target.parentNode.classList.contains('lum-img-shimmer')) return;
+
+  // 创建包裹层
+  const wrap = document.createElement('span');
+  wrap.className = 'lum-img-shimmer';
+  target.parentNode.insertBefore(wrap, target);
+  wrap.appendChild(target);
+
+  // 添加 shimmer 覆盖层
+  const overlay = document.createElement('span');
+  overlay.className = 'lum-shimmer-overlay';
+  wrap.appendChild(overlay);
+
+  const removeShimmer = () => {
+    if (overlay && overlay.parentNode) overlay.remove();
+    // 延迟移除包裹层 class，让图片过渡自然
+    setTimeout(() => {
+      if (wrap && wrap.classList) wrap.classList.add('lum-shimmer-done');
+    }, 100);
+  };
+
+  // 图片加载成功/失败后移除 shimmer
+  img.addEventListener('load', removeShimmer, { once: true });
+  img.addEventListener('error', removeShimmer, { once: true });
+
+  // 兜底：vanilla-lazyload 加载后会给 img 加 .loaded
+  const poll = setInterval(() => {
+    if (img.classList.contains('loaded')) {
+      clearInterval(poll);
+      removeShimmer();
+    }
+  }, 200);
+
+  // 最久 15s 强制移除，避免 shimmer 常驻
+  setTimeout(() => { clearInterval(poll); removeShimmer(); }, 15000);
 }
 
 /* --------------------------------------------------------------------------
@@ -492,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
   injectCalendarCards();
   initMermaid();
   initCatalogBar();
+  initImageShimmer();
 });
 document.addEventListener('pjax:success', () => {
   hidePreloaderOverlay();
@@ -501,4 +563,5 @@ document.addEventListener('pjax:success', () => {
   setTimeout(injectCalendarCards, 50);
   setTimeout(initMermaid, 100);
   initCatalogBar();
+  setTimeout(initImageShimmer, 50);
 });

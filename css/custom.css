@@ -598,10 +598,121 @@
 }
 
 /* ==========================================================================
-   图片懒加载使用主题原生 blur 模糊过渡（lazyload.blur + lazyload.progressive）
-   不再使用自定义 loading 动画，依赖主题 CSS：
-   img[data-lazy-src]:not(.loaded) { filter: blur(8px) brightness(1); opacity: 0; }
+   图片懒加载 Shimmer 流光占位动画
+   图床加载慢时显示 shimmer 流光占位，提示用户图片正在加载。
+   纯 CSS 渐变位移动画，GPU 加速，亮/暗色自适应。
+   包裹层由 custom.js 动态生成：.lum-img-shimmer > (img 或 a) + .lum-shimmer-overlay
    ========================================================================== */
+
+/* 包裹层：inline-block 默认，块级场景撑满父容器 */
+.lum-img-shimmer {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  vertical-align: bottom;
+  overflow: hidden;
+}
+
+/* 封面 / 卡片等块级场景：撑满父容器，保持原布局 */
+.post_cover .lum-img-shimmer,
+.recent-post-item .lum-img-shimmer,
+.top-group-list-item .lum-img-shimmer,
+.topGroup .recent-post-item .lum-img-shimmer,
+.thumbnail .lum-img-shimmer,
+#article-container .lum-img-shimmer {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* shimmer 覆盖层：覆盖在图片上方，加载完成后移除 */
+.lum-shimmer-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  /* shimmer 流光渐变背景 */
+  background: linear-gradient(
+    90deg,
+    var(--anzhiyu-card-bg, #e8e8e8) 0%,
+    var(--anzhiyu-secondtext-hover, #d0d0d0) 20%,
+    var(--anzhiyu-card-bg, #e8e8e8) 40%,
+    var(--anzhiyu-card-bg, #e8e8e8) 100%
+  );
+  background-size: 200% 100%;
+  animation: lum-shimmer-sweep 1.5s ease-in-out infinite;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .lum-shimmer-overlay {
+  background: linear-gradient(
+    90deg,
+    #2a2a2c 0%,
+    #3a3a3c 20%,
+    #2a2a2c 40%,
+    #2a2a2c 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* shimmer 中央旋转 spinner（叠加在流光背景上） */
+.lum-shimmer-overlay::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--anzhiyu-main, #425aef);
+  border-radius: 50%;
+  animation: lum-spinner-rotate 0.8s linear infinite;
+}
+
+[data-theme="dark"] .lum-shimmer-overlay::after {
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #6b8aff;
+}
+
+/* 尊重 reduce-motion 用户偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .lum-shimmer-overlay {
+    animation: none;
+    background: var(--anzhiyu-card-bg, #e8e8e8);
+  }
+  .lum-shimmer-overlay::after {
+    animation: none;
+  }
+}
+
+/* 流光位移动画 */
+@keyframes lum-shimmer-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* spinner 旋转动画 */
+@keyframes lum-spinner-rotate {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+/* shimmer 完成后淡出 */
+.lum-shimmer-done .lum-shimmer-overlay {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
 .cat-tree-cat-link i {
   margin-right: 4px;
