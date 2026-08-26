@@ -709,40 +709,52 @@ function initYouTubeFallback() {
     let isCN = false;
     try {
       const cached = JSON.parse(localStorage.getItem(IP_CACHE_KEY) || '{}');
-      if (cached.data && cached.data.countryCode === 'CN') isCN = true;
+      if (cached.data && (cached.data.countryCode === 'CN' || cached.data.country === 'China')) isCN = true;
     } catch (e) {}
 
-    // 超时检测：如果 8s 内 iframe 未触发 load 事件，认为加载失败
-    let loaded = false;
-    const timer = setTimeout(() => {
-      if (!loaded) showYouTubeFallback(iframe, isCN);
-    }, 8000);
+    const videoId = extractYouTubeId(iframe.src || '');
+    let resolved = false;      // 是否已做出最终判断（避免重复降级）
 
-    iframe.addEventListener('load', () => {
-      loaded = true;
-      clearTimeout(timer);
-      // 即使 load 触发，也检查一下是否真的可访问
-      // YouTube iframe load 事件在某些情况下即使被墙也会触发
-      // 所以这里额外延迟检测
-    });
-
-    // 错误事件
+    // iframe 自身 error 事件（直接降级，不依赖 load 事件避免错过 pjax 后的 load）
     iframe.addEventListener('error', () => {
-      loaded = true;
-      clearTimeout(timer);
-      showYouTubeFallback(iframe, isCN);
+      if (!resolved) { resolved = true; showYouTubeFallback(iframe, isCN, videoId); }
     });
+
+    // 主检测：主动探测 youtube 域名可达性
+    // GFW 封锁 youtube 整个域名，用 Image 加载 favicon 可可靠判断
+    // 不依赖 iframe 的 load 事件（被墙时浏览器可能触发 load 加载错误页，导致漏判）
+    const probe = new Image();
+    probe.onload = () => {
+      if (resolved) return;
+      resolved = true;
+      // YouTube 可达（国外正常网络），正常显示 iframe
+    };
+    probe.onerror = () => {
+      if (resolved) return;
+      resolved = true;
+      showYouTubeFallback(iframe, isCN, videoId); // GFW 不可达，立即降级
+    };
+
+    // 探测 4s 超时 → 视为不可达（GFW DNS 失败很快，4s 足够兜底）
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        showYouTubeFallback(iframe, isCN, videoId);
+      }
+    }, 4000);
+
+    // 加时间戳防止缓存
+    probe.src = 'https://www.youtube.com/favicon.ico?v=' + Date.now();
   });
 }
 
-function showYouTubeFallback(iframe, isCN) {
+function showYouTubeFallback(iframe, isCN, videoId) {
   const container = iframe.closest('.video-container') || iframe.parentElement;
   if (!container || container.dataset.ytReplaced === '1') return;
   container.dataset.ytReplaced = '1';
 
-  // 保留原始 src 以便用户点击时可以尝试访问
   const originalSrc = iframe.src || '';
-  const videoId = extractYouTubeId(originalSrc);
+  const vid = videoId || extractYouTubeId(originalSrc);
 
   const fallback = document.createElement('div');
   fallback.className = 'yt-fallback';
@@ -759,10 +771,9 @@ function showYouTubeFallback(iframe, isCN) {
         : '<strong>该视频来自 YouTube</strong><br>视频加载失败，请检查网络连接是否正常，或该视频可能已被下架。'
       }
     </div>
-    ${videoId ? `<a class="yt-fallback-link" href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener">在 YouTube 上观看</a>` : ''}
+    ${vid ? `<a class="yt-fallback-link" href="https://www.youtube.com/watch?v=${vid}" target="_blank" rel="noopener">在 YouTube 上观看</a>` : ''}
   `;
 
-  // 隐藏 iframe，显示降级提示
   iframe.style.display = 'none';
   container.appendChild(fallback);
 }
