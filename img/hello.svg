@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lumoes Blog - 首页 banner 动态 hello（网络原版结构）
+  - 保留原版 4 段路径与变换
+  - 绘制顺序：主词 hello → o 收笔 → 尾巴 → 圆点，依次画完互不重叠（无提前绘制）
+  - 圆点最后淡入
+  - 五彩渐变描边（青→绿→黄→橙→红→紫→蓝，横向平滑过渡）
+  - 低调白色调背景（白为主，混入柔和中性绿渐变）
+  - forwards 保持绘制完成后不退场
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340">
+  <defs>
+    <!-- 低调白色调背景：白色为主，混入柔和的中性绿渐变 -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.4" stop-color="#f2f7f4"/>
+      <stop offset="0.72" stop-color="#e5f0ea"/>
+      <stop offset="1" stop-color="#d8e8e0"/>
+    </linearGradient>
+    <!-- 顶部柔光（淡淡绿色调点缀） -->
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#cfe9dd" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 五彩渐变：横向平滑过渡（横跨 hello 主词范围） -->
+    <linearGradient id="hello-rainbow" gradientUnits="userSpaceOnUse" x1="18.5" y1="0" x2="470" y2="0">
+      <stop offset="0" stop-color="#157B93"/>
+      <stop offset="0.15" stop-color="#2FA36B"/>
+      <stop offset="0.3" stop-color="#ACD15E"/>
+      <stop offset="0.42" stop-color="#FAD500"/>
+      <stop offset="0.54" stop-color="#FFB000"/>
+      <stop offset="0.65" stop-color="#FF7A3D"/>
+      <stop offset="0.76" stop-color="#F45343"/>
+      <stop offset="0.88" stop-color="#9174B5"/>
+      <stop offset="1" stop-color="#51A5D3"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    @keyframes draw {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes fadein {
+      to { opacity: 1; }
+    }
+    .hello path,
+    .hello line {
+      fill: none;
+      stroke: url(#hello-rainbow);
+      stroke-width: 16;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+
+  <!-- 背景 -->
+  <rect width="600" height="340" fill="url(#bg)"/>
+  <rect width="600" height="340" fill="url(#glow)"/>
+
+  <!-- hello（原版路径，平移居中；严格按书写顺序依次绘制，无提前） -->
+  <g class="hello" transform="translate(9.5 71.5)">
+    <!-- 主词 hello（0s 起画，3s 画完） -->
+    <path class="path-1" transform="translate(-199 -183)"
+      stroke-dasharray="1816" stroke-dashoffset="1816"
+      style="animation: draw 3s ease-in-out 0s forwards;"
+      d="M208,338c38-16.67,73.74-45.72,97.33-66,21.33-18.33,32.67-35.67,37.33-52.67C347.12,203.12,344,192,332,192c-11,0-21,10.33-24.94,27.68-4.52,19.89-22.06,107.82-29.39,149,15.67-72.33,36.33-81.33,53.67-81.33,22.33,0,24.67,18.67,19.42,39-5.43,21.07-7.42,44.32,17.91,44.32,18,0,35.53-8.17,52.67-20,14-9.67,23-24,23-40,0-13.42-8-23.33-20.67-23.33s-24.33,12-24.33,33.33c0,27,16.33,48,44,48,25.67,0,47.67-19.67,62-44.67,13.61-23.74,30.67-64.67,33.33-92.67s-5.33-36-18.67-36-24.67,17.33-28.67,43.33S486,302,491.33,330s28,37.67,46,37.67,38.17-15.67,52-37c16.54-25.51,35.87-67.45,38.67-102,2-24.67-8.67-33.33-20-33.33-14.67,0-23.33,13.33-28,38-4.5,23.81-8,64-2,94,4.64,23.21,25.33,40.33,44.67,40.33s32.67-19,36.67-42.33"/>
+    <!-- o 收笔（主词画完后 3s 起画） -->
+    <path class="path-2" transform="translate(-199 -183)"
+      stroke-dasharray="236" stroke-dashoffset="236"
+      style="animation: draw 0.7s ease-in-out 3s forwards;"
+      d="M697.33,287.33C672,287.33,661.33,305,659,327c-2.81,26.54,10.33,41.67,29.67,41.67,22,0,34.54-20.78,36.67-40.67,2-18.67-7.39-39.13-28-40.67"/>
+    <!-- 尾巴（o 收笔后 3.7s 起画） -->
+    <path class="path-3" transform="translate(-199 -183)"
+      stroke-dasharray="62" stroke-dashoffset="62"
+      style="animation: draw 0.5s ease-in-out 3.7s forwards;"
+      d="M714.8,295.12c12.11,12.26,43.53,9.55,56.53-5.79"/>
+    <!-- 句点（最后 4.2s 淡入） -->
+    <line class="path-4" x1="561" y1="181.67" x2="561" y2="181.67"
+      stroke-dasharray="1" stroke-dashoffset="1" opacity="0"
+      style="animation: fadein 0.3s ease-out 4.2s forwards;"/>
+  </g>
+</svg>
