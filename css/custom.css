@@ -714,6 +714,35 @@
   transition: opacity 0.3s ease;
 }
 
+/* ==========================================================================
+   装备页面图片溢出修复
+   主题 equipment.styl 中 img 固定 width:260px 无 max-width 约束，
+   在窄屏卡片中溢出容器。同时 shimmer 包裹层在 flex 布局中需适配。
+   ========================================================================== */
+.equipment-item-content-item-cover img.equipment-item-content-item-image {
+  max-width: 100% !important;
+  width: auto !important;
+  height: 80% !important;
+  object-fit: contain !important;
+}
+
+/* equipment 页面的 shimmer 包裹层适配 flex 居中布局 */
+.equipment-item-content-item-cover .lum-img-shimmer {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  line-height: normal;
+}
+.equipment-item-content-item-cover .lum-img-shimmer img.equipment-item-content-item-image {
+  max-height: 80% !important;
+  max-width: 90% !important;
+  width: auto !important;
+  height: auto !important;
+}
+
 .cat-tree-cat-link i {
   margin-right: 4px;
   font-size: 0.8em;
