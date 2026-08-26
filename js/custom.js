@@ -543,6 +543,236 @@ function attachShimmer(img) {
 }
 
 /* --------------------------------------------------------------------------
+ * 6. 访客 IP 归属地展示卡片
+ *    使用 ip.sb JSONP API 获取访客 IP 和地理位置信息
+ *    注入到侧边栏，显示 IP 地址（模糊）+ 归属地 + 距离 + 时段问候
+ * -------------------------------------------------------------------------- */
+const IP_CACHE_KEY = 'lum_ip_info_cache';
+const IP_CACHE_DURATION = 1000 * 60 * 30; // 30 分钟缓存
+
+function injectVisitorCard() {
+  const aside = document.getElementById('aside-content');
+  if (!aside) return;
+  if (document.getElementById('card-widget-visitor')) return;
+
+  const card = document.createElement('div');
+  card.className = 'card-widget card-widget-visitor';
+  card.id = 'card-widget-visitor';
+  card.innerHTML = `
+    <div class="item-headline">
+      <i class="anzhiyufont anzhiyu-icon-location-dot"></i>
+      <span>访客信息</span>
+    </div>
+    <div id="visitor-info">
+      <div class="visitor-loading">
+        <div class="visitor-spinner"></div>
+        <span>正在获取访客信息...</span>
+      </div>
+    </div>
+  `;
+
+  // 插入到日历卡片下方（如果日历卡片存在）
+  const calendarCard = document.getElementById('card-widget-calendar');
+  if (calendarCard) {
+    calendarCard.parentNode.insertBefore(card, calendarCard.nextSibling);
+  } else {
+    const firstChild = aside.firstElementChild;
+    if (firstChild) aside.insertBefore(card, firstChild.nextSibling);
+    else aside.appendChild(card);
+  }
+
+  fetchVisitorInfo();
+}
+
+function fetchVisitorInfo() {
+  // 检查缓存
+  const cached = localStorage.getItem(IP_CACHE_KEY);
+  if (cached) {
+    try {
+      const { data, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < IP_CACHE_DURATION) {
+        showVisitorInfo(data);
+        return;
+      }
+    } catch (e) {}
+  }
+
+  // JSONP 调用 ip.sb geoip API
+  const callbackName = 'lum_geoip_cb_' + Date.now();
+  window[callbackName] = function(data) {
+    delete window[callbackName];
+    document.getElementById('lum-ip-script')?.remove();
+    if (data) {
+      const info = {
+        ip: data.ip || '未知',
+        country: data.country || '',
+        countryCode: data.country_code || '',
+        city: data.city || '',
+        region: data.region || '',
+        isp: data.isp || data.organization || ''
+      };
+      localStorage.setItem(IP_CACHE_KEY, JSON.stringify({ data: info, timestamp: Date.now() }));
+      showVisitorInfo(info);
+    } else {
+      showVisitorError();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.id = 'lum-ip-script';
+  script.src = `https://api.ip.sb/geoip?callback=${callbackName}`;
+  script.onerror = () => {
+    delete window[callbackName];
+    document.getElementById('lum-ip-script')?.remove();
+    showVisitorError();
+  };
+  document.head.appendChild(script);
+}
+
+function showVisitorInfo(info) {
+  const container = document.getElementById('visitor-info');
+  if (!container) return;
+
+  // 判断是否中国用户
+  const isCN = info.countryCode === 'CN' || info.country === 'China' || info.country === '中国';
+
+  // 时段问候
+  const hour = new Date().getHours();
+  let greeting;
+  if (hour < 6) greeting = '凌晨好，还在修仙吗？';
+  else if (hour < 9) greeting = '早上好，一日之计在于晨';
+  else if (hour < 12) greeting = '上午好，工作顺利嘛？';
+  else if (hour < 14) greeting = '中午好，午休时间到啦';
+  else if (hour < 17) greeting = '下午好，饮茶先啦';
+  else if (hour < 19) greeting = '傍晚好，记得按时吃饭';
+  else if (hour < 22) greeting = '晚上好，放松一下吧';
+  else greeting = '夜深了，早点休息';
+
+  const location = [info.country, info.region, info.city].filter(Boolean).join(' · ') || '未知地区';
+
+  container.innerHTML = `
+    <div class="visitor-info-content">
+      <div class="visitor-row">
+        <span class="visitor-label">归属地</span>
+        <span class="visitor-value">${location}</span>
+      </div>
+      <div class="visitor-row">
+        <span class="visitor-label">IP 地址</span>
+        <span class="visitor-value ip-address">${escapeHTML(info.ip)}</span>
+      </div>
+      ${info.isp ? `<div class="visitor-row"><span class="visitor-label">运营商</span><span class="visitor-value">${escapeHTML(info.isp)}</span></div>` : ''}
+      <div class="visitor-greeting">${greeting}</div>
+      ${isCN ? '<div class="visitor-note">你来自中国大陆，部分外源内容可能受网络影响</div>' : ''}
+    </div>
+  `;
+}
+
+function showVisitorError() {
+  const container = document.getElementById('visitor-info');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="visitor-error">
+      <div class="visitor-error-icon">📡</div>
+      <p>获取访客信息失败</p>
+      <p class="visitor-retry">点击<span class="visitor-retry-btn">重试</span></p>
+    </div>
+  `;
+  const retryBtn = container.querySelector('.visitor-retry-btn');
+  if (retryBtn) {
+    retryBtn.onclick = () => {
+      container.innerHTML = '<div class="visitor-loading"><div class="visitor-spinner"></div><span>正在获取...</span></div>';
+      localStorage.removeItem(IP_CACHE_KEY);
+      fetchVisitorInfo();
+    };
+  }
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* --------------------------------------------------------------------------
+ * 7. YouTube 视频智能降级提示
+ *    检测 YouTube iframe 加载失败，根据用户所在地区显示不同提示。
+ *    中国用户：提示 GFW 网络原因
+ *    国外用户：提示检查网络或视频可能下架
+ *    加载失败时显示 YouTube logo + 友好提示替代 404 页面
+ * -------------------------------------------------------------------------- */
+function initYouTubeFallback() {
+  const iframes = document.querySelectorAll('iframe[src*="youtube.com/embed"]');
+  iframes.forEach(iframe => {
+    if (iframe.dataset.ytFallback === '1') return;
+    iframe.dataset.ytFallback = '1';
+
+    // 判断是否中国用户（用 IP 缓存）
+    let isCN = false;
+    try {
+      const cached = JSON.parse(localStorage.getItem(IP_CACHE_KEY) || '{}');
+      if (cached.data && cached.data.countryCode === 'CN') isCN = true;
+    } catch (e) {}
+
+    // 超时检测：如果 8s 内 iframe 未触发 load 事件，认为加载失败
+    let loaded = false;
+    const timer = setTimeout(() => {
+      if (!loaded) showYouTubeFallback(iframe, isCN);
+    }, 8000);
+
+    iframe.addEventListener('load', () => {
+      loaded = true;
+      clearTimeout(timer);
+      // 即使 load 触发，也检查一下是否真的可访问
+      // YouTube iframe load 事件在某些情况下即使被墙也会触发
+      // 所以这里额外延迟检测
+    });
+
+    // 错误事件
+    iframe.addEventListener('error', () => {
+      loaded = true;
+      clearTimeout(timer);
+      showYouTubeFallback(iframe, isCN);
+    });
+  });
+}
+
+function showYouTubeFallback(iframe, isCN) {
+  const container = iframe.closest('.video-container') || iframe.parentElement;
+  if (!container || container.dataset.ytReplaced === '1') return;
+  container.dataset.ytReplaced = '1';
+
+  // 保留原始 src 以便用户点击时可以尝试访问
+  const originalSrc = iframe.src || '';
+  const videoId = extractYouTubeId(originalSrc);
+
+  const fallback = document.createElement('div');
+  fallback.className = 'yt-fallback';
+  fallback.innerHTML = `
+    <div class="yt-fallback-logo">
+      <svg width="48" height="34" viewBox="0 0 28 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M27.4 3.1c-.3-1.2-1.3-2.2-2.5-2.5C22.8 0 14 0 14 0S5.2 0 3.1.6C1.9.9.9 1.9.6 3.1 0 5.2 0 10 0 10s0 4.8.6 6.9c.3 1.2 1.3 2.2 2.5 2.5C5.2 20 14 20 14 20s8.8 0 10.9-.6c1.2-.3 2.2-1.3 2.5-2.5.6-2.1.6-6.9.6-6.9s0-4.8-.6-6.9z" fill="#FF0000"/>
+        <path d="M11.2 14.3L18.5 10l-7.3-4.3v8.6z" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="yt-fallback-text">
+      ${isCN
+        ? '<strong>该视频来自 YouTube</strong><br>当前网络环境下可能无法正常访问 YouTube，请检查网络代理设置或使用科学上网工具后刷新页面。'
+        : '<strong>该视频来自 YouTube</strong><br>视频加载失败，请检查网络连接是否正常，或该视频可能已被下架。'
+      }
+    </div>
+    ${videoId ? `<a class="yt-fallback-link" href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener">在 YouTube 上观看</a>` : ''}
+  `;
+
+  // 隐藏 iframe，显示降级提示
+  iframe.style.display = 'none';
+  container.appendChild(fallback);
+}
+
+function extractYouTubeId(url) {
+  const match = url.match(/\/embed\/([^?]+)/);
+  return match ? match[1] : '';
+}
+
+/* --------------------------------------------------------------------------
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -554,6 +784,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initMermaid();
   initCatalogBar();
   initImageShimmer();
+  injectVisitorCard();
+  initYouTubeFallback();
 });
 document.addEventListener('pjax:success', () => {
   hidePreloaderOverlay();
@@ -564,4 +796,6 @@ document.addEventListener('pjax:success', () => {
   setTimeout(initMermaid, 100);
   initCatalogBar();
   setTimeout(initImageShimmer, 50);
+  setTimeout(injectVisitorCard, 100);
+  setTimeout(initYouTubeFallback, 100);
 });
