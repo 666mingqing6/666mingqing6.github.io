@@ -470,21 +470,73 @@ function initCatalogBar() {
 }
 
 /* --------------------------------------------------------------------------
+ * 2.6 加载遮罩提前隐藏 + 图片懒加载 Loading 动画
+ *     主题的 #loading-box 默认等 window.load（含所有图片）才消失，
+ *     这里在 DOM 就绪时立即隐藏，让用户先看到正文、图片再逐个加载。
+ *     图片加载期间显示 "Loading..." 文字动画（.anzhiyu-img-loading）。
+ * -------------------------------------------------------------------------- */
+function hidePreloaderOverlay() {
+  const box = document.getElementById('loading-box');
+  if (box && !box.classList.contains('loaded')) box.classList.add('loaded');
+}
+
+function initImageLoaders() {
+  document.querySelectorAll('img[data-lazy-src]').forEach(attachImageLoader);
+}
+
+function attachImageLoader(img) {
+  if (img.dataset.imgLoader === '1') return;
+  if (img.classList.contains('loaded')) return; // 已加载完成的图片无需动画
+  img.dataset.imgLoader = '1';
+
+  // 若图片已被主题包进 fancybox 链接，则包住链接本身，避免破坏其结构
+  let target = img;
+  const parent = img.parentNode;
+  if (parent && parent.tagName === 'A' && parent.hasAttribute('data-fancybox')) {
+    target = parent;
+  }
+  if (target.parentNode && target.parentNode.classList.contains('anzhiyu-img-loader')) return;
+
+  const wrap = document.createElement('span');
+  wrap.className = 'anzhiyu-img-loader';
+  target.parentNode.insertBefore(wrap, target);
+  wrap.appendChild(target);
+  wrap.insertAdjacentHTML('beforeend', '<span class="anzhiyu-img-loading"><span class="loader"></span></span>');
+
+  const loadingEl = wrap.querySelector('.anzhiyu-img-loading');
+  const removeLoader = () => { if (loadingEl && loadingEl.parentNode) loadingEl.remove(); };
+
+  // 图片真正加载成功 / 失败后移除
+  img.addEventListener('load', removeLoader, { once: true });
+  img.addEventListener('error', removeLoader, { once: true });
+  // 兜底：vanilla-lazyload 加载后会给 img 加 .loaded
+  const poll = setInterval(() => {
+    if (img.classList.contains('loaded')) { clearInterval(poll); removeLoader(); }
+  }, 250);
+  // 最久 20s 强制移除，避免 loader 常驻遮挡
+  setTimeout(() => { clearInterval(poll); removeLoader(); }, 20000);
+}
+
+/* --------------------------------------------------------------------------
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  hidePreloaderOverlay();
   injectPostEnd();
   hijackRewardButton();
   initAISummary();
   injectCalendarCards();
   initMermaid();
   initCatalogBar();
+  initImageLoaders();
 });
 document.addEventListener('pjax:success', () => {
+  hidePreloaderOverlay();
   injectPostEnd();
   hijackRewardButton();
   initAISummary();
   setTimeout(injectCalendarCards, 50);
   setTimeout(initMermaid, 100);
   initCatalogBar();
+  setTimeout(initImageLoaders, 50);
 });

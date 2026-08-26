@@ -597,6 +597,61 @@
   }
 }
 
+/* ==========================================================================
+   图片懒加载 Loading 动画（文章封面 / 正文图片 / 侧栏缩略图等）
+   主题懒加载的占位是透明 GIF 且 opacity:0，图片真正加载完成前显示 Loading 覆盖层
+   包裹层由 custom.js 动态生成：.anzhiyu-img-loader > (img 或 a) + .anzhiyu-img-loading
+   ========================================================================== */
+.anzhiyu-img-loader {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;          /* 避免行内图片底部多出空白 */
+  vertical-align: bottom;
+  overflow: hidden;        /* 与主题封面容器一致：裁掉超高图片的溢出部分 */
+}
+/* 封面 / 卡片等块级场景：让包裹层跟随父容器撑满，保持原布局不变 */
+.post_cover .anzhiyu-img-loader,
+.recent-post-item .anzhiyu-img-loader,
+.top-group-list-item .anzhiyu-img-loader,
+.topGroup .recent-post-item .anzhiyu-img-loader,
+.thumbnail .anzhiyu-img-loader {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.anzhiyu-img-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--anzhiyu-background, #fff);
+}
+/* 用户提供的 "Loading..." 文字加载动画（亮/暗色自适应） */
+.anzhiyu-img-loading .loader {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  line-height: 1.2;        /* 覆盖包裹层的 line-height:0，避免文字高度坍缩 */
+  background: linear-gradient(135deg, #0000 calc(50% - 0.5em), var(--anzhiyu-fontcolor, #000) 0 calc(50% + 0.5em), #0000 0) right/300% 100%;
+  animation: anzhiyu-l22 2s infinite;
+}
+.anzhiyu-img-loading .loader::before {
+  content: "Loading...";
+  color: #0000;
+  padding: 0 5px;
+  background: inherit;
+  background-image: linear-gradient(135deg, var(--anzhiyu-fontcolor, #000) calc(50% - 0.5em), var(--anzhiyu-background, #fff) 0 calc(50% + 0.5em), var(--anzhiyu-fontcolor, #000) 0);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+@keyframes anzhiyu-l22 {
+  100% { background-position: left; }
+}
+
 .cat-tree-cat-link i {
   margin-right: 4px;
   font-size: 0.8em;
