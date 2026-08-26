@@ -21,9 +21,10 @@ function initializeCard() {
 let year, month, week, date, dates, weekStr, monthStr,
     asideTime, asideDay, asideDayNum,
     animalYear, ganzhiYear, lunarMon, lunarDay;
-const now = new Date();
+let now = new Date();
 
 function cardTimes() {
+  now = new Date(); // 每次计算都用当前时间，避免页面长期停留 / pjax 后数据过期
   year = now.getFullYear();
   month = now.getMonth();
   week = now.getDay();
@@ -104,7 +105,7 @@ function cardTimes() {
     lunarText = "农历加载失败";
   }
 
-  // 距离除夕
+  // 距离除夕（农历库不可用时显示 —，而不是误导性的 0 天）
   let daysUntilNewYear;
   try {
     const nextSpring = chineseLunar.lunarToSolar(year + 1, 1, 1, false);
@@ -116,9 +117,9 @@ function cardTimes() {
     const newYearDate = new Date(springDate);
     newYearDate.setDate(newYearDate.getDate() - 1);
     daysUntilNewYear = Math.floor((newYearDate - now) / 1e3 / 60 / 60 / 24);
-    if (daysUntilNewYear < 0) daysUntilNewYear = 0;
+    if (daysUntilNewYear < 0) daysUntilNewYear = "—"; // 目标日期异常，显示未知
   } catch (e) {
-    daysUntilNewYear = 0;
+    daysUntilNewYear = "—"; // chinese-lunar 未加载/出错时显示未知，避免误报"距离 0 天"
   }
 
   asideTime = new Date(`${year}/01/01 00:00:00`);
