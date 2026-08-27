@@ -699,52 +699,107 @@ function escapeHTML(str) {
  *    国外用户：提示检查网络或视频可能下架
  *    加载失败时显示 YouTube logo + 友好提示替代 404 页面
  * -------------------------------------------------------------------------- */
+/* 探测 youtube.com 是否可达（用于判断 GFW 是否拦截）
+ * 关键点：GFW 在网络层拒绝到 youtube.com 的连接，fetch(no-cors) 会 reject，
+ * 这是可靠的「不可达」信号；若请求挂起（部分环境静默丢包）则超时兜底视为不可达。
+ * 返回 Promise<boolean>：true=可达，false=不可达（需降级）。 */
+function probeYouTubeReachable(timeoutMs) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (ok) => { if (!settled) { settled = true; resolve(ok); } };
+    const url = 'https://www.youtube.com/favicon.ico?v=' + Date.now();
+    if (typeof fetch === 'function') {
+      try {
+        fetch(url, { mode: 'no-cors', cache: 'no-store' })
+          .then(() => finish(true))   // 收到响应（opaque）即视为可达
+          .catch(() => finish(false)); // 网络层被拒（GFW）→ 不可达
+      } catch (e) {
+        finish(false);
+      }
+    } else {
+      // 极老环境回退到 Image 探测
+      const probe = new Image();
+      probe.onload = () => finish(true);
+      probe.onerror = () => finish(false);
+      probe.src = url;
+    }
+    // 超时：GFW 下请求可能挂起而非快速失败，统一按不可达处理
+    setTimeout(() => finish(false), timeoutMs);
+  });
+}
+
+/* 尽快判断当前访客是否来自中国大陆（决定降级提示文案）
+ * 优先读 IP 缓存；缺失则快速查询一次 ip.sb，超时/失败不阻塞主流程。 */
+function determineIsCN() {
+  return new Promise((resolve) => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(IP_CACHE_KEY) || '{}');
+      if (cached.data && (Date.now() - (cached.timestamp || 0) < IP_CACHE_DURATION)) {
+        const d = cached.data;
+        resolve(!!(d.countryCode === 'CN' || d.country === 'China' || d.country === '中国'));
+        return;
+      }
+    } catch (e) {}
+    const callbackName = 'lum_cn_cb_' + Date.now();
+    const timer = setTimeout(() => {
+      try { delete window[callbackName]; } catch (e) {}
+      resolve(false);
+    }, 4000);
+    window[callbackName] = function (data) {
+      clearTimeout(timer);
+      try { delete window[callbackName]; } catch (e) {}
+      resolve(!!(data && (data.country_code === 'CN' || data.country === 'China' || data.country === '中国')));
+    };
+    const s = document.createElement('script');
+    s.src = 'https://api.ip.sb/geoip?callback=' + callbackName;
+    s.onerror = () => {
+      clearTimeout(timer);
+      try { delete window[callbackName]; } catch (e) {}
+      resolve(false);
+    };
+    document.head.appendChild(s);
+  });
+}
+
 function initYouTubeFallback() {
-  const iframes = document.querySelectorAll('iframe[src*="youtube.com/embed"]');
+  const iframes = document.querySelectorAll(
+    'iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]'
+  );
   iframes.forEach(iframe => {
     if (iframe.dataset.ytFallback === '1') return;
     iframe.dataset.ytFallback = '1';
 
-    // 判断是否中国用户（用 IP 缓存）
-    let isCN = false;
-    try {
-      const cached = JSON.parse(localStorage.getItem(IP_CACHE_KEY) || '{}');
-      if (cached.data && (cached.data.countryCode === 'CN' || cached.data.country === 'China')) isCN = true;
-    } catch (e) {}
-
     const videoId = extractYouTubeId(iframe.src || '');
-    let resolved = false;      // 是否已做出最终判断（避免重复降级）
+    let done = false;
+    let currentIsCN = false;
 
-    // iframe 自身 error 事件（直接降级，不依赖 load 事件避免错过 pjax 后的 load）
-    iframe.addEventListener('error', () => {
-      if (!resolved) { resolved = true; showYouTubeFallback(iframe, isCN, videoId); }
+    // 取值优先级：本地缓存 > 异步探测结果（确保降级提示文案准确）
+    const readIsCN = () => {
+      try {
+        const cached = JSON.parse(localStorage.getItem(IP_CACHE_KEY) || '{}');
+        if (cached.data && (cached.data.countryCode === 'CN' || cached.data.country === 'China' || cached.data.country === '中国')) return true;
+      } catch (e) {}
+      return currentIsCN;
+    };
+
+    const doFallback = () => {
+      if (done) return;
+      done = true;
+      showYouTubeFallback(iframe, readIsCN(), videoId);
+    };
+
+    // 并行：尽快确认是否中国用户（仅影响提示文案，不阻塞可达性判定）
+    determineIsCN().then(cn => { currentIsCN = cn; });
+
+    // 直接 error 事件（部分浏览器/被 CSP 阻止时可能触发）
+    iframe.addEventListener('error', doFallback);
+
+    // 主判定：探测 youtube 域名可达性。
+    // 注意：GFW 拦截的 iframe 仍会触发 load（加载错误页），因此不能用 load 事件判断，
+    // 必须以域名实际可达性为准。固定超时，GFW 下 fetch 会快速 reject，体验更即时。
+    probeYouTubeReachable(6000).then(reachable => {
+      if (!reachable) doFallback();
     });
-
-    // 主检测：主动探测 youtube 域名可达性
-    // GFW 封锁 youtube 整个域名，用 Image 加载 favicon 可可靠判断
-    // 不依赖 iframe 的 load 事件（被墙时浏览器可能触发 load 加载错误页，导致漏判）
-    const probe = new Image();
-    probe.onload = () => {
-      if (resolved) return;
-      resolved = true;
-      // YouTube 可达（国外正常网络），正常显示 iframe
-    };
-    probe.onerror = () => {
-      if (resolved) return;
-      resolved = true;
-      showYouTubeFallback(iframe, isCN, videoId); // GFW 不可达，立即降级
-    };
-
-    // 探测 4s 超时 → 视为不可达（GFW DNS 失败很快，4s 足够兜底）
-    setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        showYouTubeFallback(iframe, isCN, videoId);
-      }
-    }, 4000);
-
-    // 加时间戳防止缓存
-    probe.src = 'https://www.youtube.com/favicon.ico?v=' + Date.now();
   });
 }
 
