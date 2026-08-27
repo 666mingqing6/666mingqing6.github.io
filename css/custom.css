@@ -172,49 +172,56 @@
 }
 
 /* ==========================================================================
-   封面图完整显示（cover_fit: contain）：默认 cover 裁剪填充
-   在文章 frontmatter 加 cover_fit: contain 切换为完整显示模式
-   覆盖：首页文章列表、首页顶部"荐"推荐区（.post_cover 容器，不限 #recent-posts）
+   封面图完整显示（cover_fit: contain）
+   仅当文章 frontmatter 带 cover_fit: contain 时，对应封面才完整显示（不裁剪、居中）。
+   实现方式：将带 cover-fit-contain 的 <img> 绝对定位填满“已定位且有确定高度”的封面容器，
+   再用 object-fit: contain + object-position: center 完整居中。
+   该方式不依赖父级 flex / 百分比高度解析（荐 区的 a 是 flex，百分比高度在此不可靠），
+   所有位置表现一致。其余封面保持主题默认的 object-fit: cover 裁剪。
    ========================================================================== */
-.post_cover.cover-fit-contain {
-  background: var(--anzhiyu-secondbg);
+
+/* 1) 让所有封面容器成为定位上下文（绝对定位的 contain 图才能正确填满并居中） */
+.post_cover,
+.topGroup .recent-post-item .post_cover a,
+#topPostGroup .top-group-list-item .post_cover a,
+.aside-list-item .thumbnail,
+.article-sort-item-img,
+.relatedPosts .relatedPosts-list > div,
+.pagination-post .prev-post > a,
+.pagination-post .next-post > a {
+  position: relative;
 }
 
-.post_cover.cover-fit-contain img.post_bg,
-img.post_bg.cover-fit-contain {
+/* 2) 通用：任何带 cover-fit-contain 的封面图 → 绝对填满容器、完整居中、不裁剪 */
+img.cover-fit-contain {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: contain !important;
   object-position: center !important;
+  background: var(--anzhiyu-secondbg); /* 完整显示时信箱式留白底色，避免透明穿出 */
 }
 
-/* 文章底部上一篇/下一篇导航封面 */
-.prev-cover.cover-fit-contain,
-.next-cover.cover-fit-contain {
-  object-fit: contain !important;
-  object-position: center !important;
+/* 3) 兜底：确保以上容器内、非 contain 的封面仍按 cover 裁剪
+      （防止某些位置被其它规则覆盖为 fill 拉伸而“看起来没裁剪”） */
+.post_cover img:not(.cover-fit-contain),
+.aside-list-item .thumbnail > img:not(.cover-fit-contain),
+.article-sort-item-img img:not(.cover-fit-contain),
+.relatedPosts .relatedPosts-list > div img:not(.cover-fit-contain),
+.pagination-post .prev-post > a > img:not(.cover-fit-contain),
+.pagination-post .next-post > a > img:not(.cover-fit-contain),
+.topGroup .recent-post-item .post_cover img:not(.cover-fit-contain),
+#topPostGroup .top-group-list-item .post_cover img:not(.cover-fit-contain) {
+  object-fit: cover;
 }
 
-/* ==========================================================================
-   封面完整显示（cover_fit: contain）扩展到其它缩略图场景
-   - 归档/分类/标签页列表缩略图（.article-sort-item-img img）
-   - 侧栏近期文章缩略图（.aside-list-item .thumbnail > img）
-   - 文章页底部相关文章缩略图（.relatedPosts .cover）
-   以上三处主题默认 object-fit: cover 裁剪，这里按文章 frontmatter 的
-   cover_fit: contain 切换为 object-fit: contain 完整显示（不变更默认裁剪行为）。
-   ========================================================================== */
-.article-sort-item-img img.cover-fit-contain {
-  object-fit: contain !important;
-  object-position: center !important;
-}
-
-.aside-list-item .thumbnail > img.cover-fit-contain {
-  object-fit: contain !important;
-  object-position: center !important;
-}
-
+/* 4) 相关文章卡片：主题默认把封面压暗(opacity:.4)，contain 模式提高可见度 */
 .relatedPosts .cover.cover-fit-contain {
-  object-fit: contain !important;
-  object-position: center !important;
-  opacity: .9 !important; /* 相关卡片默认压暗，contain 模式下提高可见度 */
+  opacity: 1 !important;
 }
 
 /* ==========================================================================
