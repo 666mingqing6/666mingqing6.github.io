@@ -543,6 +543,79 @@ function attachShimmer(img) {
 }
 
 /* --------------------------------------------------------------------------
+ * 2.8 即刻短文页：长内容折叠 + "展开更多内容"按钮
+ *     文字过长或图片太大太高时，卡片默认只显示 400px 预览（底部渐隐），
+ *     用户点击按钮才展开完整内容；图片也只露出一部分，展开后完整显示。
+ * -------------------------------------------------------------------------- */
+const ESSAY_COLLAPSE_TRIGGER = 480; // 内容实测高度超过此值才折叠（CSS 折叠高度 400px）
+
+function initEssayCollapse() {
+  const list = document.getElementById('bber');
+  if (!list || list.dataset.essayCollapse === '1') return;
+  list.dataset.essayCollapse = '1';
+
+  list.querySelectorAll('.bber-item').forEach(setupEssayItem);
+
+  // 图片懒加载完成后高度变化 → 重新判定是否需要折叠
+  // （load 事件不冒泡，用捕获监听）
+  list.addEventListener('load', (e) => {
+    if (e.target && e.target.tagName === 'IMG') {
+      const item = e.target.closest('.bber-item');
+      if (item) evaluateEssayItem(item);
+    }
+  }, true);
+}
+
+function setupEssayItem(item) {
+  if (item.querySelector('.essay-toggle-btn')) return;
+  const content = item.querySelector('.bber-content');
+  if (!content) return;
+
+  const btn = document.createElement('button');
+  btn.className = 'essay-toggle-btn';
+  btn.type = 'button';
+  btn.style.display = 'none'; // 是否显示由实测高度决定
+  btn.innerHTML = '<i class="anzhiyufont anzhiyu-icon-arrow-down"></i><span>展开更多内容</span>';
+
+  btn.addEventListener('click', () => {
+    const label = btn.querySelector('span');
+    if (item.classList.contains('essay-collapsed')) {
+      item.classList.remove('essay-collapsed');
+      item.dataset.essayExpanded = '1';
+      btn.classList.add('expanded');
+      if (label) label.textContent = '收起内容';
+    } else {
+      item.classList.add('essay-collapsed');
+      delete item.dataset.essayExpanded;
+      btn.classList.remove('expanded');
+      if (label) label.textContent = '展开更多内容';
+    }
+  });
+
+  // 按钮插在内容区之后（hr 之前）
+  content.parentNode.insertBefore(btn, content.nextSibling);
+  evaluateEssayItem(item);
+}
+
+function evaluateEssayItem(item) {
+  // 用户已手动展开后不再自动收起
+  if (item.dataset.essayExpanded === '1') return;
+  const content = item.querySelector('.bber-content');
+  const btn = item.querySelector('.essay-toggle-btn');
+  if (!content || !btn) return;
+
+  // 折叠状态下 scrollHeight 仍是完整内容高度
+  const fullHeight = content.scrollHeight;
+  if (fullHeight > ESSAY_COLLAPSE_TRIGGER) {
+    item.classList.add('essay-collapsed');
+    btn.style.display = '';
+  } else {
+    item.classList.remove('essay-collapsed');
+    btn.style.display = 'none';
+  }
+}
+
+/* --------------------------------------------------------------------------
  * 6. 访客 IP 归属地展示卡片
  *    使用 ip.sb JSONP API 获取访客 IP 和地理位置信息
  *    注入到侧边栏，显示 IP 地址（模糊）+ 归属地 + 距离 + 时段问候
@@ -665,6 +738,30 @@ function showVisitorInfo(info) {
       ${isCN ? '<div class="visitor-note">你来自中国大陆，部分外源内容可能受网络影响</div>' : ''}
     </div>
   `;
+
+  fitVisitorOneLine();
+}
+
+/* 归属地等文字过长时缩小字号，保持单行显示（不换行） */
+function fitVisitorOneLine() {
+  const rows = document.querySelectorAll('.card-widget-visitor .visitor-row');
+  rows.forEach(row => {
+    const label = row.querySelector('.visitor-label');
+    const value = row.querySelector('.visitor-value');
+    if (!label || !value) return;
+    value.style.fontSize = '';
+    const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+    const available = row.clientWidth - label.offsetWidth - gap;
+    if (available <= 0) return;
+    let size = parseFloat(getComputedStyle(value).fontSize);
+    const min = 8.5;
+    let guard = 0;
+    while (value.scrollWidth > available && size > min && guard < 20) {
+      size -= 0.5;
+      value.style.fontSize = size + 'px';
+      guard++;
+    }
+  });
 }
 
 function showVisitorError() {
@@ -807,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMermaid();
   initCatalogBar();
   initImageShimmer();
+  initEssayCollapse();
   injectVisitorCard();
   initYouTubeFallback();
 });
@@ -819,6 +917,7 @@ document.addEventListener('pjax:success', () => {
   setTimeout(initMermaid, 100);
   initCatalogBar();
   setTimeout(initImageShimmer, 50);
+  setTimeout(initEssayCollapse, 50);
   setTimeout(injectVisitorCard, 100);
   setTimeout(initYouTubeFallback, 100);
 });
