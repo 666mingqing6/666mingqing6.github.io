@@ -219,6 +219,17 @@ img.cover-fit-contain {
   object-fit: cover;
 }
 
+/* 3b) 客户端 shimmer 会把 img 包进 <span.lum-img-shimmer>，导致主题
+      ".thumbnail > img" 这类“直接子代”选择器失效：非 contain 封面丢失
+      object-fit:cover，回退为 height:auto → 完整显示且上移。
+      这里对“被包裹的非 contain 图”兜底恢复 cover 裁剪（contain 图由
+      img.cover-fit-contain 的 !important 规则接管，不受影响）。 */
+.lum-img-shimmer > img:not(.cover-fit-contain) {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* 4) 相关文章卡片：主题默认把封面压暗(opacity:.4)，contain 模式提高可见度 */
 .relatedPosts .cover.cover-fit-contain {
   opacity: 1 !important;
