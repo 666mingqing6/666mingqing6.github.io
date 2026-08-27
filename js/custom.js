@@ -779,8 +779,15 @@ function showYouTubeFallback(iframe, isCN, videoId) {
     ${vid ? `<a class="yt-fallback-link" href="https://www.youtube.com/watch?v=${vid}" target="_blank" rel="noopener">在 YouTube 上观看</a>` : ''}
   `;
 
-  iframe.style.display = 'none';
-  container.appendChild(fallback);
+  // .video-container 用 padding-top:56.25% 撑出 16:9 高度；若把降级卡片追加进去，
+  // 会被外层那段 padding 挤到下方、上方留一大块空白。因此外层是 .video-container 时，
+  // 直接用自带 16:9 高度的降级卡片整体替换它。
+  if (container.classList && container.classList.contains('video-container')) {
+    container.replaceWith(fallback);
+  } else {
+    iframe.style.display = 'none';
+    container.appendChild(fallback);
+  }
 }
 
 function extractYouTubeId(url) {
