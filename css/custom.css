@@ -196,6 +196,30 @@
 }
 
 /* ==========================================================================
+   封面完整显示（cover_fit: contain）扩展到其它缩略图场景
+   - 归档/分类/标签页列表缩略图（.article-sort-item-img img）
+   - 侧栏近期文章缩略图（.aside-list-item .thumbnail > img）
+   - 文章页底部相关文章缩略图（.relatedPosts .cover）
+   以上三处主题默认 object-fit: cover 裁剪，这里按文章 frontmatter 的
+   cover_fit: contain 切换为 object-fit: contain 完整显示（不变更默认裁剪行为）。
+   ========================================================================== */
+.article-sort-item-img img.cover-fit-contain {
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.aside-list-item .thumbnail > img.cover-fit-contain {
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.relatedPosts .cover.cover-fit-contain {
+  object-fit: contain !important;
+  object-position: center !important;
+  opacity: .9 !important; /* 相关卡片默认压暗，contain 模式下提高可见度 */
+}
+
+/* ==========================================================================
    分类页：树形层级结构
    - 顶级分类：加粗主色 + 大字号
    - 子分类：缩进 + 左侧连接线 + 灰色文字
