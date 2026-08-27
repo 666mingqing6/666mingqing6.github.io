@@ -172,27 +172,25 @@
 }
 
 /* ==========================================================================
-   首页文章列表封面图：默认 cover 裁剪填充
+   封面图完整显示（cover_fit: contain）：默认 cover 裁剪填充
    在文章 frontmatter 加 cover_fit: contain 切换为完整显示模式
+   覆盖：首页文章列表、首页顶部"荐"推荐区（.post_cover 容器，不限 #recent-posts）
    ========================================================================== */
-#recent-posts .post_cover.cover-fit-contain {
+.post_cover.cover-fit-contain {
   background: var(--anzhiyu-secondbg);
 }
 
-#recent-posts .post_cover.cover-fit-contain img.post_bg {
+.post_cover.cover-fit-contain img.post_bg,
+img.post_bg.cover-fit-contain {
   object-fit: contain !important;
   object-position: center !important;
 }
 
-/* 双列布局下同步处理 */
-@media screen and (min-width: 1201px) {
-  #recent-posts > .recent-post-item .post_cover.cover-fit-contain {
-    background: var(--anzhiyu-secondbg);
-  }
-  #recent-posts > .recent-post-item .post_cover.cover-fit-contain img.post_bg {
-    object-fit: contain !important;
-    object-position: center !important;
-  }
+/* 文章底部上一篇/下一篇导航封面 */
+.prev-cover.cover-fit-contain,
+.next-cover.cover-fit-contain {
+  object-fit: contain !important;
+  object-position: center !important;
 }
 
 /* ==========================================================================
