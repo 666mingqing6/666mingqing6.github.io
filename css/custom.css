@@ -220,11 +220,13 @@ img.cover-fit-contain {
 }
 
 /* 3b) 客户端 shimmer 会把 img 包进 <span.lum-img-shimmer>，导致主题
-      ".thumbnail > img" 这类“直接子代”选择器失效：非 contain 封面丢失
-      object-fit:cover，回退为 height:auto → 完整显示且上移。
-      这里对“被包裹的非 contain 图”兜底恢复 cover 裁剪（contain 图由
-      img.cover-fit-contain 的 !important 规则接管，不受影响）。 */
-.lum-img-shimmer > img:not(.cover-fit-contain) {
+      侧栏 ".thumbnail > img" 这类"直接子代"选择器失效：非 contain
+      缩略图丢失 object-fit:cover，回退为 height:auto → 完整显示且上移。
+      仅对侧栏缩略图兜底恢复 cover 裁剪（其余位置的主题选择器用后代选择器，
+      shimmer 包裹不会打断；contain 图由 img.cover-fit-contain 的 !important
+      规则接管，不受影响）。不能写成全局 .lum-img-shimmer > img，否则会破坏
+      首页轮播图、文章正文图片等其它被 shimmer 包裹的非封面图片。 */
+.aside-list-item .thumbnail .lum-img-shimmer > img:not(.cover-fit-contain) {
   object-fit: cover !important;
   width: 100% !important;
   height: 100% !important;
