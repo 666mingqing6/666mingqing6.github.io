@@ -61,9 +61,9 @@
             
             <tag> 反思 </tag>
             
-            <tag> 哲学 </tag>
-            
             <tag> 认知 </tag>
+            
+            <tag> 哲学 </tag>
             
             <tag> 意识形态 </tag>
             
@@ -228,9 +228,9 @@
             
             <tag> 校园 </tag>
             
-            <tag> 哲学 </tag>
-            
             <tag> 心理 </tag>
+            
+            <tag> 哲学 </tag>
             
             <tag> 情感 </tag>
             
@@ -259,9 +259,9 @@
       
         <tags>
             
-            <tag> 哲学 </tag>
-            
             <tag> 心理 </tag>
+            
+            <tag> 哲学 </tag>
             
             <tag> 情感 </tag>
             
@@ -285,9 +285,9 @@
           
           <category> 生活 </category>
           
-          <category> 意识形态 </category>
-          
           <category> 技术类文档 </category>
+          
+          <category> 意识形态 </category>
           
           <category> 网络 </category>
           
@@ -343,13 +343,13 @@
             
             <tag> 技术类文档 </tag>
             
-            <tag> Fastboot </tag>
-            
             <tag> Android </tag>
             
-            <tag> 刷机 </tag>
-            
             <tag> 教程 </tag>
+            
+            <tag> Fastboot </tag>
+            
+            <tag> 刷机 </tag>
             
         </tags>
       
@@ -378,11 +378,11 @@
       
         <tags>
             
+            <tag> ADB </tag>
+            
             <tag> Android </tag>
             
             <tag> 教程 </tag>
-            
-            <tag> ADB </tag>
             
         </tags>
       
