@@ -1308,3 +1308,117 @@ img.cover-fit-contain {
   opacity: 0.3;
   cursor: default;
 }
+
+/* ==========================================================================
+   侧边栏「文章 / 图表」模式切换
+   - 默认显示原生「文章数/Tag标签」卡片（.aside-stats-original）
+   - 切到图表模式时（#aside-content.aside-stats-charts）改为显示 echarts 卡片
+   - 偏好存储在 localStorage（custom.js: applyAsideStatsMode）
+   ========================================================================== */
+#aside-content:not(.aside-stats-charts) .aside-stats-charts-wrap {
+  display: none;
+}
+
+#aside-content.aside-stats-charts .aside-stats-original {
+  display: none;
+}
+
+.aside-stats-switch {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.aside-stats-btn {
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--anzhiyu-card-border, #e3e8f7);
+  background: var(--anzhiyu-card-bg, #fff);
+  color: var(--anzhiyu-secondtext, #999);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.aside-stats-btn:hover {
+  color: var(--anzhiyu-main, #425aef);
+  border-color: var(--anzhiyu-main, #425aef);
+}
+
+.aside-stats-btn.on-active {
+  background: var(--anzhiyu-main, #425aef);
+  border-color: var(--anzhiyu-main, #425aef);
+  color: #fff;
+}
+
+/* ==========================================================================
+   归档页（/archives/）顶部原版全尺寸热力图
+   ========================================================================== */
+.lum-heatmap-full-wrap {
+  background: var(--anzhiyu-card-bg, #fff);
+  border: 1px solid var(--anzhiyu-card-border, #e3e8f7);
+  border-radius: 12px;
+  padding: 16px 18px 10px;
+  margin-bottom: 1rem;
+}
+
+.lum-heatmap-full-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--anzhiyu-fontcolor, #363636);
+}
+
+.lum-heatmap-full-title svg {
+  width: 1.1em;
+  height: 1.1em;
+  color: var(--anzhiyu-main, #425aef);
+}
+
+.lum-chart-heatmap-full {
+  width: 100%;
+  height: 200px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+}
+
+.lum-chart-heatmap-full::-webkit-scrollbar {
+  height: 5px;
+}
+
+.lum-chart-heatmap-full::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   标签页全尺寸饼图（/tags/ 总览 + /tags/<name>/ 单标签页）
+   - 单标签页时高亮当前标签扇区（select 状态）
+   - 37 标签色环：按标签数均分色相，JS 生成
+   ========================================================================== */
+.lum-pie-full-page .lum-pie-full-wrap,
+.lum-pie-full-wrap {
+  background: var(--anzhiyu-card-bg, #fff);
+  border: 1px solid var(--anzhiyu-card-border, #e3e8f7);
+  border-radius: 12px;
+  padding: 16px 18px 8px;
+  margin-bottom: 1rem;
+}
+
+.lum-pie-full-caption {
+  font-size: 13px;
+  color: var(--anzhiyu-secondtext, #999);
+  margin-bottom: 4px;
+}
+
+.lum-chart-pie-full {
+  width: 100%;
+  height: 500px;
+}

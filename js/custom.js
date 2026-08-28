@@ -710,6 +710,8 @@ function renderLumChart(el) {
 
   el.dataset.lumRendered = '1';
   if (el.dataset.lumChart === 'heatmap') renderLumHeatmap(el, data);
+  else if (el.dataset.lumChart === 'heatmap-full') renderLumHeatmapFull(el, data);
+  else if (el.dataset.lumChart === 'pie-full') renderLumPieFull(el, data);
   else renderLumPie(el, data);
 }
 
@@ -835,13 +837,193 @@ function updateLumHeatUI(card, data, year) {
   if (next) next.disabled = year >= data.years[data.years.length - 1];
 }
 
+/* ---- 归档页原版全尺寸热力图（复刻 hexo-stats-echarts 原版观感：
+       16px 格子、年份图例切换、More/Less 色阶，宽度 100%） ---- */
+function renderLumHeatmapFull(el, data) {
+  el.__lumYear = data.years[data.years.length - 1];
+  const chart = echarts.init(el);
+  el.__lumChart = chart;
+  chart.setOption(buildLumHeatmapFullOption(data, el.__lumYear, isLumDarkMode()));
+  // 初始只选中最新年份（与插件原版 legendSelect 行为一致）
+  chart.dispatchAction({ type: 'legendSelect', name: el.__lumYear });
+
+  // 年份图例切换：切换日历范围与色阶上限（同插件原版）
+  chart.on('legendselectchanged', params => {
+    const selected = Object.keys(params.selected).find(k => params.selected[k]);
+    if (!selected || selected === el.__lumYear) return;
+    el.__lumYear = selected;
+    const max = Math.max(1, ...(data.days[selected] || []).map(d => d[1]));
+    chart.setOption({ calendar: { range: selected }, visualMap: { max } });
+  });
+  chart.on('click', params => {
+    if (params.componentType !== 'series') return;
+    const [year, month] = params.value[0].split('-');
+    lumNavigate(`${data.archiveBase}/${year}/${month}/`);
+  });
+}
+
+function buildLumHeatmapFullOption(data, year, dark) {
+  const buildYearSeries = y => {
+    const map = Object.fromEntries(data.days[y] || []);
+    const series = [];
+    const cursor = new Date(Date.UTC(+y, 0, 1));
+    const end = new Date(Date.UTC(+y, 11, 31));
+    while (cursor <= end) {
+      const ds = cursor.toISOString().slice(0, 10);
+      series.push([ds, map[ds] || 0]);
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+    return series;
+  };
+
+  const lineColor = dark ? 'rgba(255,255,255,.12)' : '#E0E0E0';
+  const labelColor = dark ? 'rgba(255,255,255,.55)' : '#6E7079';
+  // oceanic 色阶（插件原版主题之一）；暗色用蓝紫渐变保证对比度
+  const colors = dark
+    ? ['#232946', '#2C3E6B', '#3A55A2', '#4C6BD4', '#7C97F5']
+    : ['#A6D8E8', '#6FB3D2', '#4A90BF', '#2E6A8E', '#1A4461'];
+
+  return {
+    tooltip: {
+      position: 'top',
+      confine: true,
+      formatter: p => `${p.value[0]}：${p.value[1]} 篇`
+    },
+    visualMap: {
+      show: true, right: '8%', bottom: '5%',
+      type: 'piecewise', orient: 'horizontal',
+      text: ['More', 'Less'],
+      min: 0,
+      max: Math.max(1, ...(data.days[year] || []).map(d => d[1])),
+      inRange: { color: colors },
+      textStyle: { color: labelColor }
+    },
+    legend: {
+      type: 'scroll', icon: 'none', data: data.years,
+      orient: 'vertical', top: '5%', right: 'right',
+      itemWidth: 20, itemHeight: 20, itemGap: 10,
+      pageIconSize: 10, selectedMode: 'single',
+      textStyle: { color: labelColor, fontSize: 13 }
+    },
+    calendar: {
+      top: '13%', left: '2%', right: '8%',
+      range: year, cellSize: [16, 16],
+      splitLine: { lineStyle: { color: lineColor, width: 1 } },
+      itemStyle: { borderWidth: 1, borderColor: lineColor, color: 'transparent' },
+      dayLabel: { show: false },
+      monthLabel: { color: labelColor },
+      yearLabel: { show: false }
+    },
+    series: data.years.map(y => ({
+      name: y, type: 'heatmap', coordinateSystem: 'calendar',
+      data: buildYearSeries(y),
+      emphasis: { disabled: true },
+      silent: y !== year,
+      itemStyle: { borderRadius: 2 }
+    }))
+  };
+}
+
+/* ---- 标签页全尺寸饼图（/tags/ 总览 + /tags/<name>/ 单标签页）----
+   所有标签独立扇区、真实比例，标签名 + 文章数标注在扇区旁；
+   单标签页时高亮当前标签（select 状态外偏移 + 阴影），
+   点击任意扇区跳转对应标签页 */
+function renderLumPieFull(el, data) {
+  const chart = echarts.init(el);
+  el.__lumChart = chart;
+  chart.setOption(buildLumPieFullOption(data, isLumDarkMode()));
+  chart.on('click', params => {
+    const item = data.items[params.dataIndex];
+    if (item && item.path) lumNavigate(item.path);
+  });
+  // 高亮当前标签（select 状态，selectedMode: 'single'）
+  if (data.current) {
+    const idx = data.items.findIndex(i => i.name === data.current);
+    if (idx >= 0) chart.dispatchAction({ type: 'select', seriesIndex: 0, dataIndex: idx });
+  }
+}
+
+function buildLumPieFullOption(data, dark) {
+  const n = data.items.length;
+  // 色环：按标签数均分色相，37 个标签也不会重复（暗色提高亮度）
+  const palette = Array.from({ length: n }, (_, i) =>
+    `hsl(${Math.round((i * 360) / n)}, ${dark ? 62 : 68}%, ${dark ? 58 : 50}%)`);
+  const txt = dark ? 'rgba(255,255,255,.82)' : '#4a4a4a';
+  const borderColor = dark ? 'rgba(0,0,0,.25)' : '#fff';
+  return {
+    tooltip: {
+      trigger: 'item',
+      confine: true,
+      formatter: p => `${p.name}：${p.value} 篇（${p.percent}%）`
+    },
+    title: {
+      text: String(data.uniqueCount || n), subtext: '个标签',
+      left: '50%', top: '40%', textAlign: 'center',
+      textStyle: { fontSize: 26, fontWeight: 600, color: txt },
+      subtextStyle: { fontSize: 12, color: dark ? 'rgba(255,255,255,.45)' : '#949494' },
+      itemGap: 4
+    },
+    series: [{
+      type: 'pie',
+      radius: ['30%', '62%'],
+      center: ['50%', '46%'],
+      selectedMode: 'single',
+      selectedOffset: 12,
+      color: palette,
+      itemStyle: { borderRadius: 4, borderColor, borderWidth: 1.5 },
+      label: {
+        position: 'outside',
+        fontSize: 11,
+        color: txt,
+        formatter: p => `${p.name} · ${p.value}篇`
+      },
+      labelLine: { length: 14, length2: 10, lineStyle: { color: dark ? 'rgba(255,255,255,.3)' : '#c0c4cc' } },
+      select: {
+        itemStyle: { shadowBlur: 14, shadowColor: 'rgba(66,90,239,.5)' },
+        label: { fontWeight: 700 }
+      },
+      data: data.items.map(i => ({ name: i.name, value: i.value }))
+    }]
+  };
+}
+
+/* ---- 侧边栏「文章 / 图表」模式切换（默认原生卡片，偏好存 localStorage） ---- */
+function applyAsideStatsMode(mode, save) {
+  const aside = document.getElementById('aside-content');
+  if (!aside) return;
+  aside.classList.toggle('aside-stats-charts', mode === 'charts');
+  aside.querySelectorAll('.aside-stats-btn').forEach(b =>
+    b.classList.toggle('on-active', b.dataset.statsMode === mode));
+  if (save) localStorage.setItem('lum-aside-stats-mode', mode);
+  // 切到图表模式时，渲染此前因容器隐藏而未渲染的图表
+  if (mode === 'charts') initSidebarCharts();
+}
+
+function initAsideStatsSwitch() {
+  const aside = document.getElementById('aside-content');
+  if (!aside || !aside.querySelector('.aside-stats-switch')) return;
+  applyAsideStatsMode(
+    localStorage.getItem('lum-aside-stats-mode') === 'charts' ? 'charts' : 'original',
+    false
+  );
+}
+
 function lumNavigate(path) {
   if (window.pjax && typeof window.pjax.loadUrl === 'function') window.pjax.loadUrl(path);
   else window.location.href = path;
 }
 
-/* ---- 全局一次性初始化：主题切换监听、resize、年份切换点击 ---- */
+/* ---- 全局一次性初始化：主题切换监听、resize、年份/模式切换点击 ---- */
 function initLumChartGlobals() {
+  // 侧边栏「文章 / 图表」切换按钮（事件委托，pjax 后依然有效）
+  if (!window.__lumStatsSwitchBound) {
+    window.__lumStatsSwitchBound = true;
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.aside-stats-btn');
+      if (!btn) return;
+      applyAsideStatsMode(btn.dataset.statsMode, true);
+    });
+  }
   // 跟随主题 data-theme 实时换色
   if (!window.__lumThemeMO && typeof MutationObserver === 'function') {
     window.__lumThemeMO = new MutationObserver(() => {
@@ -853,6 +1035,17 @@ function initLumChartGlobals() {
         try {
           const data = JSON.parse(el.dataset.lumData);
           if (el.dataset.lumChart === 'heatmap') chart.setOption(buildLumHeatmapOption(data, el.__lumYear, dark));
+          else if (el.dataset.lumChart === 'heatmap-full') {
+            chart.setOption(buildLumHeatmapFullOption(data, el.__lumYear, dark));
+            chart.dispatchAction({ type: 'legendSelect', name: el.__lumYear });
+          }
+          else if (el.dataset.lumChart === 'pie-full') {
+            chart.setOption(buildLumPieFullOption(data, dark));
+            if (data.current) {
+              const idx = data.items.findIndex(i => i.name === data.current);
+              if (idx >= 0) chart.dispatchAction({ type: 'select', seriesIndex: 0, dataIndex: idx });
+            }
+          }
           else chart.setOption(buildLumPieOption(data, dark));
         } catch (e) {}
       });
@@ -868,7 +1061,7 @@ function initLumChartGlobals() {
       clearTimeout(timer);
       timer = setTimeout(() => {
         if (!window.echarts) return;
-        document.querySelectorAll('.lum-chart-pie[data-lum-rendered="1"]').forEach(el => {
+        document.querySelectorAll('.lum-chart-pie[data-lum-rendered="1"], .lum-chart-heatmap-full[data-lum-rendered="1"], .lum-chart-pie-full[data-lum-rendered="1"]').forEach(el => {
           const chart = echarts.getInstanceByDom(el);
           if (chart) chart.resize();
         });
@@ -1196,6 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
   injectVisitorCard();
   initYouTubeFallback();
   initLumChartGlobals();
+  initAsideStatsSwitch();
   initSidebarCharts();
 });
 document.addEventListener('pjax:success', () => {
@@ -1215,5 +1409,6 @@ document.addEventListener('pjax:success', () => {
 });
 document.addEventListener('pjax:complete', () => {
   // pjax:complete 时新 DOM（含侧边栏图表容器）已就位，直接渲染
+  initAsideStatsSwitch();
   initSidebarCharts();
 });
