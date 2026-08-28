@@ -1207,3 +1207,90 @@ img.cover-fit-contain {
 [data-theme="dark"] .yt-fallback {
   background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1a2e 100%);
 }
+
+/* ==========================================================================
+   侧边栏统计图表（Tag 饼图 / 博文热力图，echarts 渲染）
+   - helper 输出纯数据容器（.lum-chart），custom.js 负责渲染
+   - 饼图固定高度；热力图画布为整年固定宽度，容器内横向滚动查看
+   ========================================================================== */
+.card-stats-chart .item-headline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.card-stats-chart .item-headline .anzhiyufont {
+  color: var(--anzhiyu-main, #425aef);
+}
+
+.lum-chart-pie {
+  width: 100%;
+  height: 205px;
+}
+
+.lum-chart-heatmap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+  cursor: grab;
+}
+
+.lum-chart-heatmap::-webkit-scrollbar {
+  height: 5px;
+}
+
+.lum-chart-heatmap::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 3px;
+}
+
+.lum-chart-heatmap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 热力图年份切换头部 */
+.lum-heat-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.lum-heat-year {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--anzhiyu-secondtext, #999);
+  min-width: 34px;
+  text-align: center;
+}
+
+.lum-heat-btn {
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: var(--anzhiyu-secondbg, #f0f0f0);
+  color: var(--anzhiyu-fontcolor, #363636);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lum-heat-btn:hover:not(:disabled) {
+  background: var(--anzhiyu-main, #425aef);
+  color: #fff;
+}
+
+.lum-heat-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

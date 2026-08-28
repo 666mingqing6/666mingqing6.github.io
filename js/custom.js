@@ -654,24 +654,245 @@ function deferBannerSvg() {
 }
 
 /* --------------------------------------------------------------------------
- * 2.10 侧边栏统计图表（hexo-stats-echarts）
- *     插件的 tag 脚本用 DOMContentLoaded 初始化，pjax 导航后不会再次触发；
- *     这里在 DOMContentLoaded 和 pjax 完成后统一执行收集到的初始化函数。
- *     函数由主题 scripts/helpers/stats_echarts.js 通过 data-pjax 脚本 push 进
- *     window.__statsChartsInit 队列。
+ * 2.10 侧边栏统计图表（数据：hexo-stats-echarts，渲染：echarts）
+ *     模板 helper（themes/anzhiyu/scripts/helpers/stats_echarts.js）只输出
+ *     带 data-lum-chart / data-lum-data 属性的纯数据容器、无内联脚本，
+ *     这里在 DOMContentLoaded / pjax 后扫描渲染，天然兼容 pjax。
+ *     特性：
+ *       - 暗色模式跟随主题 data-theme 属性实时换色（MutationObserver）
+ *       - 窗口 resize 时重排
+ *       - 容器不可见（如移动端 aside 暂时隐藏）时延迟到可见再渲染，
+ *         避免 echarts 以 0 宽度初始化
+ *       - 饼图：top8 + 「其他」聚合，点击跳转标签页
+ *       - 热力图：整年日历横向滚动查看，年份切换，点击格子跳当月归档
  * -------------------------------------------------------------------------- */
-function initStatsCharts() {
-  if (!window.__statsChartsInit) return;
-  // echarts 通过 CDN 异步加载，尚未就绪则延迟重试
+const LUM_CHART_RETRY_MAX = 10;
+let lumChartRetryCount = 0;
+
+function isLumDarkMode() {
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+}
+
+function initSidebarCharts() {
+  const pending = document.querySelectorAll('.lum-chart:not([data-lum-rendered])');
+  if (!pending.length) return;
+  // echarts 由 head 同步脚本加载；万一 CDN 异常，有上限地重试后放弃
   if (!window.echarts) {
-    setTimeout(initStatsCharts, 300);
+    if (lumChartRetryCount++ < LUM_CHART_RETRY_MAX) setTimeout(initSidebarCharts, 400);
+    else console.error('[lum-charts] echarts 未加载，侧边栏图表放弃渲染');
     return;
   }
-  const queue = window.__statsChartsInit;
-  window.__statsChartsInit = [];
-  queue.forEach(fn => {
-    try { fn(); } catch (e) { console.error('[stats-echarts] init error:', e); }
+  lumChartRetryCount = 0;
+  pending.forEach(el => {
+    try { renderLumChart(el); } catch (e) { console.error('[lum-charts] render error:', e); }
   });
+}
+
+function renderLumChart(el) {
+  if (el.dataset.lumRendered === '1') return;
+  let data;
+  try { data = JSON.parse(el.dataset.lumData); } catch (e) { return; }
+
+  // 容器不可见 → 等可见后再渲染（不标记 rendered，渲染器稍后会重新进入）
+  if (el.clientWidth < 40) {
+    if (!el.__lumRO && typeof ResizeObserver === 'function') {
+      el.__lumRO = new ResizeObserver(() => {
+        if (el.clientWidth >= 40) {
+          el.__lumRO.disconnect();
+          el.__lumRO = null;
+          renderLumChart(el);
+        }
+      });
+      el.__lumRO.observe(el);
+    }
+    return;
+  }
+
+  el.dataset.lumRendered = '1';
+  if (el.dataset.lumChart === 'heatmap') renderLumHeatmap(el, data);
+  else renderLumPie(el, data);
+}
+
+/* ---- Tag 标签饼图 ---- */
+function renderLumPie(el, data) {
+  const chart = echarts.init(el);
+  el.__lumChart = chart;
+  chart.setOption(buildLumPieOption(data, isLumDarkMode()));
+  chart.on('click', params => {
+    const item = data.items[params.dataIndex];
+    if (item && item.path) lumNavigate(item.path);
+  });
+}
+
+function buildLumPieOption(data, dark) {
+  const txt = dark ? 'rgba(255,255,255,.85)' : '#4a4a4a';
+  const sub = dark ? 'rgba(255,255,255,.45)' : '#949494';
+  return {
+    tooltip: {
+      trigger: 'item',
+      confine: true,
+      formatter: p => `${p.name}：${p.value} 篇（${p.percent}%）`
+    },
+    legend: {
+      bottom: 0, type: 'scroll', icon: 'circle',
+      itemWidth: 7, itemHeight: 7, itemGap: 8, pageIconSize: 8,
+      textStyle: { fontSize: 10, color: txt }
+    },
+    title: {
+      text: String(data.uniqueCount != null ? data.uniqueCount : data.items.reduce((s, i) => s + i.value, 0)),
+      subtext: '个标签', left: '50%', top: '30%', textAlign: 'center',
+      textStyle: { fontSize: 20, fontWeight: 600, color: txt },
+      subtextStyle: { fontSize: 10, color: sub }, itemGap: 2
+    },
+    series: [{
+      type: 'pie',
+      radius: ['44%', '66%'],
+      center: ['50%', '40%'],
+      itemStyle: { borderRadius: 4, borderColor: dark ? 'rgba(0,0,0,.2)' : '#fff', borderWidth: 1 },
+      label: { show: false },
+      labelLine: { show: false },
+      data: data.items.map(i => ({ name: i.name, value: i.value }))
+    }]
+  };
+}
+
+/* ---- 博文热力图 ---- */
+function renderLumHeatmap(el, data) {
+  // 默认显示最新年份；el.__lumYear 由年份切换按钮更新
+  el.__lumYear = data.years[data.years.length - 1];
+
+  // 画布按整年宽度固定（cell 12px，一年最多 53 列），容器 overflow-x 滚动查看
+  const CELL = 12;
+  const WIDTH = 24 + 53 * CELL + 8;
+  const HEIGHT = 22 + 7 * CELL + 8;
+  const chart = echarts.init(el, null, { width: WIDTH, height: HEIGHT });
+  el.__lumChart = chart;
+  chart.setOption(buildLumHeatmapOption(data, el.__lumYear, isLumDarkMode()));
+  chart.on('click', params => {
+    if (params.componentType !== 'series') return;
+    const [year, month] = params.value[0].split('-');
+    lumNavigate(`${data.archiveBase}/${year}/${month}/`);
+  });
+
+  // 年份切换按钮状态（首尾禁用）
+  const card = el.closest('.card-widget');
+  if (card) updateLumHeatUI(card, data, el.__lumYear);
+}
+
+function buildLumHeatmapOption(data, year, dark) {
+  const map = Object.fromEntries(data.days[year] || []);
+  // 补全全年日期（值为 0 的天也要有格子，才有 GitHub 热力图观感）
+  const series = [];
+  const cursor = new Date(Date.UTC(+year, 0, 1));
+  const end = new Date(Date.UTC(+year, 11, 31));
+  while (cursor <= end) {
+    const ds = cursor.toISOString().slice(0, 10);
+    series.push([ds, map[ds] || 0]);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  const max = Math.max(1, ...series.map(d => d[1]));
+
+  const labelColor = dark ? 'rgba(255,255,255,.6)' : '#8a8f99';
+  const colors = dark
+    ? ['#2A2E42', '#33406E', '#3D549C', '#4C6BD4', '#7C97F5']
+    : ['#EDF0F7', '#C3CFEE', '#93A5E5', '#5B72DB', '#3D51C0'];
+
+  return {
+    tooltip: {
+      position: 'top',
+      confine: true,
+      formatter: p => `${p.value[0]}：${p.value[1]} 篇`
+    },
+    visualMap: { show: false, min: 0, max, inRange: { color: colors } },
+    calendar: {
+      range: year,
+      cellSize: [12, 12],
+      left: 24, right: 6, top: 22,
+      splitLine: { show: false },
+      itemStyle: { borderWidth: 1, borderColor: 'transparent', color: 'transparent' },
+      dayLabel: { show: false },
+      monthLabel: { color: labelColor, fontSize: 9, nameMap: 'cn' },
+      yearLabel: { show: false }
+    },
+    series: [{
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      data: series,
+      itemStyle: { borderRadius: 2 }
+    }]
+  };
+}
+
+/* 热力图卡片头部的年份切换（‹ 2026 ›），事件委托全局注册一次 */
+function updateLumHeatUI(card, data, year) {
+  const label = card.querySelector('.lum-heat-year');
+  if (label) label.textContent = year;
+  const prev = card.querySelector('[data-lum-heat="prev"]');
+  const next = card.querySelector('[data-lum-heat="next"]');
+  if (prev) prev.disabled = year <= data.years[0];
+  if (next) next.disabled = year >= data.years[data.years.length - 1];
+}
+
+function lumNavigate(path) {
+  if (window.pjax && typeof window.pjax.loadUrl === 'function') window.pjax.loadUrl(path);
+  else window.location.href = path;
+}
+
+/* ---- 全局一次性初始化：主题切换监听、resize、年份切换点击 ---- */
+function initLumChartGlobals() {
+  // 跟随主题 data-theme 实时换色
+  if (!window.__lumThemeMO && typeof MutationObserver === 'function') {
+    window.__lumThemeMO = new MutationObserver(() => {
+      if (!window.echarts) return;
+      const dark = isLumDarkMode();
+      document.querySelectorAll('.lum-chart[data-lum-rendered="1"]').forEach(el => {
+        const chart = echarts.getInstanceByDom(el);
+        if (!chart) return;
+        try {
+          const data = JSON.parse(el.dataset.lumData);
+          if (el.dataset.lumChart === 'heatmap') chart.setOption(buildLumHeatmapOption(data, el.__lumYear, dark));
+          else chart.setOption(buildLumPieOption(data, dark));
+        } catch (e) {}
+      });
+    });
+    window.__lumThemeMO.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+
+  // 窗口尺寸变化 → 重排（热力图画布固定宽度无需重排）
+  if (!window.__lumResizeBound) {
+    window.__lumResizeBound = true;
+    let timer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (!window.echarts) return;
+        document.querySelectorAll('.lum-chart-pie[data-lum-rendered="1"]').forEach(el => {
+          const chart = echarts.getInstanceByDom(el);
+          if (chart) chart.resize();
+        });
+      }, 200);
+    });
+  }
+
+  // 热力图年份切换按钮（事件委托，pjax 后依然有效）
+  if (!window.__lumHeatBound) {
+    window.__lumHeatBound = true;
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-lum-heat]');
+      if (!btn || btn.disabled) return;
+      const card = btn.closest('.card-widget');
+      const el = card && card.querySelector('.lum-chart-heatmap');
+      if (!el || !el.__lumChart) return;
+      let data;
+      try { data = JSON.parse(el.dataset.lumData); } catch (err) { return; }
+      const idx = data.years.indexOf(String(el.__lumYear));
+      const nextIdx = btn.dataset.lumHeat === 'prev' ? idx - 1 : idx + 1;
+      if (nextIdx < 0 || nextIdx >= data.years.length) return;
+      el.__lumYear = data.years[nextIdx];
+      el.__lumChart.setOption(buildLumHeatmapOption(data, el.__lumYear, isLumDarkMode()));
+      updateLumHeatUI(card, data, el.__lumYear);
+    });
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -970,7 +1191,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initEssayCollapse();
   injectVisitorCard();
   initYouTubeFallback();
-  setTimeout(initStatsCharts, 100);
+  initLumChartGlobals();
+  initSidebarCharts();
 });
 document.addEventListener('pjax:success', () => {
   deferBannerSvg();
@@ -985,11 +1207,9 @@ document.addEventListener('pjax:success', () => {
   setTimeout(initEssayCollapse, 50);
   setTimeout(injectVisitorCard, 100);
   setTimeout(initYouTubeFallback, 100);
-  setTimeout(initStatsCharts, 200);
+  setTimeout(initSidebarCharts, 50);
 });
 document.addEventListener('pjax:complete', () => {
-  // 图表的 data-pjax 脚本在 pjax:complete 里被主题重建执行后才 push 进
-  // window.__statsChartsInit 队列，因此在 pjax:complete 之后再统一初始化图表
-  // （延迟执行确保脚本已入队，echarts 未就绪时 initStatsCharts 内部会自动重试）
-  setTimeout(initStatsCharts, 250);
+  // pjax:complete 时新 DOM（含侧边栏图表容器）已就位，直接渲染
+  initSidebarCharts();
 });
