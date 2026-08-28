@@ -1124,7 +1124,13 @@ img.cover-fit-contain {
   text-align: center;
 }
 .visitor-error-icon {
-  font-size: 28px;
+  display: inline-flex;
+}
+
+.visitor-error-icon svg {
+  width: 30px;
+  height: 30px;
+  color: var(--anzhiyu-secondtext, #999);
 }
 .visitor-error p {
   margin: 0;
@@ -1220,7 +1226,11 @@ img.cover-fit-contain {
   margin-bottom: 8px;
 }
 
-.card-stats-chart .item-headline .anzhiyufont {
+/* 卡片标题图标：内联 SVG（currentColor，明暗自适应） */
+.card-stats-chart .item-headline svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
   color: var(--anzhiyu-main, #425aef);
 }
 
@@ -1277,12 +1287,16 @@ img.cover-fit-contain {
   border-radius: 4px;
   background: var(--anzhiyu-secondbg, #f0f0f0);
   color: var(--anzhiyu-fontcolor, #363636);
-  font-size: 13px;
   cursor: pointer;
   transition: background 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.lum-heat-btn svg {
+  width: 11px;
+  height: 11px;
 }
 
 .lum-heat-btn:hover:not(:disabled) {

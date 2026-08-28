@@ -740,7 +740,9 @@ function buildLumPieOption(data, dark) {
     },
     title: {
       text: String(data.uniqueCount != null ? data.uniqueCount : data.items.reduce((s, i) => s + i.value, 0)),
-      subtext: '个标签', left: '50%', top: '30%', textAlign: 'center',
+      subtext: '个标签', left: '47%', top: '30%', textAlign: 'center',
+      // left 用 47% 而非 50%：视觉居中校正 —— 大扇区（如"哲学"）多在左侧，
+      // 视觉重心偏左，文字块左移几个像素看起来才是真正居中
       textStyle: { fontSize: 20, fontWeight: 600, color: txt },
       subtextStyle: { fontSize: 10, color: sub }, itemGap: 2
     },
@@ -1050,9 +1052,11 @@ function fitVisitorOneLine() {
 function showVisitorError() {
   const container = document.getElementById('visitor-info');
   if (!container) return;
+  // 卫星信号锅图标（Lucide，ISC；stroke 用 currentColor，明暗色自动适配）
+  const satelliteIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 10a7.31 7.31 0 0 0 10 10Z"/><path d="m9 15 3-3"/><path d="M17 13a6 6 0 0 0-6-6"/><path d="M21 13A10 10 0 0 0 11 3"/></svg>';
   container.innerHTML = `
     <div class="visitor-error">
-      <div class="visitor-error-icon">📡</div>
+      <div class="visitor-error-icon">${satelliteIcon}</div>
       <p>获取访客信息失败</p>
       <p class="visitor-retry">点击<span class="visitor-retry-btn">重试</span></p>
     </div>
