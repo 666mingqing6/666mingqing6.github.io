@@ -778,8 +778,8 @@ function renderLumHeatmap(el, data) {
     lumNavigate(`${data.archiveBase}/${year}/${month}/`);
   });
 
-  // 年份切换按钮状态（首尾禁用）
-  const card = el.closest('.card-widget');
+  // 年份切换按钮状态（首尾禁用）；.card-stats-chart 在两种卡片形态下都存在
+  const card = el.closest('.card-stats-chart');
   if (card) updateLumHeatUI(card, data, el.__lumYear);
 }
 
@@ -1091,7 +1091,7 @@ function initLumChartGlobals() {
     document.addEventListener('click', e => {
       const btn = e.target.closest('[data-lum-heat]');
       if (!btn || btn.disabled) return;
-      const card = btn.closest('.card-widget');
+      const card = btn.closest('.card-stats-chart');
       const el = card && card.querySelector('.lum-chart-heatmap');
       if (!el || !el.__lumChart) return;
       let data;

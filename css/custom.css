@@ -1328,12 +1328,13 @@ img.cover-fit-contain {
    主题的 .card-widget overflow:hidden（更高优先级规则）会裁掉骑缝按钮的
    上半截，此处用 ID 级选择器强制放开；本卡子元素均为自带圆角的文字块，
    放开裁剪无副作用 */
-#aside-content .card-widget.aside-stats-original {
+#aside-content .card-widget.aside-stats-original,
+#aside-content .card-widget.aside-stats-charts-card {
   overflow: visible !important;
 }
 
 .aside-stats-original,
-.aside-stats-charts-wrap {
+.aside-stats-charts-card {
   position: relative;
 }
 
