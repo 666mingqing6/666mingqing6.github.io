@@ -1273,7 +1273,7 @@ img.cover-fit-contain {
 .lum-heat-year {
   font-size: 12px;
   font-weight: 600;
-  color: var(--anzhiyu-secondtext, #999);
+  color: var(--anzhiyu-main, #425aef);
   min-width: 34px;
   text-align: center;
 }
@@ -1323,20 +1323,44 @@ img.cover-fit-contain {
   display: none;
 }
 
+/* 页签式分段控件：骑在统计卡上边缘（一半压卡片、一半在缝隙），
+   视觉上夹在公告卡与标签卡之间，明确归属下方统计区。
+   主题的 .card-widget overflow:hidden（更高优先级规则）会裁掉骑缝按钮的
+   上半截，此处用 ID 级选择器强制放开；本卡子元素均为自带圆角的文字块，
+   放开裁剪无副作用 */
+#aside-content .card-widget.aside-stats-original {
+  overflow: visible !important;
+}
+
+.aside-stats-original,
+.aside-stats-charts-wrap {
+  position: relative;
+}
+
 .aside-stats-switch {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin: 0 0 10px;
+  position: absolute;
+  top: -12px;
+  right: 14px;
+  z-index: 2;
+}
+
+.aside-stats-switch .seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--anzhiyu-card-bg, #fff);
+  border: 1px solid var(--anzhiyu-card-border, #e3e8f7);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .aside-stats-btn {
   font-size: 12px;
   line-height: 1;
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--anzhiyu-card-border, #e3e8f7);
-  background: var(--anzhiyu-card-bg, #fff);
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
   color: var(--anzhiyu-secondtext, #999);
   cursor: pointer;
   transition: all 0.2s;
@@ -1344,12 +1368,10 @@ img.cover-fit-contain {
 
 .aside-stats-btn:hover {
   color: var(--anzhiyu-main, #425aef);
-  border-color: var(--anzhiyu-main, #425aef);
 }
 
 .aside-stats-btn.on-active {
   background: var(--anzhiyu-main, #425aef);
-  border-color: var(--anzhiyu-main, #425aef);
   color: #fff;
 }
 

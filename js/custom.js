@@ -853,13 +853,35 @@ function renderLumHeatmapFull(el, data) {
     if (!selected || selected === el.__lumYear) return;
     el.__lumYear = selected;
     const max = Math.max(1, ...(data.days[selected] || []).map(d => d[1]));
-    chart.setOption({ calendar: { range: selected }, visualMap: { max } });
+    // 同步更新图例：当前年份高亮（主题色加粗），让用户一眼看清在看哪一年
+    chart.setOption({
+      calendar: { range: selected },
+      visualMap: { max },
+      legend: lumHeatFullLegend(data, selected, isLumDarkMode())
+    });
   });
   chart.on('click', params => {
     if (params.componentType !== 'series') return;
     const [year, month] = params.value[0].split('-');
     lumNavigate(`${data.archiveBase}/${year}/${month}/`);
   });
+}
+
+/* 年份图例：当前年份高亮为主题色加粗，其余保持灰色 */
+function lumHeatFullLegend(data, year, dark) {
+  const labelColor = dark ? 'rgba(255,255,255,.55)' : '#6E7079';
+  const active = dark ? '#7C97F5' : '#3D51C0';
+  return {
+    type: 'scroll', icon: 'none', data: data.years,
+    orient: 'vertical', top: '5%', right: 'right',
+    itemWidth: 20, itemHeight: 20, itemGap: 10,
+    pageIconSize: 10, selectedMode: 'single',
+    formatter: name => (name === year ? `{active|${name}}` : name),
+    textStyle: {
+      color: labelColor, fontSize: 13,
+      rich: { active: { color: active, fontSize: 15, fontWeight: 'bold' } }
+    }
+  };
 }
 
 function buildLumHeatmapFullOption(data, year, dark) {
@@ -898,13 +920,7 @@ function buildLumHeatmapFullOption(data, year, dark) {
       inRange: { color: colors },
       textStyle: { color: labelColor }
     },
-    legend: {
-      type: 'scroll', icon: 'none', data: data.years,
-      orient: 'vertical', top: '5%', right: 'right',
-      itemWidth: 20, itemHeight: 20, itemGap: 10,
-      pageIconSize: 10, selectedMode: 'single',
-      textStyle: { color: labelColor, fontSize: 13 }
-    },
+    legend: lumHeatFullLegend(data, year, dark),
     calendar: {
       top: '13%', left: '2%', right: '8%',
       range: year, cellSize: [16, 16],
