@@ -238,6 +238,47 @@ img.cover-fit-contain {
 }
 
 /* ==========================================================================
+   封面白天/黑夜双封面（frontmatter: cover_day / cover_night）
+   - cover_day：亮色模式封面（未设置时回退 cover）
+   - cover_night：暗色模式封面（未设置时回退 cover）
+   模板输出两张 img，默认显示白天版，dark 模式切换为黑夜版；
+   cover-night 图带 nolazyload 不参与懒加载/shimmer，保证切换即时。
+   ========================================================================== */
+.post_cover img.cover-night,
+.recent-post-item img.cover-night,
+#topPostGroup img.cover-night,
+.topGroup .recent-post-item img.cover-night,
+.article-sort-item-img img.cover-night,
+.aside-list-item .thumbnail img.cover-night,
+.relatedPosts img.cover-night,
+.pagination-post img.cover-night,
+.cat-tree-post-item img.cover-night {
+  display: none;
+}
+[data-theme="dark"] .post_cover img.cover-day,
+[data-theme="dark"] .recent-post-item img.cover-day,
+[data-theme="dark"] #topPostGroup img.cover-day,
+[data-theme="dark"] .topGroup .recent-post-item img.cover-day,
+[data-theme="dark"] .article-sort-item-img img.cover-day,
+[data-theme="dark"] .aside-list-item .thumbnail img.cover-day,
+[data-theme="dark"] .relatedPosts img.cover-day,
+[data-theme="dark"] .pagination-post img.cover-day,
+[data-theme="dark"] .cat-tree-post-item img.cover-day {
+  display: none !important;
+}
+[data-theme="dark"] .post_cover img.cover-night,
+[data-theme="dark"] .recent-post-item img.cover-night,
+[data-theme="dark"] #topPostGroup img.cover-night,
+[data-theme="dark"] .topGroup .recent-post-item img.cover-night,
+[data-theme="dark"] .article-sort-item-img img.cover-night,
+[data-theme="dark"] .aside-list-item .thumbnail img.cover-night,
+[data-theme="dark"] .relatedPosts img.cover-night,
+[data-theme="dark"] .pagination-post img.cover-night,
+[data-theme="dark"] .cat-tree-post-item img.cover-night {
+  display: block;
+}
+
+/* ==========================================================================
    分类页：树形层级结构
    - 顶级分类：加粗主色 + 大字号
    - 子分类：缩进 + 左侧连接线 + 灰色文字
@@ -772,17 +813,22 @@ img.cover-fit-contain {
 }
 
 /* ==========================================================================
-   关于页 "Hello there!" 眼睛动画：亮色模式圆环可见性修复
+   关于页 "Hello there!" 眼睛动画：亮色模式圆环可见性修复 + 文字统一白色
    主题原样式 .content 为白色 + mix-blend-mode: screen，
    亮色下 screen(白, 背景) = 白，瞳孔周围的彩色圆环被整层白色遮住。
-   改用 multiply：白×背景 = 背景（圆环透出），黑色文字保持黑色；
-   暗色模式 content 本身是透明背景，恢复正常混合即可。
+   修复：content 改为透明背景 + 正常混合，让圆环在亮/暗色下都透出。
+   文字统一白色：multiply 混合下白字会变成背景色（白×背景=背景），
+   所以必须用 normal 混合才能让白字在圆环上保持纯白清晰。
    ========================================================================== */
 .hello-about .content {
-  mix-blend-mode: multiply;
-}
-[data-theme='dark'] .hello-about .content {
+  background: transparent !important;
   mix-blend-mode: normal;
+}
+.hello-about h1 {
+  color: #fff !important;
+}
+[data-theme='dark'] .hello-about h1 {
+  color: #fff !important;
 }
 
 /* ==========================================================================

@@ -616,6 +616,65 @@ function evaluateEssayItem(item) {
 }
 
 /* --------------------------------------------------------------------------
+ * 2.9 顶部 banner Hello 动画：等全屏遮罩关闭后再加载
+ *     浏览器在 HTML 解析阶段就会预下载 todayCard-cover 的 hello.svg 并开播动画，
+ *     用户打开网站时往往看到动画已经走了一半。这里先移除 img 的 src 阻止提前
+ *     加载/播放，待全屏遮罩（#loading-box）关闭（loaded）后再重新设置 src，
+ *     让动画从开头完整绘制。
+ * -------------------------------------------------------------------------- */
+function deferBannerSvg() {
+  const img = document.querySelector('#todayCard img.todayCard-cover');
+  if (!img || img.dataset.bannerDefer === '1') return;
+  const src = img.getAttribute('src');
+  if (!src || !src.includes('hello.svg')) return;
+  img.dataset.bannerDefer = '1';
+  img.dataset.bannerRealSrc = src;
+  img.removeAttribute('src'); // 阻止浏览器提前下载/播放动画
+
+  const start = () => {
+    if (img.dataset.bannerRealSrc) {
+      img.setAttribute('src', img.dataset.bannerRealSrc);
+    }
+  };
+
+  const box = document.getElementById('loading-box');
+  if (box && !box.classList.contains('loaded')) {
+    const mo = new MutationObserver(() => {
+      if (box.classList.contains('loaded')) {
+        mo.disconnect();
+        start();
+      }
+    });
+    mo.observe(box, { attributes: true, attributeFilter: ['class'] });
+    // 兜底：遮罩异常时最多等 3s 也强制开始
+    setTimeout(() => { mo.disconnect(); start(); }, 3000);
+  } else {
+    start();
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * 2.10 侧边栏统计图表（hexo-stats-echarts）
+ *     插件的 tag 脚本用 DOMContentLoaded 初始化，pjax 导航后不会再次触发；
+ *     这里在 DOMContentLoaded 和 pjax 完成后统一执行收集到的初始化函数。
+ *     函数由主题 scripts/helpers/stats_echarts.js 通过 data-pjax 脚本 push 进
+ *     window.__statsChartsInit 队列。
+ * -------------------------------------------------------------------------- */
+function initStatsCharts() {
+  if (!window.__statsChartsInit) return;
+  // echarts 通过 CDN 异步加载，尚未就绪则延迟重试
+  if (!window.echarts) {
+    setTimeout(initStatsCharts, 300);
+    return;
+  }
+  const queue = window.__statsChartsInit;
+  window.__statsChartsInit = [];
+  queue.forEach(fn => {
+    try { fn(); } catch (e) { console.error('[stats-echarts] init error:', e); }
+  });
+}
+
+/* --------------------------------------------------------------------------
  * 6. 访客 IP 归属地展示卡片
  *    使用 ip.sb JSONP API 获取访客 IP 和地理位置信息
  *    注入到侧边栏，显示 IP 地址（模糊）+ 归属地 + 距离 + 时段问候
@@ -742,7 +801,8 @@ function showVisitorInfo(info) {
   fitVisitorOneLine();
 }
 
-/* 归属地等文字过长时缩小字号，保持单行显示（不换行） */
+/* 归属地等文字过长时缩小字号，保持单行显示（不换行）
+   缩小后仍要保留一定余量，避免文字紧贴标签/卡片边缘 */
 function fitVisitorOneLine() {
   const rows = document.querySelectorAll('.card-widget-visitor .visitor-row');
   rows.forEach(row => {
@@ -751,7 +811,9 @@ function fitVisitorOneLine() {
     if (!label || !value) return;
     value.style.fontSize = '';
     const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
-    const available = row.clientWidth - label.offsetWidth - gap;
+    // 预留 10px 空白余量，避免值紧贴标签或右侧边缘
+    const PADDING = 10;
+    const available = row.clientWidth - label.offsetWidth - gap - PADDING;
     if (available <= 0) return;
     let size = parseFloat(getComputedStyle(value).fontSize);
     const min = 8.5;
@@ -896,6 +958,7 @@ function extractYouTubeId(url) {
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  deferBannerSvg(); // 先接管 banner 加载（需在遮罩隐藏前）
   hidePreloaderOverlay();
   injectPostEnd();
   hijackRewardButton();
@@ -907,8 +970,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initEssayCollapse();
   injectVisitorCard();
   initYouTubeFallback();
+  setTimeout(initStatsCharts, 100);
 });
 document.addEventListener('pjax:success', () => {
+  deferBannerSvg();
   hidePreloaderOverlay();
   injectPostEnd();
   hijackRewardButton();
@@ -920,4 +985,11 @@ document.addEventListener('pjax:success', () => {
   setTimeout(initEssayCollapse, 50);
   setTimeout(injectVisitorCard, 100);
   setTimeout(initYouTubeFallback, 100);
+  setTimeout(initStatsCharts, 200);
+});
+document.addEventListener('pjax:complete', () => {
+  // 图表的 data-pjax 脚本在 pjax:complete 里被主题重建执行后才 push 进
+  // window.__statsChartsInit 队列，因此在 pjax:complete 之后再统一初始化图表
+  // （延迟执行确保脚本已入队，echarts 未就绪时 initStatsCharts 内部会自动重试）
+  setTimeout(initStatsCharts, 250);
 });
