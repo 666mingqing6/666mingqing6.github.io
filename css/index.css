@@ -18798,6 +18798,14 @@ p.p.h5 {
   color: var(--color-h5);
   padding-top: 1.5em;
 }
+span.p.h1,
+span.p.h2,
+span.p.h3,
+span.p.h4,
+span.p.h5 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
 span.p.red,
 p.p.red {
   color: #e8453c;

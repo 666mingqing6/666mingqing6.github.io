@@ -1080,6 +1080,11 @@ img.cover-fit-contain {
   font-weight: 500;
   text-align: right;
   white-space: nowrap; /* 归属地过长时由 JS 缩小字号保持单行，不换行 */
+  /* 兜底：nowrap 的 flex 子项默认无法收缩到内容宽度以下，min-width:0 放开限制；
+     极端长文本即使缩到最小字号（8.5px）仍超宽时，退化为省略号而非撑破卡片 */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .visitor-value.ip-address {
   filter: blur(4px);
