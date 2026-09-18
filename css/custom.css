@@ -1463,63 +1463,59 @@ img.cover-fit-contain {
 }
 
 /* ==========================================================================
-   哀悼日（mourn）：顶部悼念横幅 + 默哀一分钟
+   哀悼日（mourn）：首页悼念横幅（独立卡片，位于即刻滚动条正上方）+ 默哀一分钟
    - 全站灰白由 mourn.pug 设置 document.documentElement.style.filter 实现
-   - 横幅渲染在 #body-wrap 之外，不参与 pjax 替换，站内跳转时持续保留
+   - 横幅是内容流内的独立卡片（非固定层），渲染在首页 #bbTimeList 之前，
+     与即刻条同宽、同居中方式，视觉上并列为「即刻条」上方的另一张卡片
+   - 因不再占据视口顶部，故无需再下移 #nav，也不会遮挡导航/移动端侧栏
+   - 宽度与外边距刻意对齐 #bbTimeList：max-width: calc(1400px - 3rem)、margin: 1rem auto 0
    - 配色刻意采用灰阶：整站处于 grayscale(1) 下，任何彩色都会被滤成灰，
      直接用黑/白/灰可保证「设计意图」与「最终呈现」一致
-   - z-index 取 89（低于 #nav 的 90），横幅出现时改为把 #nav 下移来避让，
-     而非用高层级覆盖导航，避免遮挡导航下拉/移动端侧栏（#sidebar-menus 为 103）
    ========================================================================== */
 
-:root {
-  --mourn-h: 0px; /* 横幅实测高度，由 mourn.pug 写入 */
-}
-
-/* ---------- 顶部悼念横幅 ---------- */
-.mourn-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 89;
-  background: #1c1c1e;
+/* ---------- 首页悼念横幅（独立卡片） ---------- */
+.mourn-notice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: calc(1400px - 3rem);
+  margin: 1rem auto 0;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: #101014;
   color: #f2f2f2;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
-  font-size: 13px;
-  line-height: 1.5;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slide-in 0.6s 0s backwards; /* 与即刻条同款入场动画 */
 }
 
-.mourn-bar[hidden] {
+.mourn-notice[hidden] {
   display: none;
 }
 
-/* 横幅出现时把固定导航下移，避免与横幅重叠
-   必须用 !important：主题存在 #page-header.nav-fixed #nav { top: 0 }，
-   其特异性 (2,1,0) 高于本选择器 (1,1,1)，滚动后导航转为 nav-fixed 时
-   会把下移覆盖掉（导航跳回顶部并与横幅重叠）。主题从不以 !important
-   声明导航 top，也不写内联 top，故此处 !important 是安全且必要的 */
-html.mourn-active #nav {
-  top: var(--mourn-h, 0px) !important;
-}
-
-.mourn-bar-inner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 8px 16px;
+/* 烛光光晕：提升醒目度（灰白模式下呈现为柔和白光） */
+.mourn-glow {
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translateY(-50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
 }
 
 /* 蜡烛图标 */
 .mourn-icon {
+  position: relative;
   flex-shrink: 0;
   display: inline-flex;
-  width: 22px;
-  height: 22px;
-  color: #e8e8e8;
+  width: 30px;
+  height: 30px;
+  color: #f0f0f0;
 }
 
 .mourn-candle {
@@ -1541,28 +1537,32 @@ html.mourn-active #nav {
   75%      { opacity: 1;    transform: scale(1.03, 0.98) rotate(-1deg); }
 }
 
-/* 文案区 */
+/* 文案区：标题与说明上下两行，卡片式布局 */
 .mourn-text {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
+  flex-direction: column;
+  gap: 3px;
   min-width: 0;
   flex: 1;
 }
 
 .mourn-title {
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  white-space: nowrap;
+  line-height: 1.35;
 }
 
 .mourn-desc {
-  color: rgba(242, 242, 242, 0.78);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(242, 242, 242, 0.76);
 }
 
 /* 操作区 */
 .mourn-actions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1625,37 +1625,39 @@ html.mourn-active #nav {
   color: #fff;
 }
 
-/* 移动端：文案改为竖排换行，按钮仅留图标以节省横向空间 */
+/* 移动端：蜡烛+文案一行，操作按钮换到下一行右侧 */
 @media screen and (max-width: 768px) {
-  .mourn-bar-inner {
-    padding: 7px 12px;
-    gap: 9px;
-    align-items: flex-start;
+  .mourn-notice {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 12px 14px;
+    align-items: center;
   }
 
   .mourn-icon {
-    margin-top: 1px;
+    width: 24px;
+    height: 24px;
   }
 
   .mourn-text {
-    flex-direction: column;
-    gap: 2px;
+    flex: 1 1 60%;
   }
 
   .mourn-title {
-    white-space: normal;
+    font-size: 15px;
   }
 
   .mourn-desc {
     font-size: 12px;
   }
 
-  .mourn-btn {
-    padding: 4px 8px;
+  .mourn-actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
   }
 
-  .mourn-btn span {
-    display: none;
+  .mourn-btn {
+    padding: 4px 10px;
   }
 }
 
