@@ -1461,3 +1461,304 @@ img.cover-fit-contain {
   margin: 0;
   padding: 2px 0 2px 10px;
 }
+
+/* ==========================================================================
+   哀悼日（mourn）：顶部悼念横幅 + 默哀一分钟
+   - 全站灰白由 mourn.pug 设置 document.documentElement.style.filter 实现
+   - 横幅渲染在 #body-wrap 之外，不参与 pjax 替换，站内跳转时持续保留
+   - 配色刻意采用灰阶：整站处于 grayscale(1) 下，任何彩色都会被滤成灰，
+     直接用黑/白/灰可保证「设计意图」与「最终呈现」一致
+   - z-index 取 89（低于 #nav 的 90），横幅出现时改为把 #nav 下移来避让，
+     而非用高层级覆盖导航，避免遮挡导航下拉/移动端侧栏（#sidebar-menus 为 103）
+   ========================================================================== */
+
+:root {
+  --mourn-h: 0px; /* 横幅实测高度，由 mourn.pug 写入 */
+}
+
+/* ---------- 顶部悼念横幅 ---------- */
+.mourn-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 89;
+  background: #1c1c1e;
+  color: #f2f2f2;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mourn-bar[hidden] {
+  display: none;
+}
+
+/* 横幅出现时把固定导航下移，避免与横幅重叠
+   必须用 !important：主题存在 #page-header.nav-fixed #nav { top: 0 }，
+   其特异性 (2,1,0) 高于本选择器 (1,1,1)，滚动后导航转为 nav-fixed 时
+   会把下移覆盖掉（导航跳回顶部并与横幅重叠）。主题从不以 !important
+   声明导航 top，也不写内联 top，故此处 !important 是安全且必要的 */
+html.mourn-active #nav {
+  top: var(--mourn-h, 0px) !important;
+}
+
+.mourn-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+/* 蜡烛图标 */
+.mourn-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  color: #e8e8e8;
+}
+
+.mourn-candle {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 火焰摇曳 */
+.mourn-flame {
+  transform-origin: 50% 90%;
+  animation: mourn-flicker 2.2s ease-in-out infinite;
+}
+
+@keyframes mourn-flicker {
+  0%, 100% { opacity: 0.85; transform: scale(1) rotate(0deg); }
+  25%      { opacity: 1;    transform: scale(1.06, 0.96) rotate(-2deg); }
+  50%      { opacity: 0.78; transform: scale(0.96, 1.05) rotate(1.5deg); }
+  75%      { opacity: 1;    transform: scale(1.03, 0.98) rotate(-1deg); }
+}
+
+/* 文案区 */
+.mourn-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mourn-title {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.mourn-desc {
+  color: rgba(242, 242, 242, 0.78);
+}
+
+/* 操作区 */
+.mourn-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mourn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+
+.mourn-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 按钮内的内联 SVG 图标（不依赖主题图标字体，保证一定渲染） */
+.mourn-btn-icon {
+  width: 13px;
+  height: 13px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.mourn-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(242, 242, 242, 0.7);
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.mourn-close svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.mourn-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+/* 移动端：文案改为竖排换行，按钮仅留图标以节省横向空间 */
+@media screen and (max-width: 768px) {
+  .mourn-bar-inner {
+    padding: 7px 12px;
+    gap: 9px;
+    align-items: flex-start;
+  }
+
+  .mourn-icon {
+    margin-top: 1px;
+  }
+
+  .mourn-text {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mourn-title {
+    white-space: normal;
+  }
+
+  .mourn-desc {
+    font-size: 12px;
+  }
+
+  .mourn-btn {
+    padding: 4px 8px;
+  }
+
+  .mourn-btn span {
+    display: none;
+  }
+}
+
+/* ---------- 默哀一分钟：全屏遮罩 + 倒计时 ---------- */
+.mourn-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 10, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mourn-mask[hidden] {
+  display: none;
+}
+
+.mourn-mask-show {
+  opacity: 1;
+}
+
+.mourn-mask-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  color: #f2f2f2;
+  transform: translateY(10px);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mourn-mask-show .mourn-mask-inner {
+  transform: translateY(0);
+}
+
+.mourn-mask-icon {
+  width: 54px;
+  height: 54px;
+  color: #eaeaea;
+}
+
+.mourn-candle-lg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mourn-count {
+  font-size: 56px;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mourn-mask-label {
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  color: rgba(242, 242, 242, 0.72);
+}
+
+.mourn-progress {
+  width: min(260px, 62vw);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mourn-progress-bar {
+  width: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  transition: width 1s linear;
+}
+
+.mourn-btn-ghost {
+  margin-top: 6px;
+  border-color: rgba(255, 255, 255, 0.24);
+  color: rgba(242, 242, 242, 0.8);
+}
+
+.mourn-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* 尊重系统「减弱动态效果」偏好 */
+@media screen and (prefers-reduced-motion: reduce) {
+  .mourn-flame {
+    animation: none;
+  }
+
+  .mourn-mask,
+  .mourn-mask-inner,
+  .mourn-progress-bar {
+    transition: none;
+  }
+}
