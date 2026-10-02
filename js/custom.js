@@ -1389,10 +1389,79 @@ function extractYouTubeId(url) {
 }
 
 /* --------------------------------------------------------------------------
+ * 2.11 首次访问 Welcome 一笔画欢迎动画
+ *     首次打开本站（localStorage 无 lumoes_welcomed 标记）时，在首页顶部
+ *     banner 卡片（#todayCard）上覆盖一层全卡遮罩，等全屏加载遮罩
+ *     （#loading-box.loaded）关闭后才设置 img src，让 /img/welcome.svg
+ *     一笔画从第 0 帧完整播放一遍（8.217s）；
+ *     退场分两阶段：先背景透明 + 高斯模糊透出卡片内容，再整体淡出移除。
+ *     img 加载失败 / 任何异常兜底：直接移除遮罩，绝不阻塞正常浏览。
+ * -------------------------------------------------------------------------- */
+const WELCOME_SVG_SRC = '/img/welcome.svg';
+const WELCOME_PLAY_MS = 8300;  // SVG 单循环 8.217s + 少量余量
+const WELCOME_BLUR_MS = 900;   // 退场阶段一：模糊透出
+const WELCOME_FADE_MS = 600;   // 退场阶段二：淡出移除
+
+function initWelcomeOverlay() {
+  const card = document.getElementById('todayCard');
+  if (!card) return; // 仅首页 banner 卡片存在时
+  if (card.querySelector('.welcome-overlay')) return; // 防重复
+  try {
+    if (localStorage.getItem('lumoes_welcomed') === '1') return;
+    localStorage.setItem('lumoes_welcomed', '1');
+  } catch (e) { return; } // localStorage 不可用则不放，避免每次刷新都播
+
+  const overlay = document.createElement('div');
+  overlay.className = 'welcome-overlay';
+  const img = document.createElement('img');
+  img.className = 'welcome-overlay-svg';
+  img.alt = 'Welcome';
+  overlay.appendChild(img);
+  card.appendChild(overlay);
+
+  let finished = false;
+  const dismiss = () => { // 异常兜底：无过渡直接移除
+    if (finished) return;
+    finished = true;
+    overlay.remove();
+  };
+  const exit = () => { // 正常退场：模糊透出 → 淡出 → 移除
+    if (finished) return;
+    finished = true;
+    overlay.classList.add('welcome-exit');
+    setTimeout(() => overlay.classList.add('welcome-exit-fade'), WELCOME_BLUR_MS);
+    setTimeout(() => overlay.remove(), WELCOME_BLUR_MS + WELCOME_FADE_MS);
+  };
+
+  let began = false;
+  const begin = () => {
+    if (began) return;
+    began = true;
+    img.addEventListener('error', dismiss);
+    img.src = WELCOME_SVG_SRC; // 此时才开始下载并从头播放动画
+    setTimeout(exit, WELCOME_PLAY_MS);
+    // 总兜底：无论如何 ~13s 后遮罩必须消失
+    setTimeout(dismiss, WELCOME_PLAY_MS + WELCOME_BLUR_MS + WELCOME_FADE_MS + 3000);
+  };
+
+  const box = document.getElementById('loading-box');
+  if (box && !box.classList.contains('loaded')) {
+    const mo = new MutationObserver(() => {
+      if (box.classList.contains('loaded')) { mo.disconnect(); begin(); }
+    });
+    mo.observe(box, { attributes: true, attributeFilter: ['class'] });
+    setTimeout(() => { mo.disconnect(); begin(); }, 4000); // 遮罩异常时最多等 4s
+  } else {
+    begin();
+  }
+}
+
+/* --------------------------------------------------------------------------
  * 初始化
  * -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   deferBannerSvg(); // 先接管 banner 加载（需在遮罩隐藏前）
+  initWelcomeOverlay(); // 首访 Welcome 动画（等遮罩关闭后开播）
   hidePreloaderOverlay();
   injectPostEnd();
   hijackRewardButton();
@@ -1410,6 +1479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.addEventListener('pjax:success', () => {
   deferBannerSvg();
+  initWelcomeOverlay();
   hidePreloaderOverlay();
   injectPostEnd();
   hijackRewardButton();

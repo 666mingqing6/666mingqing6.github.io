@@ -4,7 +4,7 @@
   - 保留原版 4 段路径与变换
   - 绘制顺序：主词 hello → o 收笔 → 尾巴 → 圆点，依次画完互不重叠（无提前绘制）
   - 圆点最后淡入
-  - 五彩渐变描边（青→绿→黄→橙→红→紫→蓝，横向平滑过渡）
+  - 四色渐变描边 Gradient4（#006668 → #FFB501 → #F42B26 → #005685，横向平滑过渡）
   - 低调白色调背景（白为主，混入柔和中性绿渐变）
   - forwards 保持绘制完成后不退场
 -->
@@ -23,17 +23,20 @@
       <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- 五彩渐变：横向平滑过渡（横跨 hello 主词范围） -->
-    <linearGradient id="hello-rainbow" gradientUnits="userSpaceOnUse" x1="18.5" y1="0" x2="470" y2="0">
-      <stop offset="0" stop-color="#157B93"/>
-      <stop offset="0.15" stop-color="#2FA36B"/>
-      <stop offset="0.3" stop-color="#ACD15E"/>
-      <stop offset="0.42" stop-color="#FAD500"/>
-      <stop offset="0.54" stop-color="#FFB000"/>
-      <stop offset="0.65" stop-color="#FF7A3D"/>
-      <stop offset="0.76" stop-color="#F45343"/>
-      <stop offset="0.88" stop-color="#9174B5"/>
-      <stop offset="1" stop-color="#51A5D3"/>
+    <!-- Gradient4：四色渐变描边，横向平滑过渡（横跨 hello 主词范围）
+         【关键】gradientUnits="userSpaceOnUse" 的 x1/y1/x2/y2 是在
+         「引用该渐变的元素自身的局部坐标系」中解析的，不是最终屏幕坐标。
+         各 path 带 transform="translate(-199 -183)"，必须把该平移量计入：
+         主词 path-1 的局部 x 范围是 208 ~ 659.3。
+         原版取 x1=18.5/x2=470 是漏算了 189.5 的平移，导致渐变前 42%
+         落在可视区之外（首个颜色永远显示不出来）。
+         现按局部坐标标定为 208 ~ 659.5（= 原意图的 18.5/470 各加 189.5），
+         使四色完整铺满主词；o 收笔与尾巴自然落在末端色上。 -->
+    <linearGradient id="Gradient4" gradientUnits="userSpaceOnUse" x1="208" y1="0" x2="659.5" y2="0">
+      <stop offset="0" stop-color="#006668"/>
+      <stop offset="0.3333" stop-color="#FFB501"/>
+      <stop offset="0.6667" stop-color="#F42B26"/>
+      <stop offset="1" stop-color="#005685"/>
     </linearGradient>
   </defs>
 
@@ -47,7 +50,7 @@
     .hello path,
     .hello line {
       fill: none;
-      stroke: url(#hello-rainbow);
+      stroke: url(#Gradient4);
       stroke-width: 16;
       stroke-linecap: round;
       stroke-linejoin: round;
