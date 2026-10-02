@@ -1393,13 +1393,16 @@ function extractYouTubeId(url) {
  *     首次打开本站（localStorage 无 lumoes_welcomed 标记）时，在首页顶部
  *     banner 卡片（#todayCard）上覆盖一层全卡遮罩，等全屏加载遮罩
  *     （#loading-box.loaded）关闭后才设置 img src，让 /img/welcome.svg
- *     一笔画从第 0 帧完整播放一遍（8.217s）；
- *     退场分两阶段：先背景透明 + 高斯模糊透出卡片内容，再整体淡出移除。
+ *     一笔画从第 0 帧完整播放一遍；
+ *     退场与「收笔」同步：SVG 单循环 8.217s，其收笔区间为 4.87s~7.83s，
+ *     故在 4.87s 就开始「背景渐透明 + 高斯模糊渐显」，模糊历时 2.96s
+ *     正好覆盖整个收笔过程——即笔画一边收起、底下内容一边模糊透出，
+ *     而不是等动画全部播完再单独做一次模糊。
  *     img 加载失败 / 任何异常兜底：直接移除遮罩，绝不阻塞正常浏览。
  * -------------------------------------------------------------------------- */
 const WELCOME_SVG_SRC = '/img/welcome.svg';
-const WELCOME_PLAY_MS = 8300;  // SVG 单循环 8.217s + 少量余量
-const WELCOME_BLUR_MS = 900;   // 退场阶段一：模糊透出
+const WELCOME_PLAY_MS = 4870;  // SVG 收笔起点（dur 8.217s × keyTime 0.592292）
+const WELCOME_BLUR_MS = 2960;  // 退场阶段一：模糊透出，与收笔同步（至 7.83s 收笔结束）
 const WELCOME_FADE_MS = 600;   // 退场阶段二：淡出移除
 
 function initWelcomeOverlay() {
