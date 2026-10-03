@@ -681,6 +681,49 @@ img.cover-fit-contain {
 }
 
 /* ==========================================================================
+   首页文章卡片：标题换行时不再压住描述
+   问题：主题把 .recent-post-info 固定为 174px，且把 .article-meta-wrap（日期/标签栏）
+        设为 position:absolute; bottom:30px 脱离文档流。
+        描述既然被强制常显，当标题换行成 2 行（小屏更常见）时会把描述下推，
+        描述底部钻进绝对定位的 meta 栏下方 —— 实测重叠 30px。
+   修复：把 info 列改成可自适应的纵向 flex，meta 栏回归文档流；
+        标题换行时卡片自然增高，描述空间不足时自动收缩，二者永不重叠。
+        不依赖 meta 栏的具体高度（由 flex 自动分配），比硬编码留白更稳。
+   ========================================================================== */
+#content-inner #recent-posts > .recent-post-item > .recent-post-info {
+  height: auto !important;          /* 原为固定 174px，改为按内容自适应 */
+  min-height: 174px;                /* 单行标题时保持原有高度观感 */
+  display: flex !important;
+  flex-direction: column;
+  padding-bottom: 30px;             /* 保留原 meta 栏距卡片底部的 30px 间距 */
+  box-sizing: border-box;
+}
+
+/* 标题区：固定自身高度，不参与压缩，保证标题完整可读 */
+#content-inner #recent-posts > .recent-post-item > .recent-post-info > .recent-post-info-top {
+  flex: 0 0 auto;
+  order: 1;
+}
+
+/* 描述：不抢占剩余空间（留给 meta 栏贴底），空间不足时可收缩并裁切 */
+#content-inner #recent-posts > .recent-post-item > .recent-post-info > .content {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  order: 2;
+}
+
+/* meta 栏：回归文档流，用 margin-top:auto 贴底，彻底消除绝对定位造成的遮挡。
+   注意：DOM 顺序是「标题 → meta → 描述」，此前靠绝对定位才把它视觉上挪到底部，
+   改成 static 后必须用 order 把它排到最后，否则会插在标题和描述之间。 */
+#content-inner #recent-posts > .recent-post-item > .recent-post-info > .article-meta-wrap {
+  position: static !important;
+  margin-top: auto;
+  padding-top: 6px;                 /* 与描述留一点呼吸空间 */
+  order: 3;
+}
+
+/* ==========================================================================
    图片懒加载 Shimmer 流光占位动画
    图床加载慢时显示 shimmer 流光占位，提示用户图片正在加载。
    纯 CSS 渐变位移动画，GPU 加速，亮/暗色自适应。
