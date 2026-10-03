@@ -1773,12 +1773,7 @@ img.cover-fit-contain {
      此处用 CSS 兜底，即使 pace.min.js 是 async 加载、晚于该函数才创建出
      #pace-progress，也会被立刻隐藏
    ========================================================================== */
-html.lum-pace-off #pace-progress,
-html.lum-pace-off #pace-progress-inner,
-html.lum-pace-off .pace-progress-inner,
-html.lum-pace-off .pace-activity,
-html.lum-pace-off [class^="pace-"],
-html.lum-pace-off [class*=" pace-"] {
+html.lum-pace-off .pace {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
