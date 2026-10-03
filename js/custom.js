@@ -264,7 +264,7 @@ function injectCalendarCards() {
   card.id = 'card-widget-calendar';
   card.innerHTML = `
     <div class="item-headline">
-      <i class="anzhiyufont anzhiyu-icon-calendar-day"></i>
+      <i class="anzhiyufont anzhiyu-icon-calendar-days"></i>
       <span>今日日历</span>
     </div>
     <div id="calendar-header">
@@ -477,6 +477,25 @@ function initCatalogBar() {
 function hidePreloaderOverlay() {
   const box = document.getElementById('loading-box');
   if (box && !box.classList.contains('loaded')) box.classList.add('loaded');
+  hidePaceProgress();
+}
+
+/* --------------------------------------------------------------------------
+ * 2.6.1 关闭 Pace 顶部进度条
+ *     preloader.source = 3 时主题会额外引入 Pace（pace-js + progress_bar.css）。
+ *     Pace 要等「所有被追踪的请求」结束才自动消失，只要有一个请求挂起
+ *     （第三方 CDN 超时、长轮询等），进度条就会一直留在顶部——
+ *     表现为「正文已经出来了，顶部进度条却还在」。
+ *     这里在首屏就绪时主动关掉它。
+ *     注意：pace.min.js 是 async 加载的，可能晚于本函数执行才创建出
+ *     #pace-progress，所以除了调用 Pace.stop()，还给 <html> 打标记，
+ *     由 CSS 兜底隐藏（见 custom.css 的 html.lum-pace-off 规则）。
+ * -------------------------------------------------------------------------- */
+function hidePaceProgress() {
+  document.documentElement.classList.add('lum-pace-off');
+  try {
+    if (window.Pace && typeof window.Pace.stop === 'function') window.Pace.stop();
+  } catch (e) {}
 }
 
 /* --------------------------------------------------------------------------

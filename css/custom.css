@@ -1766,6 +1766,25 @@ img.cover-fit-contain {
 }
 
 /* ==========================================================================
+   Pace 顶部进度条：首屏就绪后强制隐藏
+   - preloader.source = 3 时主题会引入 Pace（pace-js + progress_bar.css）
+   - Pace 需等所有被追踪请求结束才消失，任一请求挂起就会一直留着
+   - custom.js 的 hidePaceProgress() 给 <html> 加 .lum-pace-off；
+     此处用 CSS 兜底，即使 pace.min.js 是 async 加载、晚于该函数才创建出
+     #pace-progress，也会被立刻隐藏
+   ========================================================================== */
+html.lum-pace-off #pace-progress,
+html.lum-pace-off #pace-progress-inner,
+html.lum-pace-off .pace-progress-inner,
+html.lum-pace-off .pace-activity,
+html.lum-pace-off [class^="pace-"],
+html.lum-pace-off [class*=" pace-"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* ==========================================================================
    首次访问 Welcome 一笔画欢迎动画遮罩（覆盖首页 banner 卡片 #todayCard）
    流程：不透明卡片色遮罩完整播放 SVG → welcome-exit 背景透明 + 高斯模糊
    透出底下卡片内容 → welcome-exit-fade 整体淡出 → JS 移除节点
