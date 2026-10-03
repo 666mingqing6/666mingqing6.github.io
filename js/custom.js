@@ -1437,14 +1437,25 @@ function initWelcomeOverlay() {
   };
 
   let began = false;
+  let exitScheduled = false;
+  // 退场计时必须从「图片真正加载完成、动画开始播放」起算。
+  // 若从设置 src 起算，网络慢时 SVG 还没开始播，退场定时器就已触发，
+  // 表现为动画只播了一小段就被截断（甚至看不到）。
+  const scheduleExit = () => {
+    if (exitScheduled || finished) return;
+    exitScheduled = true;
+    setTimeout(exit, WELCOME_PLAY_MS);
+    // 总兜底：无论如何遮罩最终必须消失
+    setTimeout(dismiss, WELCOME_PLAY_MS + WELCOME_BLUR_MS + WELCOME_FADE_MS + 3000);
+  };
   const begin = () => {
     if (began) return;
     began = true;
     img.addEventListener('error', dismiss);
+    img.addEventListener('load', scheduleExit, { once: true });
     img.src = WELCOME_SVG_SRC; // 此时才开始下载并从头播放动画
-    setTimeout(exit, WELCOME_PLAY_MS);
-    // 总兜底：无论如何 ~13s 后遮罩必须消失
-    setTimeout(dismiss, WELCOME_PLAY_MS + WELCOME_BLUR_MS + WELCOME_FADE_MS + 3000);
+    // 兜底：图片迟迟不触发 load 时也要退场，避免遮罩卡死
+    setTimeout(scheduleExit, 5000);
   };
 
   const box = document.getElementById('loading-box');
