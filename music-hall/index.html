@@ -1,0 +1,855 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><!-- hexo injector head_begin start --><script defer src="/js/echarts.min.js"></script><!-- hexo injector head_begin end --><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Vibe Coding 大赏：音乐馆 | Lumoes Blog</title><meta name="keywords" content="音乐馆,音乐播放器,Cloudflare Pages,PWA"><meta name="author" content="Re.Lumoes"><meta name="copyright" content="Re.Lumoes"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#f7f9fe"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Vibe Coding 大赏：音乐馆"><meta name="application-name" content="Vibe Coding 大赏：音乐馆"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#f7f9fe"><meta property="og:type" content="article"><meta property="og:title" content="Vibe Coding 大赏：音乐馆"><meta property="og:url" content="https://blog.646474.xyz/music-hall/index.html"><meta property="og:site_name" content="Lumoes Blog"><meta property="og:description" content="一个从 HeoMusic 魔改而来的沉浸式个人音乐馆：加权洗牌「平均随机」、云端播放计数、Web Audio 音效、逐行歌词，文末附自助部署教程。"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://blog.646474.xyz/img/webp/music.webp"><meta property="article:author" content="Re.Lumoes"><meta property="article:tag" content="明轻, Lumoes, 技术博客, Android, 玩机, 编程, 生活"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://blog.646474.xyz/img/webp/music.webp"><meta name="description" content="一个从 HeoMusic 魔改而来的沉浸式个人音乐馆：加权洗牌「平均随机」、云端播放计数、Web Audio 音效、逐行歌词，文末附自助部署教程。"><link rel="shortcut icon" href="/favicon.ico"><link rel="canonical" href="https://blog.646474.xyz/music-hall/"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="/css/fontawesome.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3873LW5X22"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3873LW5X22');
+</script><script>const GLOBAL_CONFIG = {
+  linkPageTop: {"enable":true,"title":"与数百名博主无限进步","addFriendPlaceholder":"昵称（请勿包含博客等字样）：\n网站地址（要求博客地址，请勿提交个人主页）：\n头像图片url（请提供尽可能清晰的图片，我会上传到我自己的图床）：\n描述：\n站点截图（可选）：\n"},
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"GLM","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"/"},
+  diytitle: {"enable":true,"leaveTitle":"w(ﾟДﾟ)w 不要走！再看看嘛！","backTitle":"♪(^∇^*)欢迎肥来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://comment.646474.xyz/.netlify/functions/twikoo',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":3},
+  friends_vue_info: undefined,
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["青春奋斗正当时","心有所向破浪行","跬步千里积胜功","莫待无花空折枝","我辈岂是蓬蒿人","不怕路长，只怕志短。","追随梦想，不忘初心。","你要相信，自己一定行。","千里之行，始于足下。","物竞天择，适者生存。","与其等待，不如行动。","与其抱怨，不如改变","一日之计，在于晨。","行有不得，反求诸己。"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: {"limitDay":300,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: Re.Lumoes","link":"链接: ","source":"来源: Lumoes Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'Lumoes Blog',
+  title: 'Vibe Coding 大赏：音乐馆',
+  postAI: 'AI 摘要生成中...',
+  pageFillDescription: '在线音乐播放器满地都是我为什么还要自己写一个原因特别简单我受不了随机播放了三百首歌的播放列表点开随机播放听二十几首就能撞到重复的这不是错觉是数学定律真随机有生日悖论首之内出现重复的概率就超过一半你以为你开了随机实际上体感感觉很多歌都重复放想听的歌又一直放不到于是我干脆自己造了一个做完之后它长这样引用站外地址在线体验一介绍这个项目不是从零开始写的它基于协议魔改而来为张洪大佬写的一个播放器本身就是一个很优秀的静态播放器了基于开箱即用配置简单我保留的是它的静态一个纯静态零构建丢到任何静态托管就能跑的音乐播放器改掉的是几乎全部的实现细节上游的只有是字节的示例文件我这边写到行行基本上除了这是个音乐播放器这件事没变其他都大改了一遍致谢感谢张洪和的贡献者们没有这个项目打底我大概会一直停留在想做一个播放器的阶段二功能与界面主界面沉浸式的一屏打开就是一屏没有多余的东西背景为封面的模糊图封面为主侧边栏为辅控制台在封面下方有进度条和控制按钮等歌词逐行高亮右侧面板默认就是歌词当前行高亮加粗上下行渐隐唱到哪亮到哪逐行高亮歌词支持逐行逐字两种歌词格式桌面端自动滚动到当前行居中播放列表可搜可点列表页签是完整歌单带序号缩略图歌名歌手顶部还有一个列表内搜索框播放列表我目前的歌单是首网易云歌单首本地音乐混合播放本地音乐可以直接填直链也可以单独配封面和歌词文件在线搜索点播想听什么直接搜搜到就能点播不用切到网易云再复制链接在线搜索搜出来的结果会直接插进当前播放队列听完继续回到原来的顺序鸣谢由音乐台提供的音效点击滑块图标会弹出音效菜单音效菜单关闭环绕沉浸现场感迷幻流行重低音由实时处理当时弄这个音效整了挺久的主要问题在于跨域的问题想要整音效首先得整到音乐文件而音乐文件得从网易云爬取这就麻烦了网易云的有些没有跨域支持就无法下载当时折腾了挺久账户播放记录云端同步游客模式可以完整使用数据存在浏览器但如果你想换台设备继续听可以注册个账户账户面板登录之后播放次数会同步到云端换浏览器换手机都不丢这个数据同时也是下面平均随机算法的依据听得越多越不容易被重复抽到移动端交互手机上的布局不是把桌面版压扁而是重新做了一套移动端主界面底部导航四个入口播放歌词列表搜索歌词可以全屏展开移动端全屏歌词三两个设计平均随机这是整个项目的起点也是我最满意的一块问题在于真随机用户想要的随机用户要的不是每次独立均匀抽样而是这一轮里别重复长期下来每首歌播放次数差不多所以我用的是加权无放回抽样每首歌的播放次数按降序排列本轮播放队列这一个公式同时给了三个性质轮内零重复排列天然保证根治生日悖论播放次数少的歌期望排前长期收敛到人人平等新歌不会被无限播新歌按已播次起步参与排序贝叶斯平滑每播一次让一步播满次后就和普通歌平权解决了新歌计数为权重无限大被反复抽中的问题两个参数都放在里可以调越大新歌特权越小纯均匀洗牌线性偏置推荐顺带还有两件小事手动点播的歌会从本轮队列移除同一轮不会二次抽到歌单增删改序后播放计数也不丢用这种稳定标识而不是数组下标用户数据云写入账户同步这块踩过一个坑最初的协议是全量替换本地计数变了就把整份数据上去问题是服务端实现是全部全部一次同步写大约行该用户的计数行数我实测是行也就是一次同步写行而我用的写入额度比较少万行天折算下来全站所有用户加起来每天只能同步大约次两个真实用户各听首就能把额度打穿后来改成了增量合并写入节流播放本地计数永远不丢变化的记入落盘持久化节流秒防抖秒最小间隔分钟最长等待保底只发变化项服务端取云端客户端写行数从降到行约倍降幅读请求也归零了天然幂等多设备互不覆盖不再需要先读再写回再加一个默认秒实际播放满秒才计入播放次数快速切歌试听不算数既减少了写入也让洗牌权重不被点开就跳过的歌污染代价是上报有秒延迟但是落盘的崩溃强杀关页都有兜底补传数据不会丢四自己部署一个整个前端是纯静态零构建的没有没有打包步骤把文件丢上去就能跑我的仓库到你自己的账号改是全站唯一的配置入口所有东西都在这个文件里你的网易云歌单服务商基地址自建随机播放参数新歌冷启动平滑底数播放次数偏置强度播放满多少秒才计入播放次数本地音乐可选支持直链歌名歌手至少要改的换成你自己的歌单从歌单分享链接里取比如就是可以换成你自己的地址见下一步可以留空数组只用在线歌单也完全没问题后端音乐数据歌单搜索歌词封面需要一个我把自建的那份也开源了部署即可想省事也可以直接用别人的公共但稳定性可用性都不保证部署到改完剩下就是选个静态托管平台最省事而且免费登录选中你的仓库其他啥也不用管部署等它跑完即可之后每次都会自动重新部署当然因为它就是个纯静态站都能部署看你习惯哪个五结语回头看这个项目真正花时间的部分几乎都不是写功能写一个能播歌的页面用可能一两小时就够了剩下的时间都花在音效的深坑来回改了六版随机算法从均匀随机推到加权洗牌同步协议为了不把云配额打穿重构了三次以及一堆点开就跳过算不算播放这种只有真用起来才会发现的问题这可能就是的问题让把第一版写出来很快但把它变成一个真正能用经得起日常使用的东西还是得靠一次次踩坑和打磨不过至少现在我打开自己的音乐馆按下播放我就可以愉快地去边听边享受去干别的事了只需要开着标签页就行这就够了相关链接音乐馆前端仓库后端上游项目在线体验',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-10-03 22:01:05',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#18171d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f9fe')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/schedule/schedule.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><img class="loading-img nolazyload" alt="加载头像" src="/img/webp/5.webp"/><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded");
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.endLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="mourn-mask" id="mourn-mask" hidden role="dialog" aria-modal="true" aria-label="默哀"><div class="mourn-mask-inner"><div class="mourn-mask-icon" aria-hidden="true"><svg class="mourn-candle mourn-candle-lg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path class="mourn-flame" d="M12 1.6c1.5 2 2.25 3.35 2.25 4.5a2.25 2.25 0 1 1-4.5 0c0-1.15.75-2.5 2.25-4.5Z" fill="currentColor"></path><rect x="8.6" y="8.3" width="6.8" height="13.3" rx="1.1" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M12 8.3V6.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></div><div class="mourn-count" id="mourn-count">60</div><div class="mourn-mask-label">默哀中 · 请保持安静</div><div class="mourn-progress"><div class="mourn-progress-bar" id="mourn-progress-bar"></div></div><button class="mourn-btn mourn-btn-ghost" id="mourn-mask-cancel" type="button">结束默哀</button></div></div><script>(function () {
+  var date = new Date();
+  var today = (date.getMonth() + 1) + '-' + date.getDate();
+  var days = ["4-5","5-12","7-7","9-18","12-13","8-15","9-3","9-30"];
+  if (days.indexOf(today) === -1) return;
+
+  /* 全站灰白（沿用主题原有行为） */
+  document.documentElement.style.filter = 'grayscale(1)';
+  /* 标记当日为哀悼日，供横幅脚本读取 */
+  document.documentElement.setAttribute('data-mourn', today);
+})();</script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">Lumoes Blog</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a><div id="he-plugin-simple"></div><script>var WIDGET = {
+  "CONFIG": {
+    "modules": "0124",
+    "background": "2",
+    "tmpColor": "FFFFFF",
+    "tmpSize": "16",
+    "cityColor": "FFFFFF",
+    "citySize": "16",
+    "aqiColor": "E8D87B",
+    "aqiSize": "16",
+    "weatherIconSize": "24",
+    "alertIconSize": "18",
+    "padding": "10px 10px 10px 10px",
+    "shadow": "0",
+    "language": "auto",
+    "borderRadius": "20",
+    "fixed": "true",
+    "vertical": "top",
+    "horizontal": "left",
+    "left": "20",
+    "top": "7.1",
+    "key": "df245676fb434a0691ead1c63341cd94"
+  }
+}
+</script><link rel="stylesheet" href="https://widget.qweather.net/simple/static/css/he-simple.css?v=1.4.0"/><script src="https://widget.qweather.net/simple/static/js/he-simple.js?v=1.4.0"></script></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 隧道</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" target="_blank" rel="noopener" href="https://music.646474.xyz/"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/air-conditioner/"><i class="anzhiyufont anzhiyu-icon-fan faa-tada" style="font-size: 0.9em;"></i><span> 小空调</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/equipment/"><i class="anzhiyufont anzhiyu-icon-dice-d20 faa-tada" style="font-size: 0.9em;"></i><span> 装备页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/donate/"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill faa-tada" style="font-size: 0.9em;"></i><span> 赞赏</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-circle-info faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> 随便逛逛</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button only-home" id="travellings_button" title="随机前往一个开往项目网站"><a class="site-page" onclick="anzhiyu.totraveling()" title="随机前往一个开往项目网站" href="javascript:void(0);" rel="external nofollow" data-pjax-state="external"><i class="anzhiyufont anzhiyu-icon-train"></i></a></div><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="/img/webp/6.webp" target="_blank"><img class="post-qr-code-img" alt="微信" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/webp/6.webp"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/webp/6.webp" target="_blank"><img class="post-qr-code-img" alt="支付宝" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/webp/6.webp"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">音乐</div><span class="author-content-item-title">灵魂的碰撞💥</span></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archive"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="anzhiyufont anzhiyu-icon-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/10/"><span class="card-archive-list-date">十月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/08/"><span class="card-archive-list-date">八月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/07/"><span class="card-archive-list-date">七月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">六月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">5</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">四月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">三月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">二月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">一月 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="音乐开关"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/" itemprop="url">技术类文档</a><i class="anzhiyufont anzhiyu-icon-angle-right post-meta-separator"></i><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/%E5%89%8D%E7%AB%AF/" itemprop="url">前端</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/%E9%9F%B3%E4%B9%90%E9%A6%86/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>音乐馆</span></a><a class="article-meta__tags" href="/tags/%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>音乐播放器</span></a><a class="article-meta__tags" href="/tags/Cloudflare-Pages/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Cloudflare Pages</span></a><a class="article-meta__tags" href="/tags/PWA/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>PWA</span></a></span></div></div><h1 class="post-title" itemprop="name headline">Vibe Coding 大赏：音乐馆</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-10-03T14:01:05.000Z" title="发表于 2026-10-03 22:01:05">2026-10-03</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-10-03T14:01:05.000Z" title="更新于 2026-10-03 22:01:05">2026-10-03</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">字数总计:</span><span class="word-count" title="文章字数">10k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">阅读时长:</span><span>38 mins.分钟</span></span><span class="post-meta-separator"></span><span id="" data-flag-title="Vibe Coding 大赏：音乐馆"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="twikoo_visitors" title="访问量"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为广东"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>广东</span><span class="post-meta-separator"></span><span class="post-meta-commentcount"><i class="anzhiyufont anzhiyu-icon-comments post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/music-hall/#post-comment" tabindex="-1"><span id="twikoo-count"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></a></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/img/webp/music.webp"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><div class="post-ai-description"><div class="ai-title"><i class="anzhiyufont anzhiyu-icon-bilibili"></i><div class="ai-title-text">AI-摘要</div><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right"></i><i class="anzhiyufont anzhiyu-icon-circle-dot" title="朗读摘要"></i><div id="ai-tag">GLM GPT</div></div><div class="ai-explanation">AI初始化中...</div><div class="ai-btn-box"><div class="ai-btn-item">介绍自己 🙈</div><div class="ai-btn-item">生成本文简介 👋</div><div class="ai-btn-item">推荐相关文章 📖</div><div class="ai-btn-item">前往主页 🏠</div><div class="ai-btn-item" id="go-tianli-blog">前往爱发电购买</div></div><script data-pjax src="/js/anzhiyu/ai_abstract.js"></script></div><article class="post-content" id="article-container" itemscope itemtype="https://blog.646474.xyz/music-hall/"><header><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/" itemprop="url">技术类文档</a><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/%E5%89%8D%E7%AB%AF/" itemprop="url">前端</a><a href="/tags/%E9%9F%B3%E4%B9%90%E9%A6%86/" tabindex="-1" itemprop="url">音乐馆</a><a href="/tags/%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8/" tabindex="-1" itemprop="url">音乐播放器</a><a href="/tags/Cloudflare-Pages/" tabindex="-1" itemprop="url">Cloudflare Pages</a><a href="/tags/PWA/" tabindex="-1" itemprop="url">PWA</a><h1 id="CrawlerTitle" itemprop="name headline">Vibe Coding 大赏：音乐馆</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">Re.Lumoes</span><time itemprop="dateCreated datePublished" datetime="2026-10-03T14:01:05.000Z" title="发表于 2026-10-03 22:01:05">2026-10-03</time><time itemprop="dateCreated datePublished" datetime="2026-10-03T14:01:05.000Z" title="更新于 2026-10-03 22:01:05">2026-10-03</time></header><p>在线音乐播放器满地都是，我为什么还要自己写一个？</p>
+<p>原因特别简单：<strong>我受不了“随机播放”了</strong>。</p>
+<p>三百首歌的播放列表，点开随机播放，听二十几首就能撞到重复的——这不是错觉，是数学定律。真随机有“生日悖论”，23 首之内出现重复的概率就超过一半。你以为你开了随机，实际上体感感觉很多歌都重复放，想听的歌又一直放不到。</p>
+<p>于是我干脆自己造了一个，做完之后它长这样：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/webp/music-player.webp" alt="MQ Music 音乐馆 - 桌面端主界面"></p>
+<div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://music.646474.xyz"><div class="tag-link-tips">引用站外地址</div><div class="tag-link-bottom"><div class="tag-link-left"><svg class="icon" style="display:flex;width:1.4em;height:1.4em;align-items:center;justify-content:center;" aria-hidden="true"><use xlink:href="#icon-music1"></use></svg></div><div class="tag-link-right"><div class="tag-link-title">在线体验</div><div class="tag-link-sitename">music.646474.xyz</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div>
+
+---
+
+## 一、介绍
+
+这个项目**不是从零开始写的**，它基于 [HeoMusic](https://github.com/zhheo/HeoMusic)（Apache-2.0 协议）魔改而来。
+
+HeoMusic 为张洪大佬写的一个播放器，本身就是一个很优秀的静态播放器了（基于 APlayer + MetingJS），开箱即用、配置简单。我保留的是它的**静态**——一个纯静态、零构建、丢到任何静态托管就能跑的音乐播放器；改掉的是**几乎全部的实现细节**。
+
+上游的 `index.html` 只有 1 KB、`config.js` 是 570 字节的示例文件；我这边 `index.html` 18 KB、`config.js` 16 KB，`player.js` 写到 2400 行、`modern.css` 1907 行。基本上除了“这是个音乐播放器”这件事没变，其他都大改了一遍。
+
+致谢：**感谢 [@张洪Heo](https://github.com/zhheo) 和 HeoMusic 的贡献者们**，没有这个项目打底，我大概会一直停留在“想做一个播放器”的阶段。
+
+---
+
+## 二、功能与界面
+
+### 2.1 主界面：沉浸式的一屏
+
+打开就是一屏，没有多余的东西。背景为封面的模糊图，封面为主，侧边栏为辅，控制台在封面下方有进度条和控制按钮等。
+
+### 2.2 歌词：逐行高亮
+
+右侧面板默认就是歌词。当前行高亮加粗，上下行渐隐，唱到哪亮到哪：
+
+![逐行高亮歌词](/img/webp/music-lyrics-panel.webp)
+
+支持**逐行 + 逐字**两种歌词格式，桌面端自动滚动到当前行居中。
+
+### 2.3 播放列表：可搜可点
+
+「列表」页签是完整歌单，带序号、缩略图、歌名、歌手，顶部还有一个列表内搜索框：
+
+![播放列表](/img/webp/music-queue.webp)
+
+我目前的歌单是 **340 首**（网易云歌单）**+ 50 首本地音乐**混合播放。本地音乐可以直接填直链（mp3 / flac），也可以单独配封面和歌词文件。
+
+### 2.4 在线搜索点播
+
+想听什么直接搜，搜到就能点播，不用切到网易云再复制链接：
+
+![在线搜索](/img/webp/music-search.webp)
+
+搜出来的结果会直接插进当前播放队列，听完继续回到原来的顺序。
+
+鸣谢：由[GD音乐台](https://music.gdstudio.org/)提供的API
+
+### 2.5 音效
+
+点击“滑块”图标，会弹出音效菜单：
+
+![音效菜单](/img/webp/music-effect.webp)
+
+**关闭 / 3D环绕 / 沉浸 / 现场感 / 迷幻 / 流行 / 重低音**，由 Web Audio API 实时处理。
+
+当时弄这个音效整了挺久的，主要问题在于CORS跨域的问题，想要整音效，首先得整到音乐文件，而音乐文件得从网易云CDN爬取，这就麻烦了，网易云的有些CDN没有CORS跨域支持，就无法下载，当时折腾了挺久。
+
+### 2.6 账户：播放记录云端同步
+
+游客模式可以完整使用（数据存在浏览器 localStorage），但如果你想**换台设备继续听**，可以注册个账户：
+
+![账户面板](/img/webp/music-account.webp)
+
+登录之后播放次数会同步到云端，换浏览器、换手机都不丢。这个数据同时也是下面「平均随机」算法的依据——听得越多，越不容易被重复抽到。
+
+### 2.7 移动端交互
+
+手机上的布局不是把桌面版压扁，而是重新做了一套：
+
+![移动端主界面](/img/webp/music-mobile-player.webp)
+
+底部导航四个入口（播放 / 歌词 / 列表 / 搜索），歌词可以全屏展开：
+
+![移动端全屏歌词](/img/webp/music-mobile-lyrics.webp)
+
+---
+
+## 三、两个设计
+
+### 3.1 「平均随机」
+
+这是整个项目的起点，也是我最满意的一块。
+
+问题在于：**真随机 ≠ 用户想要的随机**。用户要的不是“每次独立均匀抽样”，而是“**这一轮里别重复，长期下来每首歌播放次数差不多**”。
+
+所以我用的是**加权无放回抽样**（Gumbel-top）：
+
+<figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line">每首歌的 <span class="built_in">key</span> = -ln(<span class="built_in">random</span>) / (PRIOR + α × 播放次数)</span><br><span class="line">按 <span class="built_in">key</span> 降序排列 = 本轮播放队列</span><br></pre></td></tr></table></figure>
+
+这一个公式同时给了三个性质：
+
+1. **轮内零重复**——排列天然保证，根治生日悖论
+2. **播放次数少的歌期望排前**——长期收敛到“人人平等”
+3. **新歌不会被无限播**——新歌按"已播 4 次"起步参与排序（贝叶斯平滑），每播一次让一步，播满 4 次后就和普通歌平权。解决了“新歌计数为 0，权重无限大，被反复抽中”的问题
+
+两个参数都放在 `config.js` 里可以调：`shufflePrior`（越大，新歌特权越小）、`shuffleAlpha`（0 = 纯均匀洗牌，1 = 线性偏置，推荐 1）。
+
+顺带还有两件小事：**手动点播的歌会从本轮队列移除**（同一轮不会二次抽到），**歌单增删改序后播放计数也不丢**（用 `ne:{id}` / `lo:{url}` 这种稳定标识，而不是数组下标）。
+
+### 3.2 用户数据云写入
+
+账户同步这块踩过一个坑。
+
+最初的协议是"全量替换"：本地计数变了就把整份数据 `PUT` 上去。问题是服务端实现是 `DELETE 全部 + INSERT 全部`——**一次同步写大约 2N 行**（N = 该用户的计数行数）。我实测是 384 行，也就是一次同步写 768 行。
+
+而我用的Cloudflare D1 写入额度比较少，10 万行/天——折算下来**全站所有用户加起来，每天只能同步大约 131 次**。两个真实用户各听 65 首就能把额度打穿。
+
+后来改成了**增量合并 + 写入节流**：
+
+<figure class="highlight n1ql"><table><tr><td class="code"><pre><span class="line">播放 → 本地计数 +1（localStorage 永远不丢）</span><br><span class="line">     → 变化的 key 记入 pending（落盘持久化）</span><br><span class="line">        → 节流：30 秒防抖 + 60 秒最小间隔 + 3 分钟最长等待保底</span><br><span class="line">        → POST 只发变化项，服务端 <span class="keyword">UPSERT</span> 取 <span class="built_in">MAX</span>(云端, 客户端)</span><br></pre></td></tr></table></figure>
+
+写行数从 ~768 降到 1~3 行，**约 768 倍降幅**，读请求也归零了（`MAX` 天然幂等，多设备互不覆盖，不再需要"先读再写回"）。
+
+再加一个 `countPlayAfterSec`（默认 20 秒）——**实际播放满 20 秒才计入播放次数**。快速切歌、试听不算数，既减少了写入，也让洗牌权重，不被"点开就跳过"的歌污染。
+
+代价是上报有 30~60 秒延迟，但 pending 是落盘的，崩溃、强杀、关页都有兜底补传，数据不会丢。
+
+---
+
+## 四、自己部署一个
+
+整个前端是**纯静态、零构建**的——没有 npm install，没有打包步骤，把文件丢上去就能跑。
+
+### 4.1 Fork 我的仓库
+
+Fork [666mingqing6/Music](https://github.com/666mingqing6/Music) 到你自己的账号。
+
+### 4.2 改 config.js
+
+`config.js` 是全站**唯一的配置入口**，所有东西都在这个文件里：
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> userId = <span class="string">&quot;12675886878&quot;</span>;      <span class="comment">// 你的网易云歌单 ID</span></span><br><span class="line"><span class="keyword">var</span> userServer = <span class="string">&quot;netease&quot;</span>;      <span class="comment">// 服务商：netease / tencent / kugou ...</span></span><br><span class="line"><span class="keyword">var</span> userType = <span class="string">&quot;playlist&quot;</span>;       <span class="comment">// playlist / song / album / artist</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Meting API 基地址（自建 Cloudflare Worker）</span></span><br><span class="line"><span class="keyword">var</span> metingApiBase = <span class="string">&quot;https://meting-api.646474.xyz&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 随机播放参数</span></span><br><span class="line"><span class="keyword">var</span> shufflePrior = <span class="number">4</span>;            <span class="comment">// 新歌冷启动平滑底数</span></span><br><span class="line"><span class="keyword">var</span> shuffleAlpha = <span class="number">1</span>;            <span class="comment">// 播放次数偏置强度</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 播放满多少秒才计入播放次数</span></span><br><span class="line"><span class="keyword">var</span> countPlayAfterSec = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 本地音乐（可选，支持 mp3 / flac 直链）</span></span><br><span class="line"><span class="keyword">var</span> localMusic = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;歌名&#x27;</span>,</span><br><span class="line">    <span class="attr">artist</span>: <span class="string">&#x27;歌手&#x27;</span>,</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&#x27;https://example.com/song.mp3&#x27;</span>,</span><br><span class="line">    <span class="attr">cover</span>: <span class="string">&#x27;https://example.com/cover.jpg&#x27;</span>,</span><br><span class="line">    <span class="attr">lrc</span>: <span class="string">&#x27;https://example.com/song.lrc&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+**至少要改的**：
+
+- `userId` — 换成你自己的歌单 ID。从歌单分享链接里取，比如 `https://music.163.com/playlist?id=12675886878`，ID 就是 `12675886878`
+- `metingApiBase` — 可以换成你自己的 API 地址（见下一步）
+- `localMusic` 可以留空数组，只用在线歌单也完全没问题。
+
+### 4.3 后端 API
+
+音乐数据（歌单、搜索、歌词、封面）需要一个 Meting API。我把自建的那份也开源了：[666mingqing6/meting-api](https://github.com/666mingqing6/meting-api)，Cloudflare Workers + D1，部署即可。
+
+<div class="note info flat"><p>想省事也可以直接用别人的公共 Meting API，但稳定性、可用性都不保证</p>
+</div>
+
+### 4.4 部署到 Cloudflare Pages
+
+改完 `config.js`，剩下就是选个静态托管平台。**Cloudflare Pages** 最省事，而且免费：
+
+1. 登录 Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
+2. 选中你 fork 的仓库
+3. 其他啥也不用管
+4. 部署，等它跑完即可。
+
+之后每次 `git push` 都会自动重新部署
+
+当然，因为它就是个纯静态站，**Vercel、Netlify、GitHub Pages……**都能部署，看你习惯哪个。
+
+---
+
+## 五、结语
+
+回头看，这个项目真正花时间的部分，几乎都不是"写功能"。
+
+写一个能播歌的页面用AI可能一两小时就够了。剩下的时间都花在：音效的 CORS 深坑来回改了六版、随机算法从"均匀随机"推到加权洗牌、同步协议为了不把云配额打穿重构了三次、以及一堆"点开就跳过算不算播放"这种只有真用起来才会发现的问题。
+
+这可能就是 Vibe Coding 的问题：**让 AI 把第一版写出来很快，但把它变成一个真正能用、经得起日常使用的东西，还是得靠一次次踩坑和打磨。**
+
+不过至少现在，我打开自己的音乐馆，按下播放，我就可以愉快地去，边听边享受，去干别的事了，只需要开着标签页就行。
+
+这就够了。
+
+---
+
+<div class="anzhiyu-tag-links"><div class="tag-links-tips">相关链接</div><div class="tag-links-list"><div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/666mingqing6/Music"><div class="tag-link-bottom"><div class="tag-link-left"><i class="fa-brands fa-github" style="display:flex;align-items:center;justify-content:center;font-size:1.4em;"></i></div><div class="tag-link-right"><div class="tag-link-title">音乐馆前端仓库</div><div class="tag-link-sitename">666mingqing6/Music</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div>
+<div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/666mingqing6/meting-api"><div class="tag-link-bottom"><div class="tag-link-left"><i class="fa-brands fa-github" style="display:flex;align-items:center;justify-content:center;font-size:1.4em;"></i></div><div class="tag-link-right"><div class="tag-link-title">后端Meting-api</div><div class="tag-link-sitename">666mingqing6/meting-api</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div>
+<div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zhheo/HeoMusic"><div class="tag-link-bottom"><div class="tag-link-left"><i class="fa-brands fa-github" style="display:flex;align-items:center;justify-content:center;font-size:1.4em;"></i></div><div class="tag-link-right"><div class="tag-link-title">上游项目</div><div class="tag-link-sitename">zhheo/HeoMusic</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div>
+<div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://music.646474.xyz"><div class="tag-link-bottom"><div class="tag-link-left"><svg class="icon" style="display:flex;width:1.4em;height:1.4em;align-items:center;justify-content:center;" aria-hidden="true"><use xlink:href="#icon-music1"></use></svg></div><div class="tag-link-right"><div class="tag-link-title">在线体验</div><div class="tag-link-sitename">music.646474.xyz</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div></div></div></article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/bbts.gif" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/bbts.gif" title="头像" alt="头像"></a><div class="post-copyright__author_name">Re.Lumoes</div><div class="post-copyright__author_desc">不忘初心 方得始终</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="https://blog.646474.xyz/music-hall/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('https://blog.646474.xyz/music-hall/')">Vibe Coding 大赏：音乐馆</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"><div class="post-reward" onclick="anzhiyu.addRewardMask()"><div class="reward-button button--animated" title="赞赏作者"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill"></i>打赏作者</div><div class="reward-main"><div class="reward-all"><span class="reward-title">感谢你赐予我前进的力量</span><ul class="reward-group"><li class="reward-item"><a href="/img/webp/6.webp" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/webp/6.webp" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/webp/6.webp" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/webp/6.webp" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul><a class="reward-main-btn" href="/about/#about-reward" target="_blank"><div class="reward-text">赞赏者名单</div><div class="reward-dec">因为你们的支持让我意识到写文章的价值🙏</div></a></div></div></div><div id="quit-box" onclick="anzhiyu.removeRewardMask()" style="display: none"></div></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="https://blog.646474.xyz/music-hall/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Vibe Coding 大赏：音乐馆&amp;url=https://blog.646474.xyz/music-hall/&amp;pic=/img/webp/music.webp" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.646474.xyz" target="_blank">Lumoes Blog</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__category-list"><a class="post-meta__box__categoryes" href="/categories/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/"><span class="categoryes-punctuation"> <i class="anzhiyufont anzhiyu-icon-inbox"></i></span>技术类文档<span class="categoryesPageCount">6</span></a><a class="post-meta__box__categoryes" href="/categories/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/%E5%89%8D%E7%AB%AF/"><span class="categoryes-punctuation"> <i class="anzhiyufont anzhiyu-icon-inbox"></i></span>前端<span class="categoryesPageCount">1</span></a></div><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/%E9%9F%B3%E4%B9%90%E9%A6%86/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>音乐馆<span class="tagsPageCount">1</span></a><a class="post-meta__box__tags" href="/tags/%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>音乐播放器<span class="tagsPageCount">1</span></a><a class="post-meta__box__tags" href="/tags/Cloudflare-Pages/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Cloudflare Pages<span class="tagsPageCount">1</span></a><a class="post-meta__box__tags" href="/tags/PWA/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>PWA<span class="tagsPageCount">1</span></a></div></div><div class="post_share"><div class="social-share" data-image="/img/webp/music.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/consciousness-China/"><img class="next-cover cover-day cover-fit-contain" src="https://tu.646474.xyz/%E4%B8%AD%E8%8F%AF%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9C%8B%E5%9C%8B%E5%BE%BD.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><img class="next-cover cover-night nolazyload cover-fit-contain" src="https://tu.646474.xyz/%E4%B8%AD%E8%8F%AF%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9C%8B%E5%9C%8B%E5%BE%BD.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">中华人民共和国意识形态</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src="/img/bbts.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src="/img/webp/3.webp" alt="status"/></div></div><div class="author-info__description">这有关于<strong>产品</strong>、<strong>设计</strong>、<strong>开发</strong>相关的问题和看法，还有<strong>文章翻译</strong>和分享。<br>相信你可以在这里找到对你<strong>有用的知识和教程</strong>。</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">Re.Lumoes</h1><div class="author-info__desc">不忘初心 方得始终</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/666mingqing6/" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="https://qm.qq.com/q/Rd7PBxfp0C" target="_blank" title="QQ"><i class="anzhiyufont anzhiyu-icon-qq"></i></a></div></div></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bullhorn anzhiyu-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来看我的博客鸭~</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>最近发布</span></div><div class="aside-list"><!-- 白天/黑夜双封面：cover_day 亮色，cover_night 暗色（均回退 cover）--><div class="aside-list-item"><a class="thumbnail" href="/music-hall/" title="Vibe Coding 大赏：音乐馆"><img class=" cover-day" src="/img/webp/music.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Vibe Coding 大赏：音乐馆"/><img class=" cover-night nolazyload" src="/img/webp/music.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Vibe Coding 大赏：音乐馆"/></a><div class="content"><a class="title" href="/music-hall/" title="Vibe Coding 大赏：音乐馆">Vibe Coding 大赏：音乐馆</a><time datetime="2026-10-03T14:01:05.000Z" title="发表于 2026-10-03 22:01:05">2026-10-03</time></div></div><!-- 白天/黑夜双封面：cover_day 亮色，cover_night 暗色（均回退 cover）--><div class="aside-list-item"><a class="thumbnail" href="/consciousness-China/" title="中华人民共和国意识形态"><img class="cover-fit-contain cover-day" src="https://tu.646474.xyz/%E4%B8%AD%E8%8F%AF%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9C%8B%E5%9C%8B%E5%BE%BD.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="中华人民共和国意识形态"/><img class="cover-fit-contain cover-night nolazyload" src="https://tu.646474.xyz/%E4%B8%AD%E8%8F%AF%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9C%8B%E5%9C%8B%E5%BE%BD.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="中华人民共和国意识形态"/></a><div class="content"><a class="title" href="/consciousness-China/" title="中华人民共和国意识形态">中华人民共和国意识形态</a><time datetime="2026-08-07T23:41:15.000Z" title="发表于 2026-08-08 07:41:15">2026-08-08</time></div></div><!-- 白天/黑夜双封面：cover_day 亮色，cover_night 暗色（均回退 cover）--><div class="aside-list-item"><a class="thumbnail" href="/consciousness/" title="论人的自由意志和意识形态、意识形态国家机器"><img class="cover-fit-contain cover-day" src="/img/webp/88.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="论人的自由意志和意识形态、意识形态国家机器"/><img class="cover-fit-contain cover-night nolazyload" src="/img/webp/88.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="论人的自由意志和意识形态、意识形态国家机器"/></a><div class="content"><a class="title" href="/consciousness/" title="论人的自由意志和意识形态、意识形态国家机器">论人的自由意志和意识形态、意识形态国家机器</a><time datetime="2026-08-06T22:51:33.000Z" title="发表于 2026-08-07 06:51:33">2026-08-07</time></div></div><!-- 白天/黑夜双封面：cover_day 亮色，cover_night 暗色（均回退 cover）--><div class="aside-list-item"><a class="thumbnail" href="/Farewell/" title="告别：写在初二的最后一天"><img class=" cover-day" src="/img/webp/90.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="告别：写在初二的最后一天"/><img class=" cover-night nolazyload" src="/img/webp/90.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="告别：写在初二的最后一天"/></a><div class="content"><a class="title" href="/Farewell/" title="告别：写在初二的最后一天">告别：写在初二的最后一天</a><time datetime="2026-07-10T02:46:28.000Z" title="发表于 2026-07-10 10:46:28">2026-07-10</time></div></div><!-- 白天/黑夜双封面：cover_day 亮色，cover_night 暗色（均回退 cover）--><div class="aside-list-item"><a class="thumbnail" href="/Talk-is-learning-useful/" title="论读书：普通人改变人生的最好方式"><img class=" cover-day" src="/img/webp/123.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="论读书：普通人改变人生的最好方式"/><img class=" cover-night nolazyload" src="/img/webp/123.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="论读书：普通人改变人生的最好方式"/></a><div class="content"><a class="title" href="/Talk-is-learning-useful/" title="论读书：普通人改变人生的最好方式">论读书：普通人改变人生的最好方式</a><time datetime="2026-06-27T06:23:01.000Z" title="发表于 2026-06-27 14:23:01">2026-06-27</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="footer_deal"><a class="deal_link" href="mailto:mingqing@646474.xyz" title="email"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a><a class="deal_link" target="_blank" rel="noopener" href="https://t.me/mqandyx" title="TG"><i class="anzhiyufont anzhiyu-icon-paper-plane"></i></a><a class="deal_link" target="_blank" rel="noopener" href="https://github.com/666mingqing6" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="deal_link" target="_blank" rel="noopener" href="https://www.youtube.com/@%E6%98%8E%E8%BD%BB" title="youtube"><i class="fa-brands fa-youtube"></i></a><img class="footer_mini_logo" title="返回顶部" alt="返回顶部" onclick="anzhiyu.scrollToDest(0, 500)" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/bbts.gif" size="50px"/><a class="deal_link" target="_blank" rel="noopener" href="https://qm.qq.com/q/Rd7PBxfp0C" title="QQ"><i class="anzhiyufont anzhiyu-icon-qq"></i></a><a class="deal_link" href="/img/webp/4.webp" title="WeiXin"><i class="fa-brands fa-weixin"></i></a><a class="deal_link" target="_blank" rel="noopener" href="https://v.douyin.com/HlY1JxX5IFw/" title="TikTok"><i class="anzhiyufont anzhiyu-icon-tiktok"></i></a><a class="deal_link" target="_blank" rel="noopener" href="https://space.bilibili.com/3546696487275210" title="BiliBili"><i class="anzhiyufont anzhiyu-icon-bilibili"></i></a></div><div id="workboard"><div id="runtimeTextTip"></div></div><div id="anzhiyu-footer"><div class="footer-group"><div class="footer-title">服务</div><div class="footer-links"><a class="footer-item" title="图床" target="_blank" rel="noopener" href="https://tu.646474.xyz/">图床</a><a class="footer-item" title="不蒜子" target="_blank" rel="noopener" href="https://www.busuanzi.cc/">不蒜子</a><a class="footer-item" title="Google Analytics" target="_blank" rel="noopener" href="https://analytics.google.com/">Google Analytics</a><a class="footer-item" title="一言" target="_blank" rel="noopener" href="https://hitokoto.cn/">一言</a><a class="footer-item" title="Proxy" target="_blank" rel="noopener" href="https://proxy.646474.xyz/">Proxy</a><a class="footer-item" title="Nvidia NIM" target="_blank" rel="noopener" href="https://build.nvidia.com/">Nvidia NIM</a></div></div><div class="footer-group"><div class="footer-title">Generated by</div><div class="footer-links"><a class="footer-item" title="Hexo" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a><a class="footer-item" title="AnZhiYu" target="_blank" rel="noopener" href="https://github.com/AnZhiYu/hexo-theme-anzhiyu">AnZhiYu</a><a class="footer-item" title="Node.js" target="_blank" rel="noopener" href="https://nodejs.org/">Node.js</a><a class="footer-item" title="NPM" target="_blank" rel="noopener" href="https://www.npmjs.com/">NPM</a><a class="footer-item" title="Markdown" target="_blank" rel="noopener" href="https://www.markdownguide.org/">Markdown</a><a class="footer-item" title="Mermaid" target="_blank" rel="noopener" href="https://mermaid.js.org/">Mermaid</a></div></div><div class="footer-group"><div class="footer-title">Powered by</div><div class="footer-links"><a class="footer-item" title="Cloudflare" target="_blank" rel="noopener" href="https://www.cloudflare.com/">Cloudflare</a><a class="footer-item" title="Vercel" target="_blank" rel="noopener" href="https://vercel.com/">Vercel</a><a class="footer-item" title="EdgeOne" target="_blank" rel="noopener" href="https://www.tencentcloud.com/">EdgeOne</a><a class="footer-item" title="Netlify" target="_blank" rel="noopener" href="https://www.netlify.com/">Netlify</a><a class="footer-item" title="Gcore" target="_blank" rel="noopener" href="https://gcore.com/">Gcore</a><a class="footer-item" title="GitHub" target="_blank" rel="noopener" href="https://www.github.com/">GitHub</a></div></div><div class="footer-group"><div class="footer-title">导航</div><div class="footer-links"><a class="footer-item" title="音乐馆" target="_blank" rel="noopener" href="https://music.646474.xyz/">音乐馆</a><a class="footer-item" title="即刻" href="/essay/">即刻</a><a class="footer-item" title="留言板" href="/comments/">留言板</a><a class="footer-item" title="关于我" href="/about/">关于我</a><a class="footer-item" title="装备页" href="/equipment/">装备页</a><a class="footer-item" title="赞赏" href="/donate/">赞赏</a></div></div><div class="footer-group"><div class="footer-title">协议</div><div class="footer-links"><a class="footer-item" title="隐私协议" href="/privacy/">隐私协议</a><a class="footer-item" title="Cookies" href="/cookies/">Cookies</a><a class="footer-item" title="版权协议" href="/copyright/">版权协议</a></div></div></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo" title="博客框架为Hexo"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tu.646474.xyz/1768915257897.svg" alt="博客框架为Hexo"/></a><a class="github-badge" target="_blank" href="https://hexo.anheyu.com/" style="margin-inline:5px" data-title="本站使用AnZhiYu主题" title="本站使用AnZhiYu主题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tu.646474.xyz/1768915340623.svg" alt="本站使用AnZhiYu主题"/></a><a class="github-badge" target="_blank" href="https://github.com/" style="margin-inline:5px" data-title="本站项目由Github托管" title="本站项目由Github托管"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tu.646474.xyz/1768915091768.svg" alt="本站项目由Github托管"/></a><a class="github-badge" target="_blank" href="https://www.cloudflare.com/" style="margin-inline:5px" data-title="本站使用Cloudflare Pages部署" title="本站使用Cloudflare Pages部署"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tu.646474.xyz/1768915683857.svg" alt="本站使用Cloudflare Pages部署"/></a><a class="github-badge" target="_blank" href="https://www.cloudflare.com/" style="margin-inline:5px" data-title="本站使用Cloudflare CDN加速" title="本站使用Cloudflare CDN加速"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tu.646474.xyz/1768915429604.svg" alt="本站使用Cloudflare CDN加速"/></a><a class="github-badge" target="_blank" href="https://gcore.com/" style="margin-inline:5px" data-title="本站使用Gcore CDN加速" title="本站使用Gcore CDN加速"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Gcore-FF4C00?style=for-the-badge&amp;logo=gcore&amp;logoColor=FF4C00" alt="本站使用Gcore CDN加速"/></a><a class="github-badge" target="_blank" href="https://www.netlify.com/" style="margin-inline:5px" data-title="本站由Netlify驱动" title="本站由Netlify驱动"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Netlify-00C7B7?style=for-the-badge&amp;logo=netlify&amp;logoColor=white" alt="本站由Netlify驱动"/></a><a class="github-badge" target="_blank" href="https://vercel.com/" style="margin-inline:5px" data-title="本站由Vercel驱动" title="本站由Vercel驱动"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Vercel-black?style=for-the-badge&amp;logo=vercel&amp;logoColor=white" alt="本站由Vercel驱动"/></a><a class="github-badge" target="_blank" href="https://www.tencentcloud.com/" style="margin-inline:5px" data-title="本站由EdgeOne驱动" title="本站由EdgeOne驱动"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/edgeone-badge.svg" alt="本站由EdgeOne驱动"/></a><a class="github-badge" target="_blank" href="https://tu.646474.xyz/" style="margin-inline:5px" data-title="本站采用Telegram进行存储图片文件等数据" title="本站采用Telegram进行存储图片文件等数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Telegram-26A5E4?style=for-the-badge&amp;logo=telegram&amp;logoColor=26A5E4" alt="本站采用Telegram进行存储图片文件等数据"/></a><a class="github-badge" target="_blank" href="https://www.cloudflare.com/" style="margin-inline:5px" data-title="本站使用Cloudflare workers AI提供AI服务" title="本站使用Cloudflare workers AI提供AI服务"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Workers%20AI-F38020?style=for-the-badge&amp;logo=cloudflareworkers&amp;logoColor=F38020" alt="本站使用Cloudflare workers AI提供AI服务"/></a><a class="github-badge" target="_blank" href="https://www.markdownguide.org/" style="margin-inline:5px" data-title="本站文章内容采用Markdown格式" title="本站文章内容采用Markdown格式"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Markdown-000000?style=for-the-badge&amp;logo=markdown&amp;logoColor=000000" alt="本站文章内容采用Markdown格式"/></a><a class="github-badge" target="_blank" href="https://mermaid.js.org/" style="margin-inline:5px" data-title="本站使用Mermaid提供流程图" title="本站使用Mermaid提供流程图"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://img.shields.io/badge/Powered%20By-Mermaid-FF3670?style=for-the-badge&amp;logo=mermaid&amp;logoColor=FF3670" alt="本站使用Mermaid提供流程图"/></a><a class="github-badge" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="margin-inline:5px" data-title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tu.646474.xyz/1768915584624.svg" alt="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"/></a></p></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2025 - 2026 By <a class="footer-bar-link" href="/" title="Re.Lumoes" target="_blank">Re.Lumoes</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  fetch('https://v1.hitokoto.cn')
+    .then(response => response.json())
+    .then(data => {
+      if (true) {
+        const from = '出自 ' + data.from
+        const sub = []
+        sub.unshift(data.hitokoto, from)
+        window.typed = new Typed('#footer-type-tips', {
+          strings: sub,
+          startDelay: 300,
+          typeSpeed: 150,
+          loop: true,
+          backSpeed: 50,
+        })
+      } else {
+        document.getElementById('footer-type-tips').innerHTML = data.hitokoto
+      }
+    })
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}
+</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC协议"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">17</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">15</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 隧道</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" target="_blank" rel="noopener" href="https://music.646474.xyz/"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/air-conditioner/"><i class="anzhiyufont anzhiyu-icon-fan faa-tada" style="font-size: 0.9em;"></i><span> 小空调</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/equipment/"><i class="anzhiyufont anzhiyu-icon-dice-d20 faa-tada" style="font-size: 0.9em;"></i><span> 装备页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/donate/"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill faa-tada" style="font-size: 0.9em;"></i><span> 赞赏</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-circle-info faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> 随便逛逛</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/ADB/" style="font-size: 0.88rem;">ADB<sup>1</sup></a><a href="/tags/Android/" style="font-size: 0.88rem;">Android<sup>2</sup></a><a href="/tags/Cloudflare-Pages/" style="font-size: 0.88rem;">Cloudflare Pages<sup>1</sup></a><a href="/tags/Fastboot/" style="font-size: 0.88rem;">Fastboot<sup>1</sup></a><a href="/tags/GFW/" style="font-size: 0.88rem;">GFW<sup>1</sup></a><a href="/tags/Kernelsu/" style="font-size: 0.88rem;">Kernelsu<sup>1</sup></a><a href="/tags/LSPosed/" style="font-size: 0.88rem;">LSPosed<sup>1</sup></a><a href="/tags/Magisk/" style="font-size: 0.88rem;">Magisk<sup>1</sup></a><a href="/tags/PWA/" style="font-size: 0.88rem;">PWA<sup>1</sup></a><a href="/tags/Tiwtter/" style="font-size: 0.88rem;">Tiwtter<sup>1</sup></a><a href="/tags/X/" style="font-size: 0.88rem;">X<sup>1</sup></a><a href="/tags/%E4%B8%AD%E5%85%B1/" style="font-size: 0.88rem;">中共<sup>2</sup></a><a href="/tags/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD/" style="font-size: 0.88rem;">中华人民共和国<sup>1</sup></a><a href="/tags/%E4%B8%AD%E5%9B%BD/" style="font-size: 0.88rem;">中国<sup>2</sup></a><a href="/tags/%E4%BB%8B%E7%BB%8D/" style="font-size: 0.88rem;">介绍<sup>1</sup></a><a href="/tags/%E5%88%B7%E6%9C%BA/" style="font-size: 0.88rem;">刷机<sup>1</sup></a><a href="/tags/%E5%8F%8D%E6%80%9D/" style="font-size: 0.88rem;">反思<sup>4</sup></a><a href="/tags/%E5%90%AF%E5%8F%91/" style="font-size: 0.88rem;">启发<sup>1</sup></a><a href="/tags/%E5%93%B2%E5%AD%A6/" style="font-size: 0.88rem;">哲学<sup>4</sup></a><a href="/tags/%E5%B0%81%E9%94%81/" style="font-size: 0.88rem;">封锁<sup>1</sup></a><a href="/tags/%E5%BF%83%E7%90%86/" style="font-size: 0.88rem;">心理<sup>3</sup></a><a href="/tags/%E6%83%85%E6%84%9F/" style="font-size: 0.88rem;">情感<sup>2</sup></a><a href="/tags/%E6%84%8F%E8%AF%86%E5%BD%A2%E6%80%81/" style="font-size: 0.88rem;">意识形态<sup>2</sup></a><a href="/tags/%E6%88%90%E9%95%BF/" style="font-size: 0.88rem;">成长<sup>4</sup></a><a href="/tags/%E6%8A%80%E6%9C%AF%E7%B1%BB%E6%96%87%E6%A1%A3/" style="font-size: 0.88rem;">技术类文档<sup>3</sup></a><a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 0.88rem;">教程<sup>2</sup></a><a href="/tags/%E6%95%99%E8%82%B2/" style="font-size: 0.88rem;">教育<sup>1</sup></a><a href="/tags/%E6%A0%A1%E5%9B%AD/" style="font-size: 0.88rem;">校园<sup>2</sup></a><a href="/tags/%E7%8E%A9%E6%9C%BA%E6%8C%87%E5%8D%97/" style="font-size: 0.88rem;">玩机指南<sup>1</sup></a><a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 0.88rem;">网络<sup>1</sup></a><a href="/tags/%E7%BF%BB%E5%A2%99/" style="font-size: 0.88rem;">翻墙<sup>1</sup></a><a href="/tags/%E8%87%AA%E6%88%91%E6%8F%90%E5%8D%87/" style="font-size: 0.88rem;">自我提升<sup>2</sup></a><a href="/tags/%E8%87%AA%E7%94%B1%E6%84%8F%E5%BF%97/" style="font-size: 0.88rem;">自由意志<sup>1</sup></a><a href="/tags/%E8%AE%A4%E7%9F%A5/" style="font-size: 0.88rem;">认知<sup>3</sup></a><a href="/tags/%E8%AF%B4%E6%98%8E/" style="font-size: 0.88rem;">说明<sup>1</sup></a><a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 0.88rem;">读书<sup>1</sup></a><a href="/tags/%E9%98%B2%E7%81%AB%E5%A2%99/" style="font-size: 0.88rem;">防火墙<sup>1</sup></a><a href="/tags/%E9%9D%92%E6%98%A5/" style="font-size: 0.88rem;">青春<sup>2</sup></a><a href="/tags/%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8/" style="font-size: 0.88rem;">音乐播放器<sup>1</sup></a><a href="/tags/%E9%9F%B3%E4%B9%90%E9%A6%86/" style="font-size: 0.88rem;">音乐馆<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="12675886878" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/m/playlist?id=12675886878&amp;creatorId=12526842437&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (true){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("2025/12/05 00:00:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2025 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 Re.Lumoes 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("2025/12/05 00:00:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "";
+        img.title = "";
+        img.alt = "";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://comment.646474.xyz/.netlify/functions/twikoo',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://comment.646474.xyz/.netlify/functions/twikoo',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>window.addEventListener('load', () => {
+  const changeContent = (content) => {
+    if (content === '') return content
+
+    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
+    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
+    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
+    content = content.replace(/<[^>]+>/g,"") // remove html tag
+
+    if (content.length > 150) {
+      content = content.substring(0,150) + '...'
+    }
+    return content
+  }
+
+  const getComment = () => {
+    const runTwikoo = () => {
+      twikoo.getRecentComments({
+        envId: 'https://comment.646474.xyz/.netlify/functions/twikoo',
+        region: '',
+        pageSize: 6,
+        includeReply: true
+      }).then(function (res) {
+        const twikooArray = res.map(e => {
+          return {
+            'content': changeContent(e.comment),
+            'avatar': e.avatar,
+            'nick': e.nick,
+            'url': e.url + '#' + e.id,
+            'date': new Date(e.created).toISOString()
+          }
+        })
+
+        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
+        generateHtml(twikooArray)
+      }).catch(function (err) {
+        const $dom = document.querySelector('#card-newest-comments .aside-list')
+        $dom.textContent= "无法获取评论，请确认相关配置是否正确"
+      })
+    }
+
+    if (typeof twikoo === 'object') {
+      runTwikoo()
+    } else {
+      getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runTwikoo)
+    }
+  }
+
+  const generateHtml = array => {
+    let result = ''
+
+    if (array.length) {
+      for (let i = 0; i < array.length; i++) {
+        result += '<div class=\'aside-list-item\'>'
+
+        if (true) {
+          const name = 'data-lazy-src'
+          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'><div class='name'><span>${array[i].nick} </span></div></a>`
+        }
+        
+        result += `<div class='content'>
+        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
+        <time datetime="${array[i].date}">${anzhiyu.diffDate(array[i].date, true)}</time></div>
+        </div>`
+      }
+    } else {
+      result += '没有评论'
+    }
+
+    let $dom = document.querySelector('#card-newest-comments .aside-list')
+    $dom && ($dom.innerHTML= result)
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh($dom)
+  }
+
+  const newestCommentInit = () => {
+    if (document.querySelector('#card-newest-comments .aside-list')) {
+      const data = saveToLocal.get('twikoo-newest-comments')
+      if (data) {
+        generateHtml(JSON.parse(data))
+      } else {
+        getComment()
+      }
+    }
+  }
+
+  newestCommentInit()
+  document.addEventListener('pjax:complete', newestCommentInit)
+})</script><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="/css/anzhiyu-iconfont.css"><script async src="https://iconfont.646474.xyz/font/iconfont.js"></script><script src="/js/chinese-lunar.js"></script><script defer src="/schedule/schedule.js"></script><script src="/js/thinking-orbs.js"></script><script src="/js/custom.js"></script><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="true" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/canvas-nest.min.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: true,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', 'G-3873LW5X22', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

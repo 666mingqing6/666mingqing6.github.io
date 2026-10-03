@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title>Vibe Coding 大赏：音乐馆</title>
+      <link href="/music-hall/"/>
+      <url>/music-hall/</url>
+      
+        <content type="html"><![CDATA[<p>在线音乐播放器满地都是，我为什么还要自己写一个？</p><p>原因特别简单：<strong>我受不了“随机播放”了</strong>。</p><p>三百首歌的播放列表，点开随机播放，听二十几首就能撞到重复的——这不是错觉，是数学定律。真随机有“生日悖论”，23 首之内出现重复的概率就超过一半。你以为你开了随机，实际上体感感觉很多歌都重复放，想听的歌又一直放不到。</p><p>于是我干脆自己造了一个，做完之后它长这样：</p><p><img src="/img/webp/music-player.webp" alt="MQ Music 音乐馆 - 桌面端主界面"></p><div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://music.646474.xyz"><div class="tag-link-tips">引用站外地址</div><div class="tag-link-bottom"><div class="tag-link-left"><svg class="icon" style="display:flex;width:1.4em;height:1.4em;align-items:center;justify-content:center;" aria-hidden="true"><use xlink:href="#icon-music1"></use></svg></div><div class="tag-link-right"><div class="tag-link-title">在线体验</div><div class="tag-link-sitename">music.646474.xyz</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div>---## 一、介绍这个项目**不是从零开始写的**，它基于 [HeoMusic](https://github.com/zhheo/HeoMusic)（Apache-2.0 协议）魔改而来。HeoMusic 为张洪大佬写的一个播放器，本身就是一个很优秀的静态播放器了（基于 APlayer + MetingJS），开箱即用、配置简单。我保留的是它的**静态**——一个纯静态、零构建、丢到任何静态托管就能跑的音乐播放器；改掉的是**几乎全部的实现细节**。上游的 `index.html` 只有 1 KB、`config.js` 是 570 字节的示例文件；我这边 `index.html` 18 KB、`config.js` 16 KB，`player.js` 写到 2400 行、`modern.css` 1907 行。基本上除了“这是个音乐播放器”这件事没变，其他都大改了一遍。致谢：**感谢 [@张洪Heo](https://github.com/zhheo) 和 HeoMusic 的贡献者们**，没有这个项目打底，我大概会一直停留在“想做一个播放器”的阶段。---## 二、功能与界面### 2.1 主界面：沉浸式的一屏打开就是一屏，没有多余的东西。背景为封面的模糊图，封面为主，侧边栏为辅，控制台在封面下方有进度条和控制按钮等。### 2.2 歌词：逐行高亮右侧面板默认就是歌词。当前行高亮加粗，上下行渐隐，唱到哪亮到哪：![逐行高亮歌词](/img/webp/music-lyrics-panel.webp)支持**逐行 + 逐字**两种歌词格式，桌面端自动滚动到当前行居中。### 2.3 播放列表：可搜可点「列表」页签是完整歌单，带序号、缩略图、歌名、歌手，顶部还有一个列表内搜索框：![播放列表](/img/webp/music-queue.webp)我目前的歌单是 **340 首**（网易云歌单）**+ 50 首本地音乐**混合播放。本地音乐可以直接填直链（mp3 / flac），也可以单独配封面和歌词文件。### 2.4 在线搜索点播想听什么直接搜，搜到就能点播，不用切到网易云再复制链接：![在线搜索](/img/webp/music-search.webp)搜出来的结果会直接插进当前播放队列，听完继续回到原来的顺序。鸣谢：由[GD音乐台](https://music.gdstudio.org/)提供的API### 2.5 音效点击“滑块”图标，会弹出音效菜单：![音效菜单](/img/webp/music-effect.webp)**关闭 / 3D环绕 / 沉浸 / 现场感 / 迷幻 / 流行 / 重低音**，由 Web Audio API 实时处理。当时弄这个音效整了挺久的，主要问题在于CORS跨域的问题，想要整音效，首先得整到音乐文件，而音乐文件得从网易云CDN爬取，这就麻烦了，网易云的有些CDN没有CORS跨域支持，就无法下载，当时折腾了挺久。### 2.6 账户：播放记录云端同步游客模式可以完整使用（数据存在浏览器 localStorage），但如果你想**换台设备继续听**，可以注册个账户：![账户面板](/img/webp/music-account.webp)登录之后播放次数会同步到云端，换浏览器、换手机都不丢。这个数据同时也是下面「平均随机」算法的依据——听得越多，越不容易被重复抽到。### 2.7 移动端交互手机上的布局不是把桌面版压扁，而是重新做了一套：![移动端主界面](/img/webp/music-mobile-player.webp)底部导航四个入口（播放 / 歌词 / 列表 / 搜索），歌词可以全屏展开：![移动端全屏歌词](/img/webp/music-mobile-lyrics.webp)---## 三、两个设计### 3.1 「平均随机」这是整个项目的起点，也是我最满意的一块。问题在于：**真随机 ≠ 用户想要的随机**。用户要的不是“每次独立均匀抽样”，而是“**这一轮里别重复，长期下来每首歌播放次数差不多**”。所以我用的是**加权无放回抽样**（Gumbel-top）：<figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line">每首歌的 <span class="built_in">key</span> = -ln(<span class="built_in">random</span>) / (PRIOR + α × 播放次数)</span><br><span class="line">按 <span class="built_in">key</span> 降序排列 = 本轮播放队列</span><br></pre></td></tr></table></figure>这一个公式同时给了三个性质：1. **轮内零重复**——排列天然保证，根治生日悖论2. **播放次数少的歌期望排前**——长期收敛到“人人平等”3. **新歌不会被无限播**——新歌按"已播 4 次"起步参与排序（贝叶斯平滑），每播一次让一步，播满 4 次后就和普通歌平权。解决了“新歌计数为 0，权重无限大，被反复抽中”的问题两个参数都放在 `config.js` 里可以调：`shufflePrior`（越大，新歌特权越小）、`shuffleAlpha`（0 = 纯均匀洗牌，1 = 线性偏置，推荐 1）。顺带还有两件小事：**手动点播的歌会从本轮队列移除**（同一轮不会二次抽到），**歌单增删改序后播放计数也不丢**（用 `ne:{id}` / `lo:{url}` 这种稳定标识，而不是数组下标）。### 3.2 用户数据云写入账户同步这块踩过一个坑。最初的协议是"全量替换"：本地计数变了就把整份数据 `PUT` 上去。问题是服务端实现是 `DELETE 全部 + INSERT 全部`——**一次同步写大约 2N 行**（N = 该用户的计数行数）。我实测是 384 行，也就是一次同步写 768 行。而我用的Cloudflare D1 写入额度比较少，10 万行/天——折算下来**全站所有用户加起来，每天只能同步大约 131 次**。两个真实用户各听 65 首就能把额度打穿。后来改成了**增量合并 + 写入节流**：<figure class="highlight n1ql"><table><tr><td class="code"><pre><span class="line">播放 → 本地计数 +1（localStorage 永远不丢）</span><br><span class="line">     → 变化的 key 记入 pending（落盘持久化）</span><br><span class="line">        → 节流：30 秒防抖 + 60 秒最小间隔 + 3 分钟最长等待保底</span><br><span class="line">        → POST 只发变化项，服务端 <span class="keyword">UPSERT</span> 取 <span class="built_in">MAX</span>(云端, 客户端)</span><br></pre></td></tr></table></figure>写行数从 ~768 降到 1~3 行，**约 768 倍降幅**，读请求也归零了（`MAX` 天然幂等，多设备互不覆盖，不再需要"先读再写回"）。再加一个 `countPlayAfterSec`（默认 20 秒）——**实际播放满 20 秒才计入播放次数**。快速切歌、试听不算数，既减少了写入，也让洗牌权重，不被"点开就跳过"的歌污染。代价是上报有 30~60 秒延迟，但 pending 是落盘的，崩溃、强杀、关页都有兜底补传，数据不会丢。---## 四、自己部署一个整个前端是**纯静态、零构建**的——没有 npm install，没有打包步骤，把文件丢上去就能跑。### 4.1 Fork 我的仓库Fork [666mingqing6/Music](https://github.com/666mingqing6/Music) 到你自己的账号。### 4.2 改 config.js`config.js` 是全站**唯一的配置入口**，所有东西都在这个文件里：<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> userId = <span class="string">&quot;12675886878&quot;</span>;      <span class="comment">// 你的网易云歌单 ID</span></span><br><span class="line"><span class="keyword">var</span> userServer = <span class="string">&quot;netease&quot;</span>;      <span class="comment">// 服务商：netease / tencent / kugou ...</span></span><br><span class="line"><span class="keyword">var</span> userType = <span class="string">&quot;playlist&quot;</span>;       <span class="comment">// playlist / song / album / artist</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Meting API 基地址（自建 Cloudflare Worker）</span></span><br><span class="line"><span class="keyword">var</span> metingApiBase = <span class="string">&quot;https://meting-api.646474.xyz&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 随机播放参数</span></span><br><span class="line"><span class="keyword">var</span> shufflePrior = <span class="number">4</span>;            <span class="comment">// 新歌冷启动平滑底数</span></span><br><span class="line"><span class="keyword">var</span> shuffleAlpha = <span class="number">1</span>;            <span class="comment">// 播放次数偏置强度</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 播放满多少秒才计入播放次数</span></span><br><span class="line"><span class="keyword">var</span> countPlayAfterSec = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 本地音乐（可选，支持 mp3 / flac 直链）</span></span><br><span class="line"><span class="keyword">var</span> localMusic = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;歌名&#x27;</span>,</span><br><span class="line">    <span class="attr">artist</span>: <span class="string">&#x27;歌手&#x27;</span>,</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&#x27;https://example.com/song.mp3&#x27;</span>,</span><br><span class="line">    <span class="attr">cover</span>: <span class="string">&#x27;https://example.com/cover.jpg&#x27;</span>,</span><br><span class="line">    <span class="attr">lrc</span>: <span class="string">&#x27;https://example.com/song.lrc&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>**至少要改的**：- `userId` — 换成你自己的歌单 ID。从歌单分享链接里取，比如 `https://music.163.com/playlist?id=12675886878`，ID 就是 `12675886878`- `metingApiBase` — 可以换成你自己的 API 地址（见下一步）- `localMusic` 可以留空数组，只用在线歌单也完全没问题。### 4.3 后端 API音乐数据（歌单、搜索、歌词、封面）需要一个 Meting API。我把自建的那份也开源了：[666mingqing6/meting-api](https://github.com/666mingqing6/meting-api)，Cloudflare Workers + D1，部署即可。<div class="note info flat"><p>想省事也可以直接用别人的公共 Meting API，但稳定性、可用性都不保证</p></div>### 4.4 部署到 Cloudflare Pages改完 `config.js`，剩下就是选个静态托管平台。**Cloudflare Pages** 最省事，而且免费：1. 登录 Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**2. 选中你 fork 的仓库3. 其他啥也不用管4. 部署，等它跑完即可。之后每次 `git push` 都会自动重新部署当然，因为它就是个纯静态站，**Vercel、Netlify、GitHub Pages……**都能部署，看你习惯哪个。---## 五、结语回头看，这个项目真正花时间的部分，几乎都不是"写功能"。写一个能播歌的页面用AI可能一两小时就够了。剩下的时间都花在：音效的 CORS 深坑来回改了六版、随机算法从"均匀随机"推到加权洗牌、同步协议为了不把云配额打穿重构了三次、以及一堆"点开就跳过算不算播放"这种只有真用起来才会发现的问题。这可能就是 Vibe Coding 的问题：**让 AI 把第一版写出来很快，但把它变成一个真正能用、经得起日常使用的东西，还是得靠一次次踩坑和打磨。**不过至少现在，我打开自己的音乐馆，按下播放，我就可以愉快地去，边听边享受，去干别的事了，只需要开着标签页就行。这就够了。---<div class="anzhiyu-tag-links"><div class="tag-links-tips">相关链接</div><div class="tag-links-list"><div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/666mingqing6/Music"><div class="tag-link-bottom"><div class="tag-link-left"><i class="fa-brands fa-github" style="display:flex;align-items:center;justify-content:center;font-size:1.4em;"></i></div><div class="tag-link-right"><div class="tag-link-title">音乐馆前端仓库</div><div class="tag-link-sitename">666mingqing6/Music</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div><div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/666mingqing6/meting-api"><div class="tag-link-bottom"><div class="tag-link-left"><i class="fa-brands fa-github" style="display:flex;align-items:center;justify-content:center;font-size:1.4em;"></i></div><div class="tag-link-right"><div class="tag-link-title">后端Meting-api</div><div class="tag-link-sitename">666mingqing6/meting-api</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div><div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zhheo/HeoMusic"><div class="tag-link-bottom"><div class="tag-link-left"><i class="fa-brands fa-github" style="display:flex;align-items:center;justify-content:center;font-size:1.4em;"></i></div><div class="tag-link-right"><div class="tag-link-title">上游项目</div><div class="tag-link-sitename">zhheo/HeoMusic</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div><div class='anzhiyu-tag-link'><a class="tag-Link" target="_blank" rel="noopener external nofollow noreferrer" href="https://music.646474.xyz"><div class="tag-link-bottom"><div class="tag-link-left"><svg class="icon" style="display:flex;width:1.4em;height:1.4em;align-items:center;justify-content:center;" aria-hidden="true"><use xlink:href="#icon-music1"></use></svg></div><div class="tag-link-right"><div class="tag-link-title">在线体验</div><div class="tag-link-sitename">music.646474.xyz</div></div><i class="anzhiyufont anzhiyu-icon-angle-right"></i></div></a></div></div></div>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术类文档 </category>
+          
+          <category> 前端 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 音乐馆 </tag>
+            
+            <tag> 音乐播放器 </tag>
+            
+            <tag> Cloudflare Pages </tag>
+            
+            <tag> PWA </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>中华人民共和国意识形态</title>
       <link href="/consciousness-China/"/>
       <url>/consciousness-China/</url>
@@ -94,11 +127,11 @@
       
         <tags>
             
+            <tag> 校园 </tag>
+            
             <tag> 成长 </tag>
             
             <tag> 反思 </tag>
-            
-            <tag> 校园 </tag>
             
             <tag> 青春 </tag>
             
@@ -160,9 +193,9 @@
       
         <tags>
             
-            <tag> 教育 </tag>
-            
             <tag> 哲学 </tag>
+            
+            <tag> 教育 </tag>
             
             <tag> 成长 </tag>
             
@@ -226,13 +259,13 @@
       
         <tags>
             
-            <tag> 哲学 </tag>
-            
             <tag> 心理 </tag>
             
-            <tag> 校园 </tag>
-            
             <tag> 情感 </tag>
+            
+            <tag> 哲学 </tag>
+            
+            <tag> 校园 </tag>
             
         </tags>
       
@@ -259,11 +292,11 @@
       
         <tags>
             
-            <tag> 哲学 </tag>
-            
             <tag> 心理 </tag>
             
             <tag> 情感 </tag>
+            
+            <tag> 哲学 </tag>
             
             <tag> 爱情 </tag>
             
@@ -343,13 +376,13 @@
             
             <tag> 技术类文档 </tag>
             
-            <tag> Android </tag>
-            
-            <tag> 教程 </tag>
-            
             <tag> Fastboot </tag>
             
+            <tag> Android </tag>
+            
             <tag> 刷机 </tag>
+            
+            <tag> 教程 </tag>
             
         </tags>
       
@@ -378,11 +411,11 @@
       
         <tags>
             
-            <tag> ADB </tag>
-            
             <tag> Android </tag>
             
             <tag> 教程 </tag>
+            
+            <tag> ADB </tag>
             
         </tags>
       
