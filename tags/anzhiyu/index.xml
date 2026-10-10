@@ -1,0 +1,842 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>AnZhiYu on Lumoes Blog</title>
+    <link>https://blog.646474.xyz/tags/anzhiyu/</link>
+    <description>Recent content in AnZhiYu on Lumoes Blog</description>
+    <image>
+      <title>Lumoes Blog</title>
+      <url>https://blog.646474.xyz/images/og-cover.png</url>
+      <link>https://blog.646474.xyz/images/og-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 07 Oct 2026 01:20:00 +0800</lastBuildDate>
+    <atom:link href="https://blog.646474.xyz/tags/anzhiyu/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从 Hexo(AnZhiYu) 迁移到 Hugo(PaperMod) 完整记录</title>
+      <link>https://blog.646474.xyz/hexo-to-hugo-migration/</link>
+      <pubDate>Wed, 07 Oct 2026 01:20:00 +0800</pubDate>
+      <guid>https://blog.646474.xyz/hexo-to-hugo-migration/</guid>
+      <description>迁移过程中的语法对照表：哪些标签不能用、怎么替换、front matter 字段如何对应，以及踩过的坑。</description>
+      <content:encoded><![CDATA[<hr>
+<h2 id="一先说结论工作量评估">一、先说结论：工作量评估</h2>
+<table>
+	<thead>
+			<tr>
+					<th>项目</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>文章正文</strong></td>
+					<td>需要替换标签语法（见第二、三节），每篇约 5~15 分钟</td>
+			</tr>
+			<tr>
+					<td><strong>front matter</strong></td>
+					<td>需要调整字段（见第五节），可脚本批量处理</td>
+			</tr>
+			<tr>
+					<td><strong>图片</strong></td>
+					<td>从 <code>source/img/</code> 移到 <code>static/images/</code>，路径前缀从 <code>/img/</code> 改为 <code>/images/</code></td>
+			</tr>
+			<tr>
+					<td><strong>特有功能</strong></td>
+					<td>即刻短文、音乐播放器、首页轮播、AI 摘要、置顶卡片 <strong>PaperMod 都没有</strong>，需要自行实现或放弃</td>
+			</tr>
+			<tr>
+					<td><strong>评论系统</strong></td>
+					<td>需要重新接入（PaperMod 预留了 <code>layouts/_partials/comments.html</code>）</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>建议</strong>：先迁移 3~5 篇代表性文章，跑通流程后再批量处理。</p>
+<hr>
+<h2 id="二新博客不能用的语法anzhiyu--hexo-专有">二、新博客<strong>不能用</strong>的语法（AnZhiYu / Hexo 专有）</h2>
+<p>以下标签在 Hugo + PaperMod 中<strong>不存在</strong>，写上去会原样显示成文本（或报错），必须替换：</p>
+<h3 id="21-hexo-tag-插件anzhiyu-全部标签">2.1 Hexo tag 插件（AnZhiYu 全部标签）</h3>
+<table>
+	<thead>
+			<tr>
+					<th>AnZhiYu 标签</th>
+					<th>能否使用</th>
+					<th>替代方案</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>{% note info %}</code> <code>{% endnote %}</code></td>
+					<td>❌</td>
+					<td><code>{{&lt; note info &gt;}}…{{&lt; /note &gt;}}</code>（短代码，内容支持 Markdown）</td>
+			</tr>
+			<tr>
+					<td><code>{% label 文字 red %}</code></td>
+					<td>❌</td>
+					<td><code>&lt;mark class=&quot;hl red&quot;&gt;文字&lt;/mark&gt;</code>（本项目已内置样式）</td>
+			</tr>
+			<tr>
+					<td><code>{% mermaid %}</code> <code>{% endmermaid %}</code></td>
+					<td>❌</td>
+					<td><code>```mermaid</code> 代码块（本项目已配置好）</td>
+			</tr>
+			<tr>
+					<td><code>{% katex %}</code> / <code>{% mathjax %}</code></td>
+					<td>❌</td>
+					<td><code>$$公式$$</code>（单行）或 <code>{{&lt; math &gt;}}…{{&lt; /math &gt;}}</code>（多行）</td>
+			</tr>
+			<tr>
+					<td><code>{% tabs %}</code> / <code>{% endtabs %}</code></td>
+					<td>❌</td>
+					<td><code>&lt;div class=&quot;columns&quot;&gt;…&lt;/div&gt;</code>（静态两栏，本项目已内置）或删除</td>
+			</tr>
+			<tr>
+					<td><code>{% checkbox %}</code></td>
+					<td>❌</td>
+					<td>Markdown 任务列表 <code>- [x] 已完成</code></td>
+			</tr>
+			<tr>
+					<td><code>{% timeline %}</code></td>
+					<td>❌</td>
+					<td>有序列表，或自建样式</td>
+			</tr>
+			<tr>
+					<td><code>{% folding %}</code></td>
+					<td>❌</td>
+					<td><code>{{&lt; collapse &quot;标题&quot; &gt;}}内容{{&lt; /collapse &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td><code>{% links %}</code></td>
+					<td>❌</td>
+					<td>Markdown 列表 + 链接</td>
+			</tr>
+			<tr>
+					<td><code>{% btn %}</code> / <code>{% btns %}</code> / <code>{% cell %}</code></td>
+					<td>❌</td>
+					<td>Markdown 链接或 <code>&lt;a class=&quot;...&quot;&gt;</code></td>
+			</tr>
+			<tr>
+					<td><code>{% tip %}</code></td>
+					<td>❌</td>
+					<td><code>&lt;div class=&quot;note primary&quot;&gt;…&lt;/div&gt;</code></td>
+			</tr>
+			<tr>
+					<td><code>{% span %}</code> / <code>{% u %}</code> / <code>{% emp %}</code> / <code>{% wavy %}</code> / <code>{% del %}</code> / <code>{% kbd %}</code> / <code>{% psw %}</code></td>
+					<td>❌</td>
+					<td>原生 HTML：<code>&lt;u&gt;</code> <code>&lt;em&gt;</code> <code>&lt;del&gt;</code> <code>&lt;kbd&gt;</code></td>
+			</tr>
+			<tr>
+					<td><code>{% gallery %}</code></td>
+					<td>❌</td>
+					<td>多张 <code>{{&lt; figure &gt;}}</code> 或用 Markdown 图片</td>
+			</tr>
+			<tr>
+					<td><code>{% hide %}</code></td>
+					<td>❌</td>
+					<td><code>{{&lt; collapse &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td><code>{% image %}</code> / <code>{% inlineImg %}</code></td>
+					<td>❌</td>
+					<td><code>{{&lt; figure &gt;}}</code> / Markdown <code>![]()</code></td>
+			</tr>
+			<tr>
+					<td><code>{% bilibili %}</code> / <code>{% media %}</code> / <code>{% dogeplayer %}</code></td>
+					<td>❌</td>
+					<td><code>{{&lt; rawhtml &gt;}}&lt;iframe&gt;…{{&lt; /rawhtml &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td><code>{% site %}</code> / <code>{% flink %}</code> / <code>{% iconfont %}</code> / <code>{% Introduction-card %}</code></td>
+					<td>❌</td>
+					<td>手写 HTML 或用 <code>rawhtml</code></td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="22-其它-hexo--anzhiyu-专有写法">2.2 其它 Hexo / AnZhiYu 专有写法</h3>
+<table>
+	<thead>
+			<tr>
+					<th>写法</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>&lt;div class=&quot;video-container&quot;&gt;…&lt;/div&gt;</code> + 配套 <code>&lt;style&gt;</code></td>
+					<td>AnZhiYu 的视频自适应写法 → 改用 <code>{{&lt; youtube ID &gt;}}</code> 或 <code>{{&lt; video src=&quot;…&quot; &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td><code>&lt;!-- more --&gt;</code></td>
+					<td>Hugo 用 `</td>
+			</tr>
+	</tbody>
+</table>
+<p><code>（无空格），或在 front matter 写 </code>summary:<code>| |</code>{% raw %}<code>/</code>{% endraw %}<code>| Hugo 用</code>{{&lt; … &gt;}}<code>转义 shortcode | | Hexo 的</code>_drafts/<code>目录 | Hugo 用</code>draft: true<code>标记 | | 即刻短文（essay）系统 | ❌ 无对应，需自行实现（可考虑 Hugo 的独立 section） | | 音乐播放器 / APlayer | ❌ 需自行接入第三方 JS | | 首页轮播图 / 置顶卡片组 | ❌ 无对应，可用 PaperMod 的</code>profileMode<code> 或自建布局 | | AI 摘要（</code>ai:<code>字段） | ❌ 无对应，可改写到</code>description` |
+| 站点统计（不蒜子等） | ❌ 需自行接入 |</p>
+<h3 id="23-不能用的-front-matter-字段">2.3 不能用的 front matter 字段</h3>
+<p><code>swiper_index</code>、<code>top_group_index</code>、<code>cover_fit</code>、<code>cover_day</code>、<code>cover_night</code>、<code>ai</code>、<code>abbrlink</code>、<code>background</code>、<code>aside</code>、<code>highlight_shrink</code>、<code>copyright</code> / <code>copyright_author</code> / <code>copyright_url</code> / <code>copyright_info</code>、<code>aplayer</code>、<code>mathjax</code>、<code>katex</code>、<code>toc_number</code>、<code>toc_style_simple</code>、<code>sticky</code>、<code>top_img</code></p>
+<blockquote>
+<p>这些字段写在 Hugo 里<strong>不会报错</strong>（被忽略），但也没有任何效果，建议清理。</p>
+</blockquote>
+<hr>
+<h2 id="三新博客支持的语法怎么写">三、新博客<strong>支持</strong>的语法（怎么写）</h2>
+<h3 id="31-基础-markdown完全通用">3.1 基础 Markdown（完全通用）</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl"><span class="gh"># 一级标题
+</span></span></span><span class="line"><span class="cl"><span class="gu">## 二级标题
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="gs">**加粗**</span>、*斜体*、~~删除线~~、<span class="sb">`行内代码`</span>、[<span class="nt">链接</span>](<span class="na">https://example.com</span>)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">-</span> 无序列表
+</span></span><span class="line"><span class="cl"><span class="k">-</span> 第二项
+</span></span><span class="line"><span class="cl">  <span class="k">-</span> 嵌套
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">1.</span> 有序列表
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">- [x]</span> 已完成任务
+</span></span><span class="line"><span class="cl"><span class="k">- [ ]</span> 未完成任务
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">| 表头 | 表头 |
+</span></span><span class="line"><span class="cl">|---|---|
+</span></span><span class="line"><span class="cl">| 单元格 | 单元格 |
+</span></span><span class="line"><span class="cl"><span class="k">
+</span></span></span><span class="line"><span class="cl"><span class="k">&gt; </span><span class="ge">引用块
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">---
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="32-papermod-自带-shortcode">3.2 PaperMod 自带 shortcode</h3>
+<table>
+	<thead>
+			<tr>
+					<th>语法</th>
+					<th>作用</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>{{&lt; figure src=&quot;/images/a.png&quot; title=&quot;标题&quot; caption=&quot;说明&quot; align=&quot;center&quot; &gt;}}</code></td>
+					<td>图片（带图注，比 Markdown 图片更精细）</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; inTextImg url=&quot;/images/a.png&quot; alt=&quot;说明&quot; &gt;}}</code></td>
+					<td>行内小图标</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; collapse &quot;点击展开&quot; &gt;}}内容{{&lt; /collapse &gt;}}</code></td>
+					<td>折叠面板</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; rawhtml &gt;}}&lt;div&gt;任意 HTML&lt;/div&gt;{{&lt; /rawhtml &gt;}}</code></td>
+					<td>嵌入原始 HTML</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; video src=&quot;/media/a.mp4&quot; &gt;}}</code></td>
+					<td>本地视频</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; audio src=&quot;/media/a.mp3&quot; &gt;}}</code></td>
+					<td>本地音频</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; ltr &gt;}}</code> / <code>{{&lt; rtl &gt;}}</code></td>
+					<td>强制文字方向</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="33-hugo-内置-shortcode">3.3 Hugo 内置 shortcode</h3>
+<table>
+	<thead>
+			<tr>
+					<th>语法</th>
+					<th>作用</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>{{&lt; youtube VIDEO_ID &gt;}}</code></td>
+					<td>嵌入 YouTube（替代 AnZhiYu 的 video-container）</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; vimeo VIDEO_ID &gt;}}</code></td>
+					<td>嵌入 Vimeo</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; gist 用户名 哈希 &gt;}}</code></td>
+					<td>嵌入 GitHub Gist</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; details &quot;标题&quot; &gt;}}内容{{&lt; /details &gt;}}</code></td>
+					<td>折叠（Hugo 原生）</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; highlight python &quot;linenos=table&quot; &gt;}}代码{{&lt; /highlight &gt;}}</code></td>
+					<td>带行号的代码块</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; ref &quot;posts/某篇文章.md&quot; &gt;}}</code></td>
+					<td>站内链接（自动处理路径）</td>
+			</tr>
+			<tr>
+					<td><code>{{&lt; param 参数名 &gt;}}</code></td>
+					<td>读取配置参数</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="34-本项目已额外配置好的语法实测可用">3.4 本项目已额外配置好的语法（实测可用）</h3>
+<p><strong>提示框</strong>（对标 AnZhiYu 的 <code>{% note %}</code>，用短代码，内容支持 Markdown）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">{{&lt; note info &gt;}}
+</span></span><span class="line"><span class="cl">信息提示，支持 **加粗**、`代码`、[链接](url)
+</span></span><span class="line"><span class="cl">{{&lt; /note &gt;}}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">{{&lt; note success &gt;}}成功提示{{&lt; /note &gt;}}
+</span></span><span class="line"><span class="cl">{{&lt; note warning &gt;}}警告提示{{&lt; /note &gt;}}
+</span></span><span class="line"><span class="cl">{{&lt; note danger &gt;}}危险提示{{&lt; /note &gt;}}
+</span></span><span class="line"><span class="cl">{{&lt; note primary &gt;}}重点提示{{&lt; /note &gt;}}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">{{&lt; note info &#34;自定义标题&#34; &gt;}}
+</span></span><span class="line"><span class="cl">带标题的提示框（第二个参数是标题）
+</span></span><span class="line"><span class="cl">{{&lt; /note &gt;}}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>⚠️ 不建议用 <code>&lt;div class=&quot;note info&quot;&gt;</code> 的 HTML 写法：块级 HTML 内部的 Markdown
+不会被解析（CommonMark 规范行为），加粗会原样显示成星号。</p>
+</blockquote>
+<p><strong>行内高亮</strong>（对标 <code>{% label %}</code>）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">mark</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;hl red&#34;</span><span class="p">&gt;</span>红色重点<span class="p">&lt;/</span><span class="nt">mark</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">mark</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;hl green&#34;</span><span class="p">&gt;</span>绿色<span class="p">&lt;/</span><span class="nt">mark</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">mark</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;hl blue&#34;</span><span class="p">&gt;</span>蓝色<span class="p">&lt;/</span><span class="nt">mark</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">mark</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;hl yellow&#34;</span><span class="p">&gt;</span>黄色<span class="p">&lt;/</span><span class="nt">mark</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">mark</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;hl purple&#34;</span><span class="p">&gt;</span>紫色<span class="p">&lt;/</span><span class="nt">mark</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>两栏对比</strong>（对标 <code>{% tabs %}</code> 的静态替代）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;columns&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h4</span><span class="p">&gt;</span>方案 A<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>内容…<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h4</span><span class="p">&gt;</span>方案 B<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>内容…<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>数学公式</strong>（KaTeX）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">行内：$E = mc^2$
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">单行独立公式（推荐日常使用）：
+</span></span><span class="line"><span class="cl">$$E = mc^2$$
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">多行 / 复杂公式（矩阵、多行推导必须用这个）：
+</span></span><span class="line"><span class="cl">{{&lt; math &gt;}}
+</span></span><span class="line"><span class="cl">\begin{pmatrix}
+</span></span><span class="line"><span class="cl">a &amp; b \\
+</span></span><span class="line"><span class="cl">c &amp; d
+</span></span><span class="line"><span class="cl">\end{pmatrix}
+</span></span><span class="line"><span class="cl">{{&lt; /math &gt;}}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>⚠️ <strong>重要</strong>：多行公式<strong>不要</strong>直接写多行 <code>$$</code>——Markdown 解析器会把 <code>\end{pmatrix}</code> 这类行误判成标题，导致公式破损。多行公式一律用 <code>{{&lt; math &gt;}}</code> 包裹。</p>
+</blockquote>
+<p><strong>Mermaid 流程图</strong>（直接用代码块，无需记短代码）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl"><span class="s">```mermaid
+</span></span></span><span class="line"><span class="cl">flowchart TD
+</span></span><span class="line"><span class="cl">    A[开始] --&gt; B{判断}
+</span></span><span class="line"><span class="cl">    B --&gt;|是| C[结束]
+</span></span><span class="line"><span class="cl"><span class="s">```</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>时序图、甘特图、类图等所有 Mermaid 图表类型都支持。</p>
+<h3 id="35-开启数学公式的两种方式">3.5 开启数学公式的两种方式</h3>
+<p>文章 front matter 里任意一种写法都会自动加载 KaTeX：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">math</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">          </span><span class="c"># 显式开启</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>或者正文里出现 <code>$$</code> 也会自动检测开启。</p>
+<hr>
+<h2 id="四推荐的创作语法组合">四、推荐的创作语法组合</h2>
+<p>日常写作最有价值的四件套：</p>
+<table>
+	<thead>
+			<tr>
+					<th>场景</th>
+					<th>推荐语法</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>强调重要结论</td>
+					<td><code>&lt;div class=&quot;note danger&quot;&gt;结论&lt;/div&gt;</code></td>
+			</tr>
+			<tr>
+					<td>补充说明、可选细节</td>
+					<td><code>{{&lt; collapse &quot;展开查看&quot; &gt;}}…{{&lt; /collapse &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td>流程 / 结构 / 时序</td>
+					<td><code>```mermaid</code> 代码块</td>
+			</tr>
+			<tr>
+					<td>公式推导</td>
+					<td><code>$$单行$$</code> 或 <code>{{&lt; math &gt;}}多行{{&lt; /math &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td>图片带说明</td>
+					<td><code>{{&lt; figure src=&quot;…&quot; caption=&quot;…&quot; &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td>代码</td>
+					<td>普通代码块（自带高亮 + 复制按钮）</td>
+			</tr>
+			<tr>
+					<td>对比两种方案</td>
+					<td><code>&lt;div class=&quot;columns&quot;&gt;</code></td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="五front-matter-迁移对照表">五、front matter 迁移对照表</h2>
+<table>
+	<thead>
+			<tr>
+					<th>Hexo (AnZhiYu)</th>
+					<th>Hugo (PaperMod)</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>title: &quot;标题&quot;</code></td>
+					<td><code>title: &quot;标题&quot;</code></td>
+					<td>相同</td>
+			</tr>
+			<tr>
+					<td><code>date: 2026-04-24 19:40:46</code></td>
+					<td><code>date: 2026-04-24T19:40:46+08:00</code></td>
+					<td>Hugo 两种格式都能解析，但推荐 ISO 8601</td>
+			</tr>
+			<tr>
+					<td><code>updated: 2026-08-08 20:40:00</code></td>
+					<td><code>lastmod: 2026-08-08T20:40:00+08:00</code></td>
+					<td><strong>字段名不同</strong></td>
+			</tr>
+			<tr>
+					<td><code>tags: [a, b]</code></td>
+					<td><code>tags: [&quot;a&quot;, &quot;b&quot;]</code></td>
+					<td>相同</td>
+			</tr>
+			<tr>
+					<td><code>categories: [[生活, 意识形态]]</code></td>
+					<td><code>categories: [&quot;生活&quot;]</code></td>
+					<td><strong>Hugo 不支持多级分类</strong>，二级建议改成 tag</td>
+			</tr>
+			<tr>
+					<td><code>cover: /img/webp/94.webp</code></td>
+					<td><code>cover:</code><br><code>  image: &quot;/images/webp/94.webp&quot;</code></td>
+					<td><strong>结构不同</strong>（对象）</td>
+			</tr>
+			<tr>
+					<td><code>description: &quot;…&quot;</code></td>
+					<td><code>description: &quot;…&quot;</code></td>
+					<td>相同</td>
+			</tr>
+			<tr>
+					<td><code>keywords: [a, b]</code></td>
+					<td><code>keywords: [&quot;a&quot;, &quot;b&quot;]</code></td>
+					<td>相同</td>
+			</tr>
+			<tr>
+					<td><code>abbrlink: xxx</code></td>
+					<td><code>slug: xxx</code></td>
+					<td>自定义 URL</td>
+			</tr>
+			<tr>
+					<td><code>top: true</code></td>
+					<td><code>weight: 1</code>（越小越前）</td>
+					<td>置顶需自行实现</td>
+			</tr>
+			<tr>
+					<td><code>toc: true</code></td>
+					<td><code>ShowToc: true</code></td>
+					<td>字段名不同</td>
+			</tr>
+			<tr>
+					<td><code>toc_number: true</code></td>
+					<td><code>UseHugoToc: true</code></td>
+					<td>近似</td>
+			</tr>
+			<tr>
+					<td><code>comments: false</code></td>
+					<td><code>comments: false</code></td>
+					<td>相同</td>
+			</tr>
+			<tr>
+					<td><code>hide: true</code></td>
+					<td><code>hideSummary: true</code></td>
+					<td>近似</td>
+			</tr>
+			<tr>
+					<td><code>mathjax: true</code> / <code>katex: true</code></td>
+					<td><code>math: true</code></td>
+					<td>统一为 math</td>
+			</tr>
+			<tr>
+					<td><code>swiper_index</code> / <code>top_group_index</code> / <code>ai</code> / <code>background</code> / <code>aside</code> / <code>cover_fit</code> / <code>cover_day</code> / <code>cover_night</code> / <code>copyright_*</code></td>
+					<td>❌</td>
+					<td>无对应，删除即可</td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="六迁移操作步骤">六、迁移操作步骤</h2>
+<h3 id="1-复制文章">1. 复制文章</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 在 Hexo 项目里（blog-demo/source/_posts/）</span>
+</span></span><span class="line"><span class="cl">cp 某篇文章.md Z:/ugoblog/content/posts/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-调整-front-matter">2. 调整 front matter</h3>
+<ul>
+<li><code>updated</code> → <code>lastmod</code></li>
+<li><code>cover: /img/x.webp</code> → <code>cover.image: &quot;/images/x.webp&quot;</code></li>
+<li>多级 categories 拆成一维</li>
+<li>删除无对应字段</li>
+</ul>
+<h3 id="3-替换正文标签">3. 替换正文标签</h3>
+<table>
+	<thead>
+			<tr>
+					<th>查找</th>
+					<th>替换为</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>{% note xxx %}</code> … <code>{% endnote %}</code></td>
+					<td><code>{{&lt; note xxx &gt;}}</code> … <code>{{&lt; /note &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td><code>{% label 文字 颜色 %}</code></td>
+					<td><code>&lt;mark class=&quot;hl 颜色&quot;&gt;文字&lt;/mark&gt;</code></td>
+			</tr>
+			<tr>
+					<td><code>{% mermaid %}</code> … <code>{% endmermaid %}</code></td>
+					<td><code>```mermaid</code> … <code>```</code></td>
+			</tr>
+			<tr>
+					<td><code>{% tabs %}</code> … <code>{% endtabs %}</code></td>
+					<td>删除或改 <code>&lt;div class=&quot;columns&quot;&gt;</code></td>
+			</tr>
+			<tr>
+					<td><code>{% folding 标题 %}</code> … <code>{% endfolding %}</code></td>
+					<td><code>{{&lt; collapse &quot;标题&quot; &gt;}}</code> … <code>{{&lt; /collapse &gt;}}</code></td>
+			</tr>
+			<tr>
+					<td><code>&lt;div class=&quot;video-container&quot;&gt;</code> 整块</td>
+					<td><code>{{&lt; youtube 视频ID &gt;}}</code></td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="4-迁移图片">4. 迁移图片</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Hexo: blog-demo/source/img/  →  Hugo: Z:/ugoblog/static/images/</span>
+</span></span><span class="line"><span class="cl">cp -r blog-demo/source/img/* Z:/ugoblog/static/images/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>正文里的 <code>/img/xxx.webp</code> 改成 <code>/images/xxx.webp</code>。</p>
+<h3 id="5-本地预览">5. 本地预览</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> Z:/ugoblog
+</span></span><span class="line"><span class="cl">hugo server -D        <span class="c1"># 含草稿预览，浏览器打开 http://localhost:1313</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="6-构建发布">6. 构建发布</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hugo --gc --minify    <span class="c1"># 产物在 public/ 目录</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="七常用命令速查">七、常用命令速查</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hugo new content posts/我的新文章.md   <span class="c1"># 新建文章（用 archetypes/default.md 模板）</span>
+</span></span><span class="line"><span class="cl">hugo server -D                         <span class="c1"># 本地预览（含草稿）</span>
+</span></span><span class="line"><span class="cl">hugo server --bind 127.0.0.1 -p <span class="m">1313</span>   <span class="c1"># 指定端口</span>
+</span></span><span class="line"><span class="cl">hugo --gc --minify                     <span class="c1"># 构建（清理缓存 + 压缩）</span>
+</span></span><span class="line"><span class="cl">hugo --gc --minify --buildFuture       <span class="c1"># 构建含未来日期的文章</span>
+</span></span><span class="line"><span class="cl">hugo list all                          <span class="c1"># 列出所有文章及 URL</span>
+</span></span><span class="line"><span class="cl">hugo config                            <span class="c1"># 查看当前生效的完整配置</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>⚠️ 注意：front matter 里 <code>date</code> 若是<strong>未来时间</strong>，默认不会构建（<code>buildFuture: false</code>），
+表现为「文章明明写了却不出现在页面上」。要么改成过去时间，要么加 <code>--buildFuture</code>。</p>
+</blockquote>
+<hr>
+<h2 id="八关键文件说明">八、关键文件说明</h2>
+<table>
+	<thead>
+			<tr>
+					<th>文件 / 目录</th>
+					<th>作用</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>hugo.yaml</code></td>
+					<td><strong>站点总配置</strong>（已汉化，所有配置项都有中文说明）</td>
+			</tr>
+			<tr>
+					<td><code>archetypes/default.md</code></td>
+					<td>新建文章的模板（已汉化）</td>
+			</tr>
+			<tr>
+					<td><code>content/posts/</code></td>
+					<td>文章目录</td>
+			</tr>
+			<tr>
+					<td><code>content/search.md</code></td>
+					<td>搜索页（必须存在，否则搜索功能失效）</td>
+			</tr>
+			<tr>
+					<td><code>content/archives.md</code></td>
+					<td>归档页</td>
+			</tr>
+			<tr>
+					<td><code>assets/css/extended/custom.css</code></td>
+					<td>自定义样式（提示框、高亮、两栏等）</td>
+			</tr>
+			<tr>
+					<td><code>layouts/_partials/extend_head.html</code></td>
+					<td>注入 KaTeX / Mermaid（PaperMod 官方扩展点）</td>
+			</tr>
+			<tr>
+					<td><code>layouts/_markup/render-codeblock-mermaid.html</code></td>
+					<td>让 <code>```mermaid</code> 输出为图表容器</td>
+			</tr>
+			<tr>
+					<td><code>layouts/_markup/render-passthrough.html</code></td>
+					<td>数学公式原样输出（避免被转义）</td>
+			</tr>
+			<tr>
+					<td><code>layouts/_shortcodes/math.html</code></td>
+					<td>多行公式 shortcode</td>
+			</tr>
+			<tr>
+					<td><code>static/images/</code></td>
+					<td>图片目录（引用路径为 <code>/images/xxx</code>）</td>
+			</tr>
+			<tr>
+					<td><code>themes/PaperMod/</code></td>
+					<td>主题本体（升级：<code>cd themes/PaperMod &amp;&amp; git pull</code>）</td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="九迁移后的功能对照">九、迁移后的功能对照</h2>
+<table>
+	<thead>
+			<tr>
+					<th>原 AnZhiYu 功能</th>
+					<th>PaperMod 状态</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>文章 + 标签 + 分类</td>
+					<td>✅ 原生支持</td>
+			</tr>
+			<tr>
+					<td>归档页</td>
+					<td>✅ 原生（<code>content/archives.md</code>）</td>
+			</tr>
+			<tr>
+					<td>站内搜索</td>
+					<td>✅ 原生（Fuse.js，已配置）</td>
+			</tr>
+			<tr>
+					<td>暗色模式</td>
+					<td>✅ 原生（跟随系统 + 手动切换）</td>
+			</tr>
+			<tr>
+					<td>目录 TOC</td>
+					<td>✅ 原生</td>
+			</tr>
+			<tr>
+					<td>代码高亮 + 复制</td>
+					<td>✅ 原生</td>
+			</tr>
+			<tr>
+					<td>阅读时间 / 字数</td>
+					<td>✅ 原生</td>
+			</tr>
+			<tr>
+					<td>分享按钮</td>
+					<td>✅ 原生</td>
+			</tr>
+			<tr>
+					<td>数学公式</td>
+					<td>✅ 已配置（KaTeX）</td>
+			</tr>
+			<tr>
+					<td>Mermaid 流程图</td>
+					<td>✅ 已配置</td>
+			</tr>
+			<tr>
+					<td>提示框 / 高亮 / 两栏</td>
+					<td>✅ 已用自定义 CSS 补齐</td>
+			</tr>
+			<tr>
+					<td>评论</td>
+					<td>⚠️ 需自行接入（Twikoo / Giscus / Waline）</td>
+			</tr>
+			<tr>
+					<td>即刻短文</td>
+					<td>❌ 无对应</td>
+			</tr>
+			<tr>
+					<td>音乐播放器</td>
+					<td>❌ 无对应</td>
+			</tr>
+			<tr>
+					<td>首页轮播 / 置顶卡片</td>
+					<td>❌ 无对应</td>
+			</tr>
+			<tr>
+					<td>AI 摘要</td>
+					<td>❌ 无对应</td>
+			</tr>
+			<tr>
+					<td>封面图</td>
+					<td>✅ 支持（<code>cover.image</code>），但无「跟随主题色」等效果</td>
+			</tr>
+	</tbody>
+</table>]]></content:encoded>
+    </item>
+  </channel>
+</rss>
