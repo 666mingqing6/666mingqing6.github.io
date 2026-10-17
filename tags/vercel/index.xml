@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Vercel on Lumoes Blog</title>
+    <link>https://blog.646474.xyz/tags/vercel/</link>
+    <description>Recent content in Vercel on Lumoes Blog</description>
+    <image>
+      <title>Lumoes Blog</title>
+      <url>https://blog.646474.xyz/images/og-cover.png</url>
+      <link>https://blog.646474.xyz/images/og-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 07 Oct 2026 01:20:00 +0800</lastBuildDate>
+    <atom:link href="https://blog.646474.xyz/tags/vercel/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hugo 博客多平台部署与 baseURL 配置</title>
+      <link>https://blog.646474.xyz/multi-platform-deploy/</link>
+      <pubDate>Wed, 07 Oct 2026 01:20:00 +0800</pubDate>
+      <guid>https://blog.646474.xyz/multi-platform-deploy/</guid>
+      <description>同一份源码部署到 GitHub Pages / Vercel / Netlify / Cloudflare Pages 的配置方法，以及 baseURL 的作用与实测结论。</description>
+      <content:encoded><![CDATA[<p>本站同一份源码部署在多个平台（GitHub Pages / Vercel / Netlify / Cloudflare Pages …），
+但<strong>主域名只有一个</strong>。本文档说明配置方式。</p>
+<hr>
+<h2 id="一本站采用的方案主域名统一">一、本站采用的方案：主域名统一</h2>
+<p><code>hugo.yaml</code> 里 <code>baseURL</code> 填的是主域名：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">baseURL</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;https://blog.646474.xyz/&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>所有平台都用这一个值</strong>，构建命令不需要任何额外参数。这样做的效果：</p>
+<table>
+	<thead>
+			<tr>
+					<th>内容</th>
+					<th>实际行为</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>CSS / JS 资源</td>
+					<td>用相对路径（<code>/assets/...</code>）→ <strong>每个平台都能正常加载</strong></td>
+			</tr>
+			<tr>
+					<td>文章图片</td>
+					<td>根相对路径（<code>/images/...</code>）→ 同上</td>
+			</tr>
+			<tr>
+					<td><code>canonical</code></td>
+					<td>统一指向 <code>https://blog.646474.xyz/...</code></td>
+			</tr>
+			<tr>
+					<td><code>sitemap.xml</code> / <code>rss.xml</code></td>
+					<td>统一指向主域名</td>
+			</tr>
+			<tr>
+					<td>分享卡片（OG / Twitter）</td>
+					<td>统一指向主域名</td>
+			</tr>
+			<tr>
+					<td><strong>SEO 效果</strong></td>
+					<td>权重集中在主域名，<strong>不存在重复内容问题</strong></td>
+			</tr>
+			<tr>
+					<td><strong>其他平台的角色</strong></td>
+					<td>镜像 / 备用入口（访问正常，但不与主站争夺收录）</td>
+			</tr>
+	</tbody>
+</table>
+<blockquote>
+<p>这是最省心的多平台方案：<strong>配一次，处处可用</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="二各平台配置表">二、各平台配置表</h2>
+<table>
+	<thead>
+			<tr>
+					<th>平台</th>
+					<th>构建命令</th>
+					<th>输出目录</th>
+					<th>需要的环境变量</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>GitHub Pages</strong></td>
+					<td><code>hugo --gc --minify</code></td>
+					<td><code>public</code></td>
+					<td>无（本仓库 Actions 已配好，只需 <code>DEPLOY_TOKEN</code> Secret）</td>
+			</tr>
+			<tr>
+					<td><strong>Vercel</strong></td>
+					<td><code>hugo --gc --minify</code></td>
+					<td><code>public</code></td>
+					<td><code>HUGO_VERSION = 0.167.0</code></td>
+			</tr>
+			<tr>
+					<td><strong>Netlify</strong></td>
+					<td><code>hugo --gc --minify</code></td>
+					<td><code>public</code></td>
+					<td><code>HUGO_VERSION = 0.167.0</code></td>
+			</tr>
+			<tr>
+					<td><strong>Cloudflare Pages</strong></td>
+					<td><code>hugo --gc --minify</code></td>
+					<td><code>public</code></td>
+					<td><code>HUGO_VERSION = 0.167.0</code></td>
+			</tr>
+			<tr>
+					<td>其他平台</td>
+					<td><code>hugo --gc --minify</code></td>
+					<td><code>public</code></td>
+					<td>视平台而定</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>关键</strong>：<code>HUGO_VERSION</code> 必须填 <code>0.167.0</code>，且必须是 <strong>extended</strong> 版本（PaperMod 用 SCSS，标准版会构建失败）。Cloudflare Pages 默认装的即是 extended；Vercel / Netlify 需要确认。</p>
+<hr>
+<h2 id="三各平台详细步骤">三、各平台详细步骤</h2>
+<h3 id="31-github-pages本仓库已配置">3.1 GitHub Pages（本仓库已配置）</h3>
+<p><code>.github/workflows/deploy.yml</code>：推送 <code>main</code> → 构建 → 推送到 <code>666mingqing6.github.io</code> 仓库。</p>
+<p>只需配置一个 Secret：</p>
+<table>
+	<thead>
+			<tr>
+					<th>名称</th>
+					<th>值</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>DEPLOY_TOKEN</code></td>
+					<td>对 <code>666mingqing6.github.io</code> 有写权限的 GitHub Token（经典 Token 勾 <code>repo</code>）</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="32-vercel">3.2 Vercel</h3>
+<ol>
+<li>导入 <code>blog-hugo</code> 仓库</li>
+<li>Framework Preset 选 <strong>Hugo</strong></li>
+<li>Build Command：<code>hugo --gc --minify</code></li>
+<li>Output Directory：<code>public</code></li>
+<li>Environment Variables 加 <code>HUGO_VERSION</code> = <code>0.167.0</code></li>
+</ol>
+<h3 id="33-netlify">3.3 Netlify</h3>
+<ol>
+<li>导入仓库</li>
+<li>Build command：<code>hugo --gc --minify</code></li>
+<li>Publish directory：<code>public</code></li>
+<li>Environment 加 <code>HUGO_VERSION</code> = <code>0.167.0</code></li>
+</ol>
+<blockquote>
+<p>如构建报 SCSS 错误，在仓库根目录加 <code>netlify.toml</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl"><span class="p">[</span><span class="nx">build</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">command</span> <span class="p">=</span> <span class="s2">&#34;hugo --gc --minify&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">publish</span> <span class="p">=</span> <span class="s2">&#34;public&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="nx">build</span><span class="p">.</span><span class="nx">environment</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">HUGO_VERSION</span> <span class="p">=</span> <span class="s2">&#34;0.167.0&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></blockquote>
+<h3 id="34-cloudflare-pages">3.4 Cloudflare Pages</h3>
+<ol>
+<li>连接 Git 仓库</li>
+<li>Build command：<code>hugo --gc --minify</code></li>
+<li>Build output directory：<code>public</code></li>
+<li>Environment variables 加 <code>HUGO_VERSION</code> = <code>0.167.0</code></li>
+</ol>
+<h3 id="35-其他平台--自建服务器">3.5 其他平台 / 自建服务器</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hugo --gc --minify      <span class="c1"># 构建</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 把 public/ 作为静态站点根目录部署</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="四备选方案让各平台用自己的域名">四、备选方案：让各平台用自己的域名</h2>
+<p>如果你<strong>希望</strong>每个平台的域名都被独立收录（例如想分别推广），可以改为在构建时覆盖 <code>baseURL</code>：</p>
+<table>
+	<thead>
+			<tr>
+					<th>平台</th>
+					<th>构建命令</th>
+					<th>环境变量说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Vercel</td>
+					<td><code>hugo --gc --minify --baseURL &quot;https://$VERCEL_URL/&quot;</code></td>
+					<td><code>VERCEL_URL</code> <strong>不含协议</strong>，需手动补 <code>https://</code></td>
+			</tr>
+			<tr>
+					<td>Netlify</td>
+					<td><code>hugo --gc --minify --baseURL &quot;$URL/&quot;</code></td>
+					<td><code>URL</code> <strong>含协议</strong></td>
+			</tr>
+			<tr>
+					<td>Cloudflare Pages</td>
+					<td><code>hugo --gc --minify --baseURL &quot;$CF_PAGES_URL/&quot;</code></td>
+					<td><code>CF_PAGES_URL</code> <strong>含协议</strong></td>
+			</tr>
+			<tr>
+					<td>GitHub Pages</td>
+					<td><code>hugo --gc --minify --baseURL &quot;https://666mingqing6.github.io/&quot;</code></td>
+					<td>无自动变量，写固定值</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>代价</strong>：同一内容出现在多个域名下，搜索引擎视为<strong>重复内容</strong>，权重会分散。</p>
+<p><strong>若采用此方案又想避免重复内容</strong>，两种补救：</p>
+<ol>
+<li><strong>只让主站被收录</strong>：其他平台的 <code>static/robots.txt</code> 写
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">User-agent: *
+</span></span><span class="line"><span class="cl">Disallow: /
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li><strong>canonical 统一指向主域名</strong>：需要自定义 <code>layouts/_partials/post_canonical.html</code>，
+把 <code>.Permalink</code> 换成主域名拼路径。</li>
+</ol>
+<hr>
+<h2 id="五常见问题">五、常见问题</h2>
+<table>
+	<thead>
+			<tr>
+					<th>现象</th>
+					<th>原因</th>
+					<th>解决</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>页面能打开但样式全无</td>
+					<td>极少见（PaperMod 用相对路径，一般不会）</td>
+					<td>检查平台是否正确部署了 <code>public/</code> 全部内容</td>
+			</tr>
+			<tr>
+					<td>分享卡片链接指向主域名</td>
+					<td>正常行为（主域名统一方案）</td>
+					<td>无需处理</td>
+			</tr>
+			<tr>
+					<td>搜索引擎只收录主域名</td>
+					<td>正常行为</td>
+					<td>无需处理；想改见第四节</td>
+			</tr>
+			<tr>
+					<td>某平台构建报 SCSS 错误</td>
+					<td>装的是标准版 Hugo</td>
+					<td>设 <code>HUGO_VERSION=0.167.0</code> 并确认平台提供 extended</td>
+			</tr>
+			<tr>
+					<td>构建成功但页面是旧的</td>
+					<td>平台 CDN 缓存</td>
+					<td>平台后台清缓存</td>
+			</tr>
+			<tr>
+					<td>想临时用其他域名本地预览</td>
+					<td>命令行覆盖即可</td>
+					<td><code>hugo server --baseURL http://localhost:1313/</code></td>
+			</tr>
+			<tr>
+					<td>不确定产物里的地址对不对</td>
+					<td>构建后检查</td>
+					<td><code>grep -o '&lt;link rel=canonical[^&gt;]*&gt;' public/posts/*/index.html | head</code></td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="六一句话总结">六、一句话总结</h2>
+<blockquote>
+<p><strong><code>baseURL</code> 固定填主域名 <code>https://blog.646474.xyz/</code>，所有平台共用；
+资源走相对路径各平台都能显示，SEO 权重全部集中到主域名。</strong>
+其他平台就是主站的镜像与备用入口。</p>
+</blockquote>
+]]></content:encoded>
+    </item>
+  </channel>
+</rss>
